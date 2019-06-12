@@ -1,0 +1,12 @@
+---
+spring:
+  profiles:
+    include: datasource-prod
+
+logging:
+  path: /home/app/tools/logs
+  level:
+    root: info
+
+swagger:
+  enabled: false

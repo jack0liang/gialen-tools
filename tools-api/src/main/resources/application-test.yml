@@ -1,0 +1,8 @@
+---
+logging:
+  path: /home/app/tools/logs
+  level:
+    root: info
+
+swagger:
+  enabled: false

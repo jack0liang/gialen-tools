@@ -1,0 +1,12 @@
+---
+gialen:
+  datasource:
+    password: report#2018
+    username: APP_REPORT
+    url: jdbc:mysql://10.255.2.17:3306/shopping_mall_gialen_sc?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true
+
+point:
+  datasource:
+    password: 123456
+    username: root
+    url: jdbc:mysql://10.255.1.54:3306/gialen_gdata?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true

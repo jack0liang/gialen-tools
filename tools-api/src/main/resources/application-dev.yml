@@ -1,0 +1,15 @@
+---
+spring:
+  profiles:
+    include: datasource-dev
+
+logging:
+  path: ../../logs/tools
+  level:
+    root: info
+
+
+swagger:
+  enabled: true
+
+

@@ -1,0 +1,60 @@
+---
+spring:
+  profiles:
+    active: dev
+  application:
+    name: gialen-tools
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+    use-code-as-default-message: true
+    always-use-message-format: true
+
+
+server:
+  port: 1088
+  tomcat:
+    uri-encoding: UTF-8
+    max-threads: 2000
+    accesslog:
+      enabled: true
+  servlet:
+    context-path: /tools
+
+gialen:
+  datasource:
+    min-idle: 5
+    max-pool-prepared-statement-per-connection-size: 20
+    validation-query-timeout: 60000
+    test-while-idle: true
+    time-between-eviction-runs-millis: 60000
+    max-active: 100
+    validation-query: select 1
+    max-wait: 6000
+    connection-init-sqls: set names utf8mb4
+    test-on-borrow: true
+    pool-prepared-statements: true
+    initial-size: 20
+    min-evictable-idle-time-millis: 100000
+    test-on-return: false
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+
+point:
+  datasource:
+    min-idle: 5
+    max-pool-prepared-statement-per-connection-size: 20
+    validation-query-timeout: 60000
+    test-while-idle: true
+    time-between-eviction-runs-millis: 60000
+    max-active: 100
+    validation-query: select 1
+    max-wait: 6000
+    connection-init-sqls: set names utf8mb4
+    test-on-borrow: true
+    pool-prepared-statements: true
+    initial-size: 20
+    min-evictable-idle-time-millis: 100000
+    test-on-return: false
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver

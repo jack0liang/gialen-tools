@@ -1,0 +1,13 @@
+HELP.md
+/target/
+/tools-api/target/
+/tools-common/target/
+/tools-dao/target/
+/tools-service/target/
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+
