@@ -17,6 +17,8 @@ public class OrderDto {
 
     private Integer successNum;
 
+    private Integer unpaiedNum;
+
     private Double successRate;
 
     private String platForm;

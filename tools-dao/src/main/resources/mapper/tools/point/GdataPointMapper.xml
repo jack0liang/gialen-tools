@@ -384,13 +384,11 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 
-  <select id="countUv" resultType="java.lang.Integer">
-    select count(DISTINCT user_id) as uv
+  <select id="countUv" resultType="com.gialen.tools.dao.dto.UvDto">
+    select count(DISTINCT case when platform='miniapp' then user_id  else null end) as miniProgramUv,
+    count(DISTINCT case when platform='app' then user_id  else null end) as appUv,
+    count(DISTINCT case when platform='h5' then user_id  else null end) as h5Uv
     from gdata_point
-    where ((create_date BETWEEN #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR})
-		or (create_date BETWEEN #{relativeStartTime,jdbcType=VARCHAR} and #{relativeEndTime,jdbcType=VARCHAR}))
-    and platform = 'miniapp'
-	group by DATE_FORMAT(create_date,'%Y%m%d')
-    order by DATE_FORMAT(create_date,'%Y%m%d') desc
+    where create_date BETWEEN #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
   </select>
 </mapper>

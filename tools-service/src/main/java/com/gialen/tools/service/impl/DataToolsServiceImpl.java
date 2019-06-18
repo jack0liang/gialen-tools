@@ -6,10 +6,7 @@ import com.gialen.tools.common.constant.DataToolsConstant;
 import com.gialen.tools.common.enums.DataTypeEnum;
 import com.gialen.tools.common.enums.PlatFormTypeEnum;
 import com.gialen.tools.common.enums.RelativeDataTypeEnum;
-import com.gialen.tools.dao.dto.DateTimeDto;
-import com.gialen.tools.dao.dto.OrderDto;
-import com.gialen.tools.dao.dto.SalesDto;
-import com.gialen.tools.dao.dto.UserDataDto;
+import com.gialen.tools.dao.dto.*;
 import com.gialen.tools.dao.repository.gialen.BlcOrderMapper;
 import com.gialen.tools.dao.repository.point.GdataPointMapper;
 import com.gialen.tools.dao.util.DateTimeDtoBuilder;
@@ -117,17 +114,22 @@ public class DataToolsServiceImpl implements DataToolsService {
      */
     private DataToolsModel getUv(Long startTime, Long endTime) {
         DataToolsModel dataToolsModel = new DataToolsModel();
+        DateTimeDto dateTimeDto = DateTimeDtoBuilder.createDateTimeDto(startTime, endTime);
 
-        List<Integer> uvList = gdataPointMapper.countUv(DateTimeDtoBuilder.createDateTimeDto(startTime, endTime));
-        UvDataModel uvDataModel = calculateUv(uvList);
+        UvDto uv = gdataPointMapper.countUv(dateTimeDto.getStartTime(), dateTimeDto.getEndTime());
+        UvDto relativeUv = gdataPointMapper.countUv(dateTimeDto.getRelativeStartTime(), dateTimeDto.getRelativeEndTime());
+
+        UvDataModel uvDataModel = calculateUv(uv, relativeUv);
 
         dataToolsModel.setTitle(DataToolsConstant.TITLE_UV);
         List<ItemModel> itemList = Lists.newArrayList();
 
         ItemModel miniProgramItem = createItem(DataToolsConstant.LABEL_MINI_PROGRAM,
                 String.valueOf(uvDataModel.getMiniProgramUv()), uvDataModel.getMiniProgramUvRelativeRatio());
-        ItemModel appItem = createItem(DataToolsConstant.LABEL_APP, "0", 0d);
-        ItemModel h5Item = createItem(DataToolsConstant.LABEL_H5, "0", 0d);
+        ItemModel appItem = createItem(DataToolsConstant.LABEL_APP,
+                String.valueOf(uvDataModel.getAppUv()), uvDataModel.getAppUvRelativeRatio());
+        ItemModel h5Item = createItem(DataToolsConstant.LABEL_H5,
+                String.valueOf(uvDataModel.getH5Uv()), uvDataModel.getH5UvRelativeRatio());
 
         itemList.add(miniProgramItem);
         itemList.add(appItem);
@@ -309,22 +311,35 @@ public class DataToolsServiceImpl implements DataToolsService {
 
     /**
      * 计算UV看板数据
-     * @param miniProgramUvList
+     * @param uv
+     * @param relativeUv
      * @return
      */
-    private UvDataModel calculateUv(List<Integer> miniProgramUvList) {
+    private UvDataModel calculateUv(UvDto uv, UvDto relativeUv) {
         UvDataModel model = new UvDataModel();
-        Integer miniProgramUv = NumberUtils.INTEGER_ZERO;
-        Integer miniProgramUvRelative = NumberUtils.INTEGER_ZERO;
-        //计算小程序uv
-        if(CollectionUtils.isNotEmpty(miniProgramUvList)) {
-            miniProgramUv = miniProgramUvList.get(0) != null ? miniProgramUvList.get(0) : miniProgramUv;
-            miniProgramUvRelative = miniProgramUvList.get(1) != null ? miniProgramUvList.get(1) : miniProgramUvRelative;
-        }
+
+        //计算uv
+        Integer miniProgramUv = getUvData(uv.getMiniProgramUv());
+        Integer appUv = getUvData(uv.getAppUv());
+        Integer h5Uv = getUvData(uv.getH5Uv());
+        Integer miniProgramUvRelative = getUvData(relativeUv.getMiniProgramUv());
+        Integer appUvRelative = getUvData(relativeUv.getAppUv());
+        Integer h5UvRelative = getUvData(relativeUv.getH5Uv());
+
         model.setMiniProgramUv(miniProgramUv);
         model.setMiniProgramUvRelativeRatio(calculateRelativeRatio(
                 NumberUtils.createDouble(miniProgramUv+""), NumberUtils.createDouble(miniProgramUvRelative+""), 4));
+        model.setAppUv(appUv);
+        model.setAppUvRelativeRatio(calculateRelativeRatio(
+                NumberUtils.createDouble(appUv+""), NumberUtils.createDouble(appUvRelative+""), 4));
+        model.setH5Uv(h5Uv);
+        model.setH5UvRelativeRatio(calculateRelativeRatio(
+                NumberUtils.createDouble(h5Uv+""), NumberUtils.createDouble(h5UvRelative+""), 4));
         return model;
+    }
+
+    private Integer getUvData(Integer uvData) {
+        return uvData != null ? uvData : NumberUtils.INTEGER_ZERO;
     }
 
     /**
@@ -403,7 +418,9 @@ public class DataToolsServiceImpl implements DataToolsService {
         DateTimeDto dateTimeDto = DateTimeDtoBuilder.createDateTimeDto(startTime, endTime);
 
         List<OrderDto> orderDtoList = orderMapper.countOrderNum(dateTimeDto);
-        ConversionDataModel conversionDataModel = calculateOrderConversion(orderDtoList, startTime);
+        List<OrderDto> undaiedOrderDtoList = orderMapper.countUnPaiedOrderNum(dateTimeDto);
+
+        ConversionDataModel conversionDataModel = calculateOrderConversion(orderDtoList, undaiedOrderDtoList, startTime);
 
         dataToolsModel.setTitle(DataToolsConstant.TITLE_ORDER_CONVERSION);
         List<ItemModel> itemList = Lists.newArrayList();
@@ -425,7 +442,7 @@ public class DataToolsServiceImpl implements DataToolsService {
      * @param orderDtoList
      * @return
      */
-    private ConversionDataModel calculateOrderConversion(List<OrderDto> orderDtoList, Long startTime) {
+    private ConversionDataModel calculateOrderConversion(List<OrderDto> orderDtoList, List<OrderDto> undaiedList, Long startTime) {
         ConversionDataModel model = new ConversionDataModel();
         Integer createNum = NumberUtils.INTEGER_ZERO;
         Integer successNum = NumberUtils.INTEGER_ZERO;
@@ -435,16 +452,22 @@ public class DataToolsServiceImpl implements DataToolsService {
         Double successRateRelative = NumberUtils.DOUBLE_ZERO;
         String startTimeStr = DateFormatUtils.format(startTime, "yyyyMMdd");
 
-        if(CollectionUtils.isNotEmpty(orderDtoList)) {
+        if(CollectionUtils.isNotEmpty(orderDtoList) && CollectionUtils.isNotEmpty(undaiedList)) {
             for(OrderDto orderDto : orderDtoList) {
                 if(startTimeStr.equals(orderDto.getCountTime())) { //当前数据
-                    createNum = orderDto.getCreateNum() != null ? orderDto.getCreateNum() : NumberUtils.INTEGER_ZERO;
                     successNum = orderDto.getSuccessNum() != null ? orderDto.getSuccessNum() : NumberUtils.INTEGER_ZERO;
-                    successRate = orderDto.getSuccessRate() != null ? orderDto.getSuccessRate() : NumberUtils.DOUBLE_ZERO;
+                    OrderDto unPaiedDto = undaiedList.get(0);
+                    createNum = unPaiedDto.getUnpaiedNum() + successNum;
+                    successRate = DecimalCalculate.div(
+                            NumberUtils.createDouble(successNum+""),
+                            NumberUtils.createDouble(createNum+""), 4);
                 } else { //环比数据
-                    createNumRelative = orderDto.getCreateNum() != null ? orderDto.getCreateNum() : NumberUtils.INTEGER_ZERO;
                     successNumRelative = orderDto.getSuccessNum() != null ? orderDto.getSuccessNum() : NumberUtils.INTEGER_ZERO;
-                    successRateRelative = orderDto.getSuccessRate() != null ? orderDto.getSuccessRate() : NumberUtils.DOUBLE_ZERO;
+                    OrderDto unPaiedDto = undaiedList.get(1);
+                    createNumRelative = unPaiedDto.getUnpaiedNum() + successNumRelative;
+                    successRateRelative = DecimalCalculate.div(
+                            NumberUtils.createDouble(successNumRelative+""),
+                            NumberUtils.createDouble(createNumRelative+""), 4);
                 }
             }
         }

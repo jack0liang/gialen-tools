@@ -14,6 +14,8 @@ public interface BlcOrderMapper {
 
     List<OrderDto> countOrderNum(DateTimeDto dateTimeDto);
 
+    List<OrderDto> countUnPaiedOrderNum(DateTimeDto dateTimeDto);
+
     List<SalesDto> countSales(DateTimeDto dateTimeDto, Integer groupId);
 
     List<OrderDto> countOrderPayNum(String startTime, String endTime);

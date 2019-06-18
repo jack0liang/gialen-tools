@@ -1573,4 +1573,15 @@
   </select>
 
 
+  <select id="countUnPaiedOrderNum" resultType="com.gialen.tools.dao.dto.OrderDto">
+      select countTime, count(1) as unpaiedNum from (select DATE_FORMAT(DATE_CREATED,'%Y%m%d') as countTime, count(1) from blc_order
+      where name is not null and ((DATE_CREATED BETWEEN #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR})
+      or (DATE_CREATED BETWEEN #{relativeStartTime,jdbcType=VARCHAR} and #{relativeEndTime,jdbcType=VARCHAR}))
+      and ORDER_PAY_STATUS != 'PAYED'
+      GROUP BY DATE_FORMAT(DATE_CREATED,'%Y%m%d'),CUSTOMER_ID, ORDER_TOTAL) t
+      group by t.countTime
+      order by t.countTime desc;
+  </select>
+
+
 </mapper>
