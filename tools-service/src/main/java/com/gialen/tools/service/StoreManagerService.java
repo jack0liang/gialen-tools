@@ -41,17 +41,19 @@ public interface StoreManagerService {
      * 查询用户当月订单明细列表
      * @param userId
      * @param userType
+     * @param subOrderStatus
      * @param pageRequest
      * @return
      */
-    GLResponse<PageResponse<OrderDetailModel>> getCurMonthUserOrderList(Long userId, UserTypeEnum userType, PageRequest pageRequest);
+    GLResponse<PageResponse<OrderDetailModel>> getCurMonthUserOrderList(Long userId, UserTypeEnum userType, Byte subOrderStatus, PageRequest pageRequest);
 
     /**
      * 查询用户上月订单明细列表
      * @param userId
      * @param userType
+     * @param subOrderStatus
      * @param pageRequest
      * @return
      */
-    GLResponse<PageResponse<OrderDetailModel>> getPreMonthUserOrderList(Long userId, UserTypeEnum userType, PageRequest pageRequest);
+    GLResponse<PageResponse<OrderDetailModel>> getPreMonthUserOrderList(Long userId, UserTypeEnum userType, Byte subOrderStatus, PageRequest pageRequest);
 }

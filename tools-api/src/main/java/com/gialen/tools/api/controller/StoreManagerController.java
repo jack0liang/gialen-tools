@@ -18,6 +18,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.text.ParseException;
 import java.util.Date;
 
 /**
@@ -74,9 +75,12 @@ public class StoreManagerController {
 
     @RequestMapping("/getCurMonthUserOrderList")
     @ResponseBody
-    public GLResponse<PageResponse<OrderDetailVo>> getCurMonthUserOrderList(@RequestParam(name = "userId") Long userId, @RequestParam(name = "userType") Byte userType, PageRequest page) {
-        log.info("userId = {}, userType = {}, offset = {}, limit = {}", userId, userType,page.getOffset(), page.getLimit());
-        GLResponse<PageResponse<OrderDetailModel>> modelGLResponse = storeManagerService.getCurMonthUserOrderList(userId, UserTypeEnum.getByType(userType), page);
+    public GLResponse<PageResponse<OrderDetailVo>> getCurMonthUserOrderList(@RequestParam(name = "userId") Long userId,
+                                                                            @RequestParam(name = "userType") Byte userType,
+                                                                            @RequestParam(name = "subOrderStatus", required = false) Byte subOrderStatus,
+                                                                            PageRequest page) {
+        log.info("userId = {}, userType = {}, subOrderStatus={}, offset = {}, limit = {}", userId, userType, subOrderStatus, page.getOffset(), page.getLimit());
+        GLResponse<PageResponse<OrderDetailModel>> modelGLResponse = storeManagerService.getCurMonthUserOrderList(userId, UserTypeEnum.getByType(userType), subOrderStatus, page);
         PageResponse<OrderDetailModel> modelPage = modelGLResponse.getData();
         PageResponse<OrderDetailVo> voPage = StoreManagerConvertor.orderDetailModelPageConvertToVoPage(modelPage,UserTypeEnum.getByType(userType));
         return GLResponse.succ(voPage);
@@ -84,12 +88,14 @@ public class StoreManagerController {
 
     @RequestMapping("/getPreMonthUserOrderList")
     @ResponseBody
-    public GLResponse<PageResponse<OrderDetailVo>> getPreMonthUserOrderList(@RequestParam(name = "userId") Long userId, @RequestParam(name = "userType") Byte userType, PageRequest page) {
-        log.info("userId = {}, userType = {}, offset = {}, limit = {}", userId, userType,page.getOffset(), page.getLimit());
-        GLResponse<PageResponse<OrderDetailModel>> modelGLResponse = storeManagerService.getPreMonthUserOrderList(userId, UserTypeEnum.getByType(userType), page);
+    public GLResponse<PageResponse<OrderDetailVo>> getPreMonthUserOrderList(@RequestParam(name = "userId") Long userId,
+                                                                            @RequestParam(name = "userType") Byte userType,
+                                                                            @RequestParam(name = "subOrderStatus", required = false) Byte subOrderStatus,
+                                                                            PageRequest page) {
+        log.info("userId = {}, userType = {}, subOrderStatus = {}, offset = {}, limit = {}", userId, userType, subOrderStatus, page.getOffset(), page.getLimit());
+        GLResponse<PageResponse<OrderDetailModel>> modelGLResponse = storeManagerService.getPreMonthUserOrderList(userId, UserTypeEnum.getByType(userType), subOrderStatus, page);
         PageResponse<OrderDetailModel> modelPage = modelGLResponse.getData();
         PageResponse<OrderDetailVo> voPage = StoreManagerConvertor.orderDetailModelPageConvertToVoPage(modelPage,UserTypeEnum.getByType(userType));
         return GLResponse.succ(voPage);
     }
-
 }

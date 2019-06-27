@@ -521,6 +521,9 @@
     <if test="userType == 3"> and s.store_manage_id = #{userId}</if>
     <if test="userType == 4"> and s.store_id = #{userId}</if>
     and DATE_FORMAT(s.order_create_time,'%Y%m') = #{month}
+    <if test="subOrderStatus != null and subOrderStatus > 0">
+      and d.`status` = #{subOrderStatus}
+    </if>
   </select>
 
   <select id="getOrderDetailListByMonth" resultType="com.gialen.tools.dao.dto.OrderDetailDto">
@@ -530,11 +533,14 @@
     d.store_commission as storeCommission, d.company_commission as companyCommission
     from commission_settlement s, commission_settlement_detail d
     where s.order_sn = d.order_sn
-    <if test="userType == 1"> and s.user_id = #{userId}</if>
-    <if test="userType == 2"> and s.store_master_id = #{userId}</if>
-    <if test="userType == 3"> and s.store_manage_id = #{userId}</if>
-    <if test="userType == 4"> and s.store_id = #{userId}</if>
-    and DATE_FORMAT(s.order_create_time,'%Y%m') = #{month}
+    <if test="queryDto.userType == 1"> and s.user_id = #{queryDto.userId}</if>
+    <if test="queryDto.userType == 2"> and s.store_master_id = #{queryDto.userId}</if>
+    <if test="queryDto.userType == 3"> and s.store_manage_id = #{queryDto.userId}</if>
+    <if test="queryDto.userType == 4"> and s.store_id = #{queryDto.userId}</if>
+    and DATE_FORMAT(s.order_create_time,'%Y%m') = #{queryDto.month}
+    <if test="queryDto.subOrderStatus != null and queryDto.subOrderStatus > 0">
+      and d.`status` = #{queryDto.subOrderStatus}
+    </if>
     order by s.order_create_time desc , s.order_sn asc
     <if test="limit > 0">
       limit #{offset}, #{limit}

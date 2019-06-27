@@ -9,6 +9,7 @@ import com.gialen.tools.common.enums.DateTypeEnum;
 import com.gialen.tools.common.enums.UserTypeEnum;
 import com.gialen.tools.common.util.ThreadPoolManager;
 import com.gialen.tools.dao.dto.OrderDetailDto;
+import com.gialen.tools.dao.dto.OrderQueryDto;
 import com.gialen.tools.dao.dto.UserIncomeDto;
 import com.gialen.tools.dao.repository.settlement.CommissionSettlementDetailMapper;
 import com.gialen.tools.dao.repository.settlement.CommissionSettlementMapper;
@@ -81,15 +82,15 @@ public class StoreManagerServiceImpl implements StoreManagerService {
     }
 
     @Override
-    public GLResponse<PageResponse<OrderDetailModel>> getCurMonthUserOrderList(Long userId, UserTypeEnum userType, PageRequest pageRequest) {
+    public GLResponse<PageResponse<OrderDetailModel>> getCurMonthUserOrderList(Long userId, UserTypeEnum userType, Byte subOrderStatus, PageRequest pageRequest) {
         Integer month = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMM"));
-        return GLResponse.succ(getOrderDetailPageByMonth(userId, userType, month, pageRequest));
+        return GLResponse.succ(getOrderDetailPageByMonth(userId, userType, month, subOrderStatus, pageRequest));
     }
 
     @Override
-    public GLResponse<PageResponse<OrderDetailModel>> getPreMonthUserOrderList(Long userId, UserTypeEnum userType, PageRequest pageRequest) {
+    public GLResponse<PageResponse<OrderDetailModel>> getPreMonthUserOrderList(Long userId, UserTypeEnum userType, Byte subOrderStatus, PageRequest pageRequest) {
         Integer month = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyyMM"));
-        return GLResponse.succ(getOrderDetailPageByMonth(userId, userType, month, pageRequest));
+        return GLResponse.succ(getOrderDetailPageByMonth(userId, userType, month, subOrderStatus, pageRequest));
     }
 
     /**
@@ -184,14 +185,16 @@ public class StoreManagerServiceImpl implements StoreManagerService {
      * @param month yyyyMM
      * @return
      */
-    public List<OrderDetailModel> getOrderDetailListByMonth(Long userId, UserTypeEnum userTypeEnum, Integer month, PageRequest pageRequest) {
+    public List<OrderDetailModel> getOrderDetailListByMonth(Long userId, UserTypeEnum userTypeEnum,
+                                                            Integer month, Byte subOrderStatus, PageRequest pageRequest) {
         List<OrderDetailDto> orderDetailDtoList;
+        OrderQueryDto queryDto = buildOrderQueryDto(month, userId, userTypeEnum.getType(), subOrderStatus);
         try {
             orderDetailDtoList = commissionSettlementDetailMapper.
-                    getOrderDetailListByMonth(userId, userTypeEnum.getType(), month, pageRequest.getOffset(), pageRequest.getLimit());
+                    getOrderDetailListByMonth(queryDto, pageRequest.getOffset(), pageRequest.getLimit());
         } catch (Exception e) {
-            log.error("getOrderDetailListByMonth exception : {} \nuserId = {}, userType = {}, month = {}, offset={}, limit={}",
-                    e.getMessage(), userId, userTypeEnum.getType(), month, pageRequest.getOffset(), pageRequest.getLimit());
+            log.error("getOrderDetailListByMonth exception : {} \nuserId = {}, userType = {}, month = {}, subOrderStatus = {}, offset={}, limit={}",
+                    e.getMessage(), userId, userTypeEnum.getType(), month, subOrderStatus, pageRequest.getOffset(), pageRequest.getLimit());
             throw new StoreManagerServiceException("按月获取用户订单明细列表异常", e);
         }
         if(CollectionUtils.isEmpty(orderDetailDtoList)) {
@@ -212,20 +215,31 @@ public class StoreManagerServiceImpl implements StoreManagerService {
      * @param pageRequest
      * @return
      */
-    public PageResponse<OrderDetailModel> getOrderDetailPageByMonth(Long userId, UserTypeEnum userTypeEnum, Integer month, PageRequest pageRequest) {
+    public PageResponse<OrderDetailModel> getOrderDetailPageByMonth(Long userId, UserTypeEnum userTypeEnum,
+                                                                    Integer month, Byte subOrderStatus, PageRequest pageRequest) {
         Long totalCount;
+        OrderQueryDto queryDto = buildOrderQueryDto(month, userId, userTypeEnum.getType(), subOrderStatus);
         try {
-            totalCount = commissionSettlementDetailMapper.countOrderDetailByMonth(userId, userTypeEnum.getType(), month);
+            totalCount = commissionSettlementDetailMapper.countOrderDetailByMonth(queryDto);
         } catch (Exception e) {
-            log.error("countOrderDetailByMonth exception : {} \nuserId = {}, userType = {}, month = {}",
-                    e.getMessage(), userId, userTypeEnum.getType(), month);
+            log.error("countOrderDetailByMonth exception : {} \nuserId = {}, userType = {}, month = {}, subOrderStatus = {}",
+                    e.getMessage(), userId, userTypeEnum.getType(), month, subOrderStatus);
             throw new StoreManagerServiceException("统计用户月订单明细总记录数异常", e);
         }
         if(totalCount == null || totalCount <= 0) {
             return PageResponse.empty(pageRequest.getPage(), pageRequest.getLimit());
         }
-        List<OrderDetailModel> orderDetailModelList = getOrderDetailListByMonth(userId, userTypeEnum, month, pageRequest);
+        List<OrderDetailModel> orderDetailModelList = getOrderDetailListByMonth(userId, userTypeEnum, month, subOrderStatus, pageRequest);
         return PageResponse.success(orderDetailModelList, pageRequest.getPage(), pageRequest.getLimit(), totalCount);
+    }
+
+    private OrderQueryDto buildOrderQueryDto(Integer month, Long userId, Byte userType, Byte subOrderStatus) {
+        OrderQueryDto dto = new OrderQueryDto();
+        dto.setMonth(month);
+        dto.setUserId(userId);
+        dto.setUserType(userType);
+        dto.setSubOrderStatus(subOrderStatus);
+        return dto;
     }
 
 }
