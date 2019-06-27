@@ -30,30 +30,29 @@
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
         <!-- 生成模型的包名和位置 -->
-        <javaModelGenerator targetPackage="com.gialen.tools.dao.entity.settlement"
+        <javaModelGenerator targetPackage="com.gialen.tools.dao.entity.gialen"
                             targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
         <!-- 生成映射文件的包名和位置 -->
-        <sqlMapGenerator targetPackage="mapper/tools/settlement"
+        <sqlMapGenerator targetPackage="mapper/tools/gialen"
                          targetProject="src/main/resources">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
         <!-- 生成DAO的包名和位置 -->
         <javaClientGenerator type="XMLMAPPER"
-                             targetPackage="com.gialen.tools.dao.repository.settlement"
+                             targetPackage="com.gialen.tools.dao.repository.gialen"
                              targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-       <table tableName="commission_settlement" enableCountByExample="true"
+       <table tableName="blc_customer" enableCountByExample="true"
                enableDeleteByExample="true" enableSelectByExample="true"
                enableUpdateByExample="true"/>
 
-        <table tableName="commission_settlement_detail" enableCountByExample="true"
+        <table tableName="roma_store" enableCountByExample="true"
                enableDeleteByExample="true" enableSelectByExample="true"
                enableUpdateByExample="true"/>
-
     </context>
 </generatorConfiguration>

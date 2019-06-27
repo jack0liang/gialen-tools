@@ -13,12 +13,14 @@ import com.gialen.tools.service.model.OrderDetailModel;
 import com.gialen.tools.service.model.UserAchievementModel;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.codec.digest.Md5Crypt;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.text.ParseException;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 /**
@@ -37,7 +39,7 @@ public class StoreManagerController {
     public GLResponse<?> login(@RequestParam(name = "loginId") @ApiParam(value = "登录名") String logigId,
                                @RequestParam(name = "password") @ApiParam(value = "密码") String password,
                                @RequestParam(name = "userType") @ApiParam(value = "用户类型：3店经, 4店董") Byte userType) {
-        log.info("loginId = {}, password = {}", logigId, password);
+        log.info("loginId = {}, password = {}, userType = {}", logigId, password, userType);
         GLResponse<Long> response = storeManagerService.login(logigId, password, UserTypeEnum.getByType(userType));
         if(!response.getSuccess()) {
             return response;
@@ -97,5 +99,11 @@ public class StoreManagerController {
         PageResponse<OrderDetailModel> modelPage = modelGLResponse.getData();
         PageResponse<OrderDetailVo> voPage = StoreManagerConvertor.orderDetailModelPageConvertToVoPage(modelPage,UserTypeEnum.getByType(userType));
         return GLResponse.succ(voPage);
+    }
+
+    public static void main(String[] args) {
+
+
+            System.out.println(DigestUtils.md5Hex("13450406331"));
     }
 }

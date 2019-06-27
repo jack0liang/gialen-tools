@@ -11,8 +11,17 @@ import com.gialen.tools.common.util.ThreadPoolManager;
 import com.gialen.tools.dao.dto.OrderDetailDto;
 import com.gialen.tools.dao.dto.OrderQueryDto;
 import com.gialen.tools.dao.dto.UserIncomeDto;
+import com.gialen.tools.dao.entity.gialen.BlcCustomer;
+import com.gialen.tools.dao.entity.gialen.BlcCustomerExample;
+import com.gialen.tools.dao.entity.gialen.RomaStore;
+import com.gialen.tools.dao.entity.gialen.RomaStoreExample;
+import com.gialen.tools.dao.entity.tools.ManagerAndDirector;
+import com.gialen.tools.dao.entity.tools.ManagerAndDirectorExample;
+import com.gialen.tools.dao.repository.gialen.BlcCustomerMapper;
+import com.gialen.tools.dao.repository.gialen.RomaStoreMapper;
 import com.gialen.tools.dao.repository.settlement.CommissionSettlementDetailMapper;
 import com.gialen.tools.dao.repository.settlement.CommissionSettlementMapper;
+import com.gialen.tools.dao.repository.tools.ManagerAndDirectorMapper;
 import com.gialen.tools.service.StoreManagerService;
 import com.gialen.tools.service.exception.StoreManagerServiceException;
 import com.gialen.tools.service.model.OrderDetailModel;
@@ -21,6 +30,7 @@ import com.gialen.tools.service.model.UserIncomeModel;
 import com.gialen.tools.service.model.UserSalesModel;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -35,6 +45,7 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 /**
+ * 店经店董服务实现类
  * @author lupeibo
  * @date 2019-06-25
  */
@@ -48,6 +59,15 @@ public class StoreManagerServiceImpl implements StoreManagerService {
     @Autowired
     private CommissionSettlementDetailMapper commissionSettlementDetailMapper;
 
+    @Autowired
+    private ManagerAndDirectorMapper managerAndDirectorMapper;
+
+    @Autowired
+    private BlcCustomerMapper blcCustomerMapper;
+
+    @Autowired
+    private RomaStoreMapper romaStoreMapper;
+
     @Override
     public GLResponse<Long> login(String logigId, String password, UserTypeEnum userType) {
         if(StringUtils.isBlank(logigId) || StringUtils.isBlank(password)) {
@@ -56,19 +76,29 @@ public class StoreManagerServiceImpl implements StoreManagerService {
         if(null == userType) {
             return GLResponse.fail(ResponseStatus.PARAM_ERROR.getCode(), "请选择用户类型");
         }
-        //todo:根据手机号前往数据库查询用户密码，若无数据，则为初始密码，与登录账号一致
-        //db查用户密码
-        //ManagerAndDirector managerAndDirector = null;
-        if(true) {
-            //比较输入密码与数据库密码是否一致，采用md5加密保存
+        ManagerAndDirector user = getManagerAndDirectorByLoginId(logigId);
+        //首次登录
+        if(user == null) {
+            if(!logigId.equals(password)) {
+                return GLResponse.fail(ResponseStatus.PARAM_ERROR.getCode(), "账号或密码不正确!");
+            }
+            Long userId = null;
+            if(UserTypeEnum.STORE_MANAGER.equals(userType)) {//店经
+                userId = getUserIdByPhoneFromCustomer(logigId);
+            } else if (UserTypeEnum.STORE_DIRECTOR.equals(userType)) {//店董
+                userId = getUserIdByStoreCode(logigId);
+            }
+            if(userId == null) {
+                return GLResponse.fail(ResponseStatus.PARAM_ERROR.getCode(), "账号不存在");
+            }
+            addManagerAndDirector(logigId, userId, userType);
+            return GLResponse.succ(userId);
+        } else {
+            if(!user.getPassword().equals(DigestUtils.md5Hex(password))) {
+                return GLResponse.fail(ResponseStatus.PARAM_ERROR.getCode(), "账号或密码不正确!");
+            }
+            return GLResponse.succ(user.getUserId());
         }
-        //初始密码登录
-        if(!logigId.equals(password)) {
-            return GLResponse.fail(ResponseStatus.PARAM_ERROR.getCode(), "账号或密码不正确！");
-        }
-        //todo:通过手机号查询用户id，返回前端
-        Long userId = 1l;
-        return GLResponse.succ(userId);
     }
 
     @Override
@@ -240,6 +270,70 @@ public class StoreManagerServiceImpl implements StoreManagerService {
         dto.setUserType(userType);
         dto.setSubOrderStatus(subOrderStatus);
         return dto;
+    }
+
+    /**
+     * 旧库查询用户id
+     * @param phone
+     * @return
+     */
+    private Long getUserIdByPhoneFromCustomer(String phone) {
+        BlcCustomerExample example = new BlcCustomerExample();
+        BlcCustomerExample.Criteria criteria = example.createCriteria();
+        criteria.andPhoneEqualTo(phone).andUserTypeEqualTo(UserTypeEnum.STORE.getCode());
+        List<BlcCustomer> customerList = blcCustomerMapper.selectByExample(example);
+        if(CollectionUtils.isEmpty(customerList)) {
+            return null;
+        }
+        return customerList.get(0).getCustomerId();
+    }
+
+    /**
+     * 旧库查询门店id
+     * @param storeCode
+     * @return
+     */
+    private Long getUserIdByStoreCode(String storeCode) {
+        RomaStoreExample example = new RomaStoreExample();
+        RomaStoreExample.Criteria criteria = example.createCriteria();
+        criteria.andStoreCodeEqualTo(storeCode);
+        List<RomaStore> storeList = romaStoreMapper.selectByExample(example);
+        if(CollectionUtils.isEmpty(storeList)) {
+            return null;
+        }
+        return storeList.get(0).getStoreId().longValue();
+    }
+
+    /**
+     * 根据登录账号从店经店董表查询用户
+     * @param loginId
+     * @return
+     */
+    private ManagerAndDirector getManagerAndDirectorByLoginId(String loginId) {
+        ManagerAndDirectorExample example = new ManagerAndDirectorExample();
+        ManagerAndDirectorExample.Criteria criteria = example.createCriteria();
+        criteria.andLoginIdEqualTo(loginId);
+        List<ManagerAndDirector> userList = managerAndDirectorMapper.selectByExample(example);
+        if(CollectionUtils.isEmpty(userList)) {
+            return null;
+        }
+        return userList.get(0);
+    }
+
+    /**
+     * 新增店经店董
+     * @param loginId
+     * @param userTypeEnum
+     * @return
+     */
+    private Long addManagerAndDirector(String loginId, Long userId, UserTypeEnum userTypeEnum) {
+        ManagerAndDirector user = new ManagerAndDirector();
+        user.setLoginId(loginId);
+        user.setPassword(DigestUtils.md5Hex(loginId));
+        user.setUserId(userId);
+        user.setUserType(userTypeEnum.getType());
+        long id = (long) managerAndDirectorMapper.insertSelective(user);
+        return id;
     }
 
 }
