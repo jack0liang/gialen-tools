@@ -30,24 +30,28 @@
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
         <!-- 生成模型的包名和位置 -->
-        <javaModelGenerator targetPackage="com.gialen.tools.dao.entity.point"
+        <javaModelGenerator targetPackage="com.gialen.tools.dao.entity.settlement"
                             targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
         <!-- 生成映射文件的包名和位置 -->
-        <sqlMapGenerator targetPackage="mapper/tools/point"
+        <sqlMapGenerator targetPackage="mapper/tools/settlement"
                          targetProject="src/main/resources">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
         <!-- 生成DAO的包名和位置 -->
         <javaClientGenerator type="XMLMAPPER"
-                             targetPackage="com.gialen.tools.dao.repository.point"
+                             targetPackage="com.gialen.tools.dao.repository.settlement"
                              targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-       <table tableName="gdata_point" enableCountByExample="true"
+       <table tableName="commission_settlement" enableCountByExample="true"
+               enableDeleteByExample="true" enableSelectByExample="true"
+               enableUpdateByExample="true"/>
+
+        <table tableName="commission_settlement_detail" enableCountByExample="true"
                enableDeleteByExample="true" enableSelectByExample="true"
                enableUpdateByExample="true"/>
 
