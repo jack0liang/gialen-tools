@@ -3,7 +3,6 @@ package com.gialen.tools.api.controller;
 import com.gialen.common.model.GLResponse;
 import com.gialen.common.model.PageRequest;
 import com.gialen.common.model.PageResponse;
-import com.gialen.common.model.ResponseStatus;
 import com.gialen.tools.api.annotation.RequireLogin;
 import com.gialen.tools.api.convertor.StoreManagerConvertor;
 import com.gialen.tools.api.vo.ManagerAndDirectorVo;
@@ -16,16 +15,13 @@ import com.gialen.tools.service.model.OrderDetailModel;
 import com.gialen.tools.service.model.UserAchievementModel;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 import java.util.Date;
 
 /**
