@@ -22,6 +22,15 @@ public interface StoreManagerService {
     GLResponse<Long> login(String logigId, String password, UserTypeEnum userType);
 
     /**
+     * 修改密码
+     * @param userId
+     * @param password
+     * @param rePassword
+     * @return
+     */
+    GLResponse<?> modifyPassword(Long userId, String password, String rePassword);
+
+    /**
      * 查询用户当月战绩数据
      * @param userId
      * @param userType

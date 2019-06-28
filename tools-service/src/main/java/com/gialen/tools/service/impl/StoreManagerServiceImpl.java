@@ -97,8 +97,28 @@ public class StoreManagerServiceImpl implements StoreManagerService {
             if(!user.getPassword().equals(DigestUtils.md5Hex(password))) {
                 return GLResponse.fail(ResponseStatus.PARAM_ERROR.getCode(), "账号或密码不正确!");
             }
+            if(user.getUserType() != userType.getType()) {
+                return GLResponse.fail(ResponseStatus.PARAM_ERROR.getCode(), "用户不存在，请检查用户类型");
+            }
             return GLResponse.succ(user.getUserId());
         }
+    }
+
+    @Override
+    public GLResponse<?> modifyPassword(Long userId, String password, String rePassword) {
+        if(StringUtils.isBlank(password) || StringUtils.isBlank(rePassword)) {
+            return GLResponse.fail(ResponseStatus.PARAM_ERROR.getCode(), "密码不能为空");
+        }
+        if(!password.equals(rePassword)) {
+            return GLResponse.fail(ResponseStatus.PARAM_ERROR.getCode(), "两次输入的密码不一致");
+        }
+        ManagerAndDirectorExample example = new ManagerAndDirectorExample();
+        ManagerAndDirectorExample.Criteria criteria = example.createCriteria();
+        criteria.andUserIdEqualTo(userId);
+        ManagerAndDirector user = new ManagerAndDirector();
+        user.setPassword(DigestUtils.md5Hex(password));
+        managerAndDirectorMapper.updateByExampleSelective(user, example);
+        return GLResponse.succ(null);
     }
 
     @Override
