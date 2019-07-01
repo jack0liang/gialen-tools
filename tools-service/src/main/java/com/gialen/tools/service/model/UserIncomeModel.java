@@ -17,15 +17,15 @@ public class UserIncomeModel implements Serializable {
     /**
      * 待收益
      */
-    private BigDecimal toBeIncome;
+    private BigDecimal toBeIncome = BigDecimal.ZERO;
 
     /**
      * 月累计收益
      */
-    private BigDecimal monthTotalIncome;
+    private BigDecimal monthTotalIncome = BigDecimal.ZERO;
 
     /**
      * 可用收益
      */
-    private BigDecimal monthAvailableIncome;
+    private BigDecimal monthAvailableIncome = BigDecimal.ZERO;
 }

@@ -16,10 +16,10 @@ public class UserSalesModel implements Serializable {
     /**
      * 月度销售
      */
-    private BigDecimal monthSales;
+    private BigDecimal monthSales = BigDecimal.ZERO;
 
     /**
      * 今日销售
      */
-    private BigDecimal todaySales;
+    private BigDecimal todaySales = BigDecimal.ZERO;
 }

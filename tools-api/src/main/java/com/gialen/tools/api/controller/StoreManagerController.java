@@ -57,9 +57,10 @@ public class StoreManagerController {
     }
 
     @PostMapping("/logout")
-    public void logout(HttpServletRequest request) {
+    public GLResponse logout(HttpServletRequest request) {
         HttpSession session = request.getSession();
         session.removeAttribute(SessionConstant.LOGIN_USER_KEY);
+        return GLResponse.succ(null);
     }
 
     @PostMapping("/modifyPassword")

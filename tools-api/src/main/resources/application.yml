@@ -9,6 +9,10 @@ spring:
     encoding: UTF-8
     use-code-as-default-message: true
     always-use-message-format: true
+  mvc:
+    view:
+      prefix: /WEB-INF/views/
+      suffix: .jsp
 
 
 server:

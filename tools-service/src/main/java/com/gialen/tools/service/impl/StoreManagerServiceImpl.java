@@ -180,7 +180,7 @@ public class StoreManagerServiceImpl implements StoreManagerService {
             if(monthAvailableIncomeFuture != null) {
                 userIncomeModel.setMonthAvailableIncome(monthAvailableIncomeFuture.get() != null ? monthAvailableIncomeFuture.get() : BigDecimal.ZERO);
             }
-            if(monthTotalIncomeFuture != null) {
+            if(monthTotalIncomeFuture != null && monthTotalIncomeFuture.get() != null) {
                 userIncomeModel.setMonthTotalIncome(monthTotalIncomeFuture.get().getMonthTotalIncome() != null ?
                         monthTotalIncomeFuture.get().getMonthTotalIncome() : BigDecimal.ZERO);
                 userSalesModel.setMonthSales(monthTotalIncomeFuture.get().getMonthTotalSales() != null ?

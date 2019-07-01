@@ -1,9 +1,9 @@
 ---
 gialen:
   datasource:
-    password: report#2018
-    username: APP_REPORT
-    url: jdbc:mysql://10.255.2.17:3306/shopping_mall_gialen_sc?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true
+    password: devtest
+    username: dev
+    url: jdbc:mysql://172.30.2.183:3306/shopping_mall_test1?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true
 
 point:
   datasource:
@@ -13,9 +13,9 @@ point:
 
 settlement:
   datasource:
-    password: report#2018
-    username: APP_REPORT
-    url: jdbc:mysql://10.255.2.17:3306/gialen_settlement?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true
+    password: devtest
+    username: dev
+    url: jdbc:mysql://172.30.2.183:3306/gialen_settlement?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true
 
 tools:
   datasource:
