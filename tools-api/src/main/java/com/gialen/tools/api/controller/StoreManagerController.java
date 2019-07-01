@@ -68,7 +68,12 @@ public class StoreManagerController {
     @RequireLogin
     public GLResponse<?> modifyPassword(@RequestParam(name = "userId") Long userId,
                                         @RequestParam(name = "password") String password,
-                                        @RequestParam(name = "rePassword") String rePassword) {
+                                        @RequestParam(name = "rePassword") String rePassword,
+                                        HttpServletRequest request) {
+        if(userId == null || userId <= 0) {
+            ManagerAndDirectorVo user = (ManagerAndDirectorVo) request.getSession().getAttribute(SessionConstant.LOGIN_USER_KEY);
+            userId = user.getUserId();
+        }
         log.info("userId = {}, password = {}, rePassword = {}", userId, password, rePassword);
         return storeManagerService.modifyPassword(userId, password, rePassword);
     }
@@ -77,7 +82,12 @@ public class StoreManagerController {
     @ResponseBody
     @RequireLogin
     public GLResponse<UserAchievementVo> getCurMonthUserAchievement(@RequestParam(name = "userId") Long userId,
-                                                                    @RequestParam(name = "userType") @ApiParam(value = "用户类型：3店经, 4店董") Byte userType) {
+                                                                    @RequestParam(name = "userType") @ApiParam(value = "用户类型：3店经, 4店董") Byte userType,
+                                                                    HttpServletRequest request) {
+        if(userId == null || userId <= 0) {
+            ManagerAndDirectorVo user = (ManagerAndDirectorVo) request.getSession().getAttribute(SessionConstant.LOGIN_USER_KEY);
+            userId = user.getUserId();
+        }
         log.info("userId = {}, userType = {}", userId, userType);
         GLResponse<UserAchievementModel> modelGLResponse = storeManagerService.getCurMonthUserAchievement(userId, UserTypeEnum.getByType(userType));
         UserAchievementVo vo = StoreManagerConvertor.userAchievementModelConvertToVo(modelGLResponse.getData());
@@ -90,7 +100,12 @@ public class StoreManagerController {
     @ResponseBody
     @RequireLogin
     public GLResponse<UserAchievementVo> getPreMonthUserAchievement(@RequestParam(name = "userId") Long userId,
-                                                                    @RequestParam(name = "userType") @ApiParam(value = "用户类型：3店经, 4店董") Byte userType) {
+                                                                    @RequestParam(name = "userType") @ApiParam(value = "用户类型：3店经, 4店董") Byte userType,
+                                                                    HttpServletRequest request) {
+        if(userId == null || userId <= 0) {
+            ManagerAndDirectorVo user = (ManagerAndDirectorVo) request.getSession().getAttribute(SessionConstant.LOGIN_USER_KEY);
+            userId = user.getUserId();
+        }
         log.info("userId = {}, userType = {}", userId, userType);
         GLResponse<UserAchievementModel> modelGLResponse = storeManagerService.getPreMonthUserAchievement(userId, UserTypeEnum.getByType(userType));
         UserAchievementVo vo = StoreManagerConvertor.userAchievementModelConvertToVo(modelGLResponse.getData());
@@ -105,7 +120,11 @@ public class StoreManagerController {
     public GLResponse<PageResponse<OrderDetailVo>> getCurMonthUserOrderList(@RequestParam(name = "userId") Long userId,
                                                                             @RequestParam(name = "userType") Byte userType,
                                                                             @RequestParam(name = "subOrderStatus", required = false) Byte subOrderStatus,
-                                                                            PageRequest page) {
+                                                                            PageRequest page,HttpServletRequest request) {
+        if(userId == null || userId <= 0) {
+            ManagerAndDirectorVo user = (ManagerAndDirectorVo) request.getSession().getAttribute(SessionConstant.LOGIN_USER_KEY);
+            userId = user.getUserId();
+        }
         log.info("userId = {}, userType = {}, subOrderStatus={}, offset = {}, limit = {}", userId, userType, subOrderStatus, page.getOffset(), page.getLimit());
         GLResponse<PageResponse<OrderDetailModel>> modelGLResponse = storeManagerService.getCurMonthUserOrderList(userId, UserTypeEnum.getByType(userType), subOrderStatus, page);
         PageResponse<OrderDetailModel> modelPage = modelGLResponse.getData();
@@ -119,7 +138,11 @@ public class StoreManagerController {
     public GLResponse<PageResponse<OrderDetailVo>> getPreMonthUserOrderList(@RequestParam(name = "userId") Long userId,
                                                                             @RequestParam(name = "userType") Byte userType,
                                                                             @RequestParam(name = "subOrderStatus", required = false) Byte subOrderStatus,
-                                                                            PageRequest page) {
+                                                                            PageRequest page,HttpServletRequest request) {
+        if(userId == null || userId <= 0) {
+            ManagerAndDirectorVo user = (ManagerAndDirectorVo) request.getSession().getAttribute(SessionConstant.LOGIN_USER_KEY);
+            userId = user.getUserId();
+        }
         log.info("userId = {}, userType = {}, subOrderStatus = {}, offset = {}, limit = {}", userId, userType, subOrderStatus, page.getOffset(), page.getLimit());
         GLResponse<PageResponse<OrderDetailModel>> modelGLResponse = storeManagerService.getPreMonthUserOrderList(userId, UserTypeEnum.getByType(userType), subOrderStatus, page);
         PageResponse<OrderDetailModel> modelPage = modelGLResponse.getData();
