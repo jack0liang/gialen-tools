@@ -52,6 +52,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         response.reset();
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
+        response.setHeader("Access-Control-Allow-Origin", "*");
 
         PrintWriter pw = response.getWriter();
         String responseContent = JSON.toJSONString(GLResponse.fail(ResponseStatus.LOGIN_INVALID.getCode(), ResponseStatus.LOGIN_INVALID.getMsg()));
