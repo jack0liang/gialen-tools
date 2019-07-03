@@ -8,21 +8,22 @@ import com.gialen.tools.api.convertor.StoreManagerConvertor;
 import com.gialen.tools.api.vo.ManagerAndDirectorVo;
 import com.gialen.tools.api.vo.OrderDetailVo;
 import com.gialen.tools.api.vo.UserAchievementVo;
-import com.gialen.tools.common.constant.SessionConstant;
 import com.gialen.tools.common.enums.UserTypeEnum;
+import com.gialen.tools.common.util.TokenUtil;
 import com.gialen.tools.service.StoreManagerService;
 import com.gialen.tools.service.model.OrderDetailModel;
 import com.gialen.tools.service.model.UserAchievementModel;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * 店经店董收益查询控制器
@@ -39,8 +40,7 @@ public class StoreManagerController {
     @ResponseBody
     public GLResponse<?> login(@RequestParam(name = "loginId") @ApiParam(value = "登录名") String logigId,
                                @RequestParam(name = "password") @ApiParam(value = "密码") String password,
-                               @RequestParam(name = "userType") @ApiParam(value = "用户类型：3店经, 4店董") Byte userType,
-                               HttpServletRequest request) {
+                               @RequestParam(name = "userType") @ApiParam(value = "用户类型：3店经, 4店董") Byte userType) {
         log.info("loginId = {}, password = {}, userType = {}", logigId, password, userType);
         GLResponse<Long> response = storeManagerService.login(logigId, password, UserTypeEnum.getByType(userType));
         if(!response.getSuccess()) {
@@ -50,16 +50,18 @@ public class StoreManagerController {
         vo.setLoginId(logigId);
         vo.setUserType(userType);
         vo.setUserId(response.getData());
-        HttpSession session = request.getSession();
-        session.setMaxInactiveInterval(60 * 60 * 2);//有效时间2小时
-        session.setAttribute(SessionConstant.LOGIN_USER_KEY, vo);
+        String token = StringUtils.replaceAll(UUID.randomUUID().toString(),"-","");
+        vo.setToken(token);
+        TokenUtil.tokenUserIdCache.put(token, response.getData());
         return GLResponse.succ(vo);
     }
 
     @PostMapping("/logout")
+    @ResponseBody
+    @RequireLogin
     public GLResponse logout(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        session.removeAttribute(SessionConstant.LOGIN_USER_KEY);
+        String token = request.getHeader("token");
+        TokenUtil.tokenUserIdCache.invalidate(token);
         return GLResponse.succ(null);
     }
 
@@ -71,8 +73,8 @@ public class StoreManagerController {
                                         @RequestParam(name = "rePassword") String rePassword,
                                         HttpServletRequest request) {
         if(userId == null || userId <= 0) {
-            ManagerAndDirectorVo user = (ManagerAndDirectorVo) request.getSession().getAttribute(SessionConstant.LOGIN_USER_KEY);
-            userId = user.getUserId();
+            String token = request.getHeader("token");
+            userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
         }
         log.info("userId = {}, password = {}, rePassword = {}", userId, password, rePassword);
         return storeManagerService.modifyPassword(userId, password, rePassword);
@@ -85,8 +87,8 @@ public class StoreManagerController {
                                                                     @RequestParam(name = "userType") @ApiParam(value = "用户类型：3店经, 4店董") Byte userType,
                                                                     HttpServletRequest request) {
         if(userId == null || userId <= 0) {
-            ManagerAndDirectorVo user = (ManagerAndDirectorVo) request.getSession().getAttribute(SessionConstant.LOGIN_USER_KEY);
-            userId = user.getUserId();
+            String token = request.getHeader("token");
+            userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
         }
         log.info("userId = {}, userType = {}", userId, userType);
         GLResponse<UserAchievementModel> modelGLResponse = storeManagerService.getCurMonthUserAchievement(userId, UserTypeEnum.getByType(userType));
@@ -103,8 +105,8 @@ public class StoreManagerController {
                                                                     @RequestParam(name = "userType") @ApiParam(value = "用户类型：3店经, 4店董") Byte userType,
                                                                     HttpServletRequest request) {
         if(userId == null || userId <= 0) {
-            ManagerAndDirectorVo user = (ManagerAndDirectorVo) request.getSession().getAttribute(SessionConstant.LOGIN_USER_KEY);
-            userId = user.getUserId();
+            String token = request.getHeader("token");
+            userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
         }
         log.info("userId = {}, userType = {}", userId, userType);
         GLResponse<UserAchievementModel> modelGLResponse = storeManagerService.getPreMonthUserAchievement(userId, UserTypeEnum.getByType(userType));
@@ -122,8 +124,8 @@ public class StoreManagerController {
                                                                             @RequestParam(name = "subOrderStatus", required = false) Byte subOrderStatus,
                                                                             PageRequest page,HttpServletRequest request) {
         if(userId == null || userId <= 0) {
-            ManagerAndDirectorVo user = (ManagerAndDirectorVo) request.getSession().getAttribute(SessionConstant.LOGIN_USER_KEY);
-            userId = user.getUserId();
+            String token = request.getHeader("token");
+            userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
         }
         log.info("userId = {}, userType = {}, subOrderStatus={}, offset = {}, limit = {}", userId, userType, subOrderStatus, page.getOffset(), page.getLimit());
         GLResponse<PageResponse<OrderDetailModel>> modelGLResponse = storeManagerService.getCurMonthUserOrderList(userId, UserTypeEnum.getByType(userType), subOrderStatus, page);
@@ -140,8 +142,8 @@ public class StoreManagerController {
                                                                             @RequestParam(name = "subOrderStatus", required = false) Byte subOrderStatus,
                                                                             PageRequest page,HttpServletRequest request) {
         if(userId == null || userId <= 0) {
-            ManagerAndDirectorVo user = (ManagerAndDirectorVo) request.getSession().getAttribute(SessionConstant.LOGIN_USER_KEY);
-            userId = user.getUserId();
+            String token = request.getHeader("token");
+            userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
         }
         log.info("userId = {}, userType = {}, subOrderStatus = {}, offset = {}, limit = {}", userId, userType, subOrderStatus, page.getOffset(), page.getLimit());
         GLResponse<PageResponse<OrderDetailModel>> modelGLResponse = storeManagerService.getPreMonthUserOrderList(userId, UserTypeEnum.getByType(userType), subOrderStatus, page);

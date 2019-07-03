@@ -386,7 +386,7 @@
 
   <select id="countUv" resultType="com.gialen.tools.dao.dto.UvDto">
     select count(DISTINCT case when platform='miniapp' then user_id  else null end) as miniProgramUv,
-    count(DISTINCT case when platform='app' then user_id  else null end) as appUv,
+    count(DISTINCT case when platform='app' then session_id  else null end) as appUv,
     count(DISTINCT case when platform='h5' then user_id  else null end) as h5Uv
     from gdata_point
     where create_date BETWEEN #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}

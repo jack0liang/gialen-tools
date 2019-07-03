@@ -21,4 +21,6 @@ public class ManagerAndDirectorVo implements Serializable {
      */
     private Byte userType;
 
+    private String token;
+
 }
