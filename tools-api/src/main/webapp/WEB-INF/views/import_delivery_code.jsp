@@ -100,7 +100,11 @@
         选择文件：<input type="file" id="file" name="file"/><br>
     </div>
 
-    <input id="btn" type="button" class="tableReport-button" onclick="postData();" value="提交" />
+    <div>
+        <input id="btn" type="button" class="tableReport-button" onclick="postData();" value="提交" />
+    </div><br>
+    <div><a href="${ctx}/static/muban.xlsx" style="margin-left: 50px;">模版下载</a></div>
+
 </body>
 <script>
     function postData() {

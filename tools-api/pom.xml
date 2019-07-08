@@ -65,6 +65,8 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <!-- jsp页面需用此版本打包才能访问 -->
+                <version>1.4.2.RELEASE</version>
                 <configuration>
                     <mainClass>com.gialen.tools.api.ToolsApiApplication</mainClass>
                 </configuration>
@@ -86,6 +88,15 @@
             </plugin>
 
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/webapp</directory>
+                <targetPath>META-INF/resources</targetPath>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
     </build>
 
 </project>
