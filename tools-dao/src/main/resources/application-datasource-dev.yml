@@ -3,7 +3,7 @@ gialen:
   datasource:
     password: devtest
     username: dev
-    url: jdbc:mysql://172.30.2.183:3306/shopping_mall_test1?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true
+    url: jdbc:mysql://172.30.2.183:3306/shopping_mall_test1?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowMultiQueries=true
 
 point:
   datasource:

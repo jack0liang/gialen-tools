@@ -196,7 +196,7 @@
     <if test="orderByClause != null">
       order by ${orderByClause}
     </if>
-    <if test="limit != null and offset != null">
+    <if test="limit != null and offset != null and limit &gt; 0">
       limit #{offset},#{limit}
     </if>
   </select>
@@ -217,7 +217,7 @@
     <if test="orderByClause != null">
       order by ${orderByClause}
     </if>
-    <if test="limit != null and offset != null">
+    <if test="limit != null and offset != null and limit &gt; 0">
       limit #{offset},#{limit}
     </if>
   </select>
@@ -1583,5 +1583,19 @@
       order by t.countTime desc;
   </select>
 
+  <update id="batchUpdateOrderDelivery" parameterType="java.util.List">
+    <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+      update blc_order
+      <set>
+        <if test="item.orderDeliveryNumber != null">
+          order_delivery_number = #{item.orderDeliveryNumber,jdbcType=VARCHAR},
+        </if>
+        <if test="item.deliveryCompany != null">
+          delivery_company = #{item.deliveryCompany,jdbcType=VARCHAR},
+        </if>
+      </set>
+      where order_number = #{item.orderNumber,jdbcType=VARCHAR}
+    </foreach>
+  </update>
 
 </mapper>

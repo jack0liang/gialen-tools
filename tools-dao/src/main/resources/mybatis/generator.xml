@@ -47,11 +47,7 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-       <table tableName="blc_customer" enableCountByExample="true"
-               enableDeleteByExample="true" enableSelectByExample="true"
-               enableUpdateByExample="true"/>
-
-        <table tableName="roma_store" enableCountByExample="true"
+       <table tableName="blc_order" enableCountByExample="true"
                enableDeleteByExample="true" enableSelectByExample="true"
                enableUpdateByExample="true"/>
     </context>
