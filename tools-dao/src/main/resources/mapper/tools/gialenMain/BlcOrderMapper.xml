@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.gialen.tools.dao.repository.gialen.BlcOrderMapper">
+<mapper namespace="com.gialen.tools.dao.repository.gialenMain.BlcOrderMapper">
   <resultMap id="BaseResultMap" type="com.gialen.tools.dao.entity.gialen.BlcOrder">
     <!--
       WARNING - @mbg.generated
@@ -1518,69 +1518,19 @@
     where ORDER_ID = #{orderId,jdbcType=BIGINT}
   </update>
 
-  <select id="countOrderNum" resultType="com.gialen.tools.dao.dto.OrderDto">
-    select DATE_FORMAT(DATE_CREATED,'%Y%m%d') as countTime,
-    count(case when ORDER_pay_STATUS='PAYED' then 1 else null end) as successNum,
-    count(1) as createNum,
-    count(case when ORDER_pay_STATUS='PAYED' then 1 else null end)/count(1) as successRate
-    from blc_order
-    where name is not null and ((DATE_CREATED BETWEEN #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR})
-    or (DATE_CREATED BETWEEN #{relativeStartTime,jdbcType=VARCHAR} and #{relativeEndTime,jdbcType=VARCHAR}))
-    group by DATE_FORMAT(DATE_CREATED,'%Y%m%d')
-    order by DATE_FORMAT(DATE_CREATED,'%Y%m%d') desc
-  </select>
-
-  <select id="countSales" resultType="com.gialen.tools.dao.dto.SalesDto">
-    select DATE_FORMAT(o.DATE_CREATED,'%Y%m%d') as countTime, sum(i.SALE_PRICE*i.QUANTITY) as salesNum
-    from blc_order o, blc_order_item i, blc_discrete_order_item d, blc_product p
-    where o.ORDER_ID = i.ORDER_ID and d.ORDER_ITEM_ID = i.ORDER_ITEM_ID and d.PRODUCT_ID = p.PRODUCT_ID
-    <if test="groupId != null">
-      and p.GROUP_ID = #{groupId,jdbcType=INTEGER}
-    </if>
-    and ((o.date_created between #{dateTimeDto.startTime,jdbcType=VARCHAR} and #{dateTimeDto.endTime,jdbcType=VARCHAR})
-    or (o.date_created between #{dateTimeDto.relativeStartTime,jdbcType=VARCHAR} and #{dateTimeDto.relativeEndTime,jdbcType=VARCHAR}))
-    and o.ORDER_pay_STATUS='PAYED'
-    group by DATE_FORMAT(o.DATE_CREATED,'%Y%m%d')
-    order by DATE_FORMAT(o.DATE_CREATED,'%Y%m%d') desc
-  </select>
-
-  <select id="countOrderPayNum" resultType="com.gialen.tools.dao.dto.OrderDto">
-    select ORDER_PLATFORM_TYPE as platForm,
-    count(case when ORDER_pay_STATUS='PAYED' then 1 else null end) as successNum
-    from blc_order  where date_created &gt;= #{startTime,jdbcType=VARCHAR} and date_created &lt;= #{endTime,jdbcType=VARCHAR}
-    GROUP BY ORDER_PLATFORM_TYPE;
-  </select>
-
-  <select id="countUserType" resultType="com.gialen.tools.dao.dto.UserDataDto">
-      select date_format(c.date_created,'%Y%m%d') as countTime,
-      count(case when c.user_type = 'STORE' then 1 else null end ) as storeNum,
-      count(case when c.user_type = 'VIP' then 1 else null end ) as vipNum
-      from blc_customer c
-      where (c.date_created BETWEEN #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
-      or c.date_created BETWEEN #{relativeStartTime,jdbcType=VARCHAR} and #{relativeEndTime,jdbcType=VARCHAR})
-      and c.IS_REGISTERED=1
-      group by date_format(c.date_created,'%Y%m%d')
-      order by date_format(c.date_created,'%Y%m%d') desc;
-  </select>
-
-  <select id="countUserOrderNum" resultType="com.gialen.tools.dao.dto.UserDataDto">
-      select
-      count(case when c.DATE_CREATED BETWEEN #{todayStartTime,jdbcType=VARCHAR} and #{todayEndTime,jdbcType=VARCHAR} then 1 else null end) as newUserOrderNum,
-      count(1) - count(case when c.DATE_CREATED BETWEEN #{todayStartTime,jdbcType=VARCHAR} and #{todayEndTime,jdbcType=VARCHAR} then 1 else null end) as oldUserOrderNum
-      from blc_order o,blc_customer c
-      where o.CUSTOMER_ID = c.CUSTOMER_ID and o.ORDER_PAY_STATUS='PAYED' and c.IS_REGISTERED = 1
-      and o.DATE_CREATED BETWEEN #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR};
-  </select>
-
-
-  <select id="countUnPaiedOrderNum" resultType="com.gialen.tools.dao.dto.OrderDto">
-      select countTime, count(1) as unpaiedNum from (select DATE_FORMAT(DATE_CREATED,'%Y%m%d') as countTime, count(1) from blc_order
-      where name is not null and ((DATE_CREATED BETWEEN #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR})
-      or (DATE_CREATED BETWEEN #{relativeStartTime,jdbcType=VARCHAR} and #{relativeEndTime,jdbcType=VARCHAR}))
-      and ORDER_PAY_STATUS != 'PAYED'
-      GROUP BY DATE_FORMAT(DATE_CREATED,'%Y%m%d'),CUSTOMER_ID, ORDER_TOTAL) t
-      group by t.countTime
-      order by t.countTime desc;
-  </select>
+  <update id="batchUpdateOrderDelivery" parameterType="java.util.List">
+    <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+      update blc_order
+      <set>
+        <if test="item.orderDeliveryNumber != null">
+          order_delivery_number = #{item.orderDeliveryNumber,jdbcType=VARCHAR},
+        </if>
+        <if test="item.deliveryCompany != null">
+          delivery_company = #{item.deliveryCompany,jdbcType=VARCHAR},
+        </if>
+      </set>
+      where order_number = #{item.orderNumber,jdbcType=VARCHAR}
+    </foreach>
+  </update>
 
 </mapper>

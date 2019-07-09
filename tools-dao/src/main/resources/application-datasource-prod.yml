@@ -5,6 +5,12 @@ gialen:
     username: APP_REPORT
     url: jdbc:mysql://10.255.2.17:3306/shopping_mall_gialen_sc?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowMultiQueries=true
 
+gialenmain:
+  datasource:
+    password: jiaomigo2018
+    username: root
+    url: jdbc:mysql://10.255.2.16:3306/shopping_mall_gialen_sc?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowMultiQueries=true
+
 point:
   datasource:
     password: 123456

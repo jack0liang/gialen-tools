@@ -21,6 +21,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
@@ -33,7 +34,7 @@ import java.util.List;
 @Service
 public class DataToolsServiceImpl implements DataToolsService {
 
-    @Autowired
+    @Resource(name = "blcOrderMapper")
     private BlcOrderMapper orderMapper;
 
     @Autowired
