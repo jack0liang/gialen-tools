@@ -1528,6 +1528,8 @@
         <if test="item.deliveryCompany != null">
           delivery_company = #{item.deliveryCompany,jdbcType=VARCHAR},
         </if>
+        ORDER_SHIPPING_STATUS = 'SENT',
+        ORDER_SHIPPING_DATE = now()
       </set>
       where order_number = #{item.orderNumber,jdbcType=VARCHAR}
     </foreach>
