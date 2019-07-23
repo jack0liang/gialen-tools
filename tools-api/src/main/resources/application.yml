@@ -15,7 +15,6 @@ spring:
       suffix: .jsp
     static-path-pattern: /static/**
 
-
 server:
   port: 1088
   tomcat:

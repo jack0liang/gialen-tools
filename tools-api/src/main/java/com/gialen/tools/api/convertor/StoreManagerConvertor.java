@@ -1,16 +1,19 @@
 package com.gialen.tools.api.convertor;
 
 import com.gialen.common.beantools.Copier;
-import com.gialen.common.model.GLResponse;
 import com.gialen.common.model.PageResponse;
-import com.gialen.tools.api.vo.OrderDetailVo;
-import com.gialen.tools.api.vo.UserAchievementVo;
+import com.gialen.tools.api.vo.*;
+import com.gialen.tools.common.enums.CommunityQueryTypeEnum;
 import com.gialen.tools.common.enums.UserTypeEnum;
-import com.gialen.tools.service.model.OrderDetailModel;
-import com.gialen.tools.service.model.UserAchievementModel;
+import com.gialen.tools.service.model.*;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -61,6 +64,114 @@ public class StoreManagerConvertor {
             voList.add(orderDetailModelConvertToVo(model, userTypeEnum));
         });
         return PageResponse.success(voList, modelPage.getCurrPage(), modelPage.getPageSize(), modelPage.getTotalCount());
+    }
+
+    /**
+     * 用户model转成childVo列表
+     * @param modelList
+     * @return
+     */
+    public static List<ChildVo> convertToChildVoList(List<CustomerModel> modelList) {
+        if(CollectionUtils.isEmpty(modelList)) {
+            return Collections.emptyList();
+        }
+        List<ChildVo> voList = Lists.newArrayListWithCapacity(modelList.size());
+        modelList.forEach(model -> {
+            ChildVo vo = new ChildVo();
+            vo.setUserName(model.getRealName());
+            vo.setRegistTime(model.getDateCreated());
+            vo.setIsTempStore(model.getIsTempStoreCustomer());
+            voList.add(vo);
+        });
+        return voList;
+    }
+
+    /**
+     * vip社群model转vo
+     * @param model
+     * @return
+     */
+    public static VipCommunityVo convertVipCommunityModelToVo(VipCommunityModel model) {
+        VipCommunityVo vo = Copier.copy(model, new VipCommunityVo());
+        vo.setCurMonth(DateFormatUtils.format(new Date(), "yyyy年MM月"));
+        vo.setPreMonth(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyy年MM月"));
+        return vo;
+    }
+
+    /**
+     * VipCommunityModel转NewVipVo
+     * @param modelList
+     * @return
+     */
+    public static List<NewVipVo> convertToNewVipVoList(List<VipCommunityModel> modelList) {
+        if(CollectionUtils.isEmpty(modelList)) {
+            return Collections.emptyList();
+        }
+        List<NewVipVo> voList = Lists.newArrayListWithCapacity(modelList.size());
+        modelList.forEach(model -> {
+            NewVipVo vo = Copier.copy(model, new NewVipVo());
+            vo.setMonth(Integer.parseInt(DateFormatUtils.format(new Date(), "MM")));
+            voList.add(vo);
+        });
+        return voList;
+    }
+
+    /**
+     * 转成社群数据vo
+     * @param model
+     * @param queryType
+     * @param userType
+     * @return
+     */
+    public static CommunityVo convertToCommunityVo(CommunityModel model, CommunityQueryTypeEnum queryType, UserTypeEnum userType) {
+        CommunityVo vo = Copier.copy(model, new CommunityVo());
+        ChartDataVo chartDataVo = new ChartDataVo();
+
+        SeriesNodeVo nodeVo = new SeriesNodeVo();
+        nodeVo.setName("人数");
+        List<Integer> dataList = Lists.newArrayList();
+        if(UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
+            String[] categories = {"VIP", "店主", "店经"};
+            chartDataVo.setCategories(Arrays.asList(categories));
+            addDirectorChartData(dataList, model, queryType);
+        } else {
+            String[] categories = {"VIP", "直接店主", "间接店主", "店经"};
+            chartDataVo.setCategories(Arrays.asList(categories));
+            addManagerChartData(dataList, model, queryType);
+        }
+        nodeVo.setData(dataList);
+        List<SeriesNodeVo> seriesNodeVoList = Lists.newArrayList();
+        seriesNodeVoList.add(nodeVo);
+        chartDataVo.setSeries(seriesNodeVoList);
+        vo.setChartData(chartDataVo);
+        vo.setMonth(Byte.parseByte(DateFormatUtils.format(new Date(), "MM")));
+        return vo;
+    }
+
+    private static void addDirectorChartData(List<Integer> dataList, CommunityModel model, CommunityQueryTypeEnum queryType) {
+        if(CommunityQueryTypeEnum.All.equals(queryType)) {
+            dataList.add(model.getTotalVipNum());
+            dataList.add(model.getTotalStoreNum());
+            dataList.add(model.getTotalStoreManagerNum());
+        } else if (CommunityQueryTypeEnum.CUR_MONTH.equals(queryType)) {
+            dataList.add(model.getMonthNewVipNum());
+            dataList.add(model.getMonthNewStoreNum());
+            dataList.add(model.getMonthNewStoreManagerNum());
+        }
+    }
+
+    private static void addManagerChartData(List<Integer> dataList, CommunityModel model, CommunityQueryTypeEnum queryType) {
+        if(CommunityQueryTypeEnum.All.equals(queryType)) {
+            dataList.add(model.getTotalVipNum());
+            dataList.add(model.getTotalDirectStoreNum());
+            dataList.add(model.getTotalIndirectStoreNum());
+            dataList.add(model.getTotalStoreManagerNum());
+        } else if (CommunityQueryTypeEnum.CUR_MONTH.equals(queryType)) {
+            dataList.add(model.getMonthNewVipNum());
+            dataList.add(model.getMonthNewDirectStoreNum());
+            dataList.add(model.getMonthNewIndirectStoreNum());
+            dataList.add(model.getMonthNewStoreManagerNum());
+        }
     }
 
 }

@@ -1961,4 +1961,142 @@
       position = #{position,jdbcType=VARCHAR}
     where CUSTOMER_ID = #{customerId,jdbcType=BIGINT}
   </update>
+
+  <select id="countDirectStoreAndManagerNumForManager" resultType="com.gialen.tools.dao.dto.CommunityDto">
+    select
+    count(case when user_level_new_id = 1 then 1 else null end) as totalDirectStoreNum,
+    count(case when user_level_new_id = 4 then 1 else null end) as totalStoreManagerNum
+    from blc_customer where HIGHER_CUSTOMER_ID = #{managerId}
+    and user_type = 'STORE'
+  </select>
+
+  <select id="countMonthDirectStoreAndManagerNumForManager" resultType="java.lang.Integer">
+    select
+    <if test="countUserType==2">
+      count(1) as monthNewDirectStoreNum
+    </if>
+    <if test="countUserType==3">
+      count(1) as monthNewStoreManagerNum
+    </if>
+    from blc_customer
+    where HIGHER_CUSTOMER_ID = #{managerId} and user_type = 'STORE'
+      <choose>
+        <when test="countUserType==2">
+          and DATE_FORMAT(DATE_CREATED,'%Y%m') = #{month} and user_level_new_id = 1
+        </when>
+        <otherwise>
+          and (DATE_FORMAT(super_store_be_time,'%Y%m') = #{month} or DATE_FORMAT(practice_super_store_be_time,'%Y%m') = #{month})
+          and user_level_new_id = 4
+        </otherwise>
+      </choose>
+  </select>
+
+  <select id="getIndirectStoreOrVipListForManager" resultMap="BaseResultMap">
+    select c.REAL_NAME as realName, c.DATE_CREATED as dateCreated, c.is_temp_store_customer as isTempStoreCustomer
+    from blc_customer c, blc_customer_relation r
+    where c.CUSTOMER_ID = r.customer_id and r.store_super_mgr_id = #{managerId}
+    <if test="childType == 1">
+      and r.customer_type = 3
+    </if>
+    <if test="childType == 3">
+      and r.customer_type = 1 and c.HIGHER_CUSTOMER_ID != #{managerId}
+    </if>
+    <if test="month != null">
+      and DATE_FORMAT(c.DATE_CREATED,'%Y%m') = #{month}
+    </if>
+    order by c.DATE_CREATED desc
+    limit #{page.offset}, #{page.limit}
+  </select>
+
+  <select id="getMonthManagerOrDirectStoreListForManager" resultMap="BaseResultMap">
+    select REAL_NAME as realName, DATE_CREATED as dateCreated, is_temp_store_customer as isTempStoreCustomer
+    from blc_customer
+    where HIGHER_CUSTOMER_ID = #{managerId}
+    <if test="childType==4">
+      and user_level_new_id = 4 and user_type = 'STORE'
+      and (DATE_FORMAT(super_store_be_time,'%Y%m') = #{month} or DATE_FORMAT(practice_super_store_be_time,'%Y%m') = #{month})
+    </if>
+    <if test="childType==2">
+      and user_level_new_id = 1 and user_type = 'STORE' and DATE_FORMAT(DATE_CREATED,'%Y%m') = #{month}
+    </if>
+    order by DATE_CREATED desc
+    limit #{page.offset}, #{page.limit};
+  </select>
+
+  <select id="countTotalNumForDirector" resultType="com.gialen.tools.dao.dto.CommunityDto">
+    select
+    count(1) as totalNum,
+    count(case when user_level_new_id = 4 and user_type = 'STORE' then 1 else null end) as totalStoreManagerNum,
+    count(case when user_level_new_id = 1 and user_type = 'STORE' then 1 else null end) as totalStoreNum,
+    count(case when user_type = 'VIP' then 1 else null end) as totalVipNum
+    from blc_customer
+    where shop_store_id = #{directorId}
+  </select>
+
+  <select id="countMonthManagerNumForDirector" resultType="java.lang.Integer">
+    select
+    count(1) as monthNewStoreManagerNum
+    from blc_customer
+    where shop_store_id = #{directorId} and user_level_new_id = 4 and user_type = 'STORE'
+    and (DATE_FORMAT(super_store_be_time,'%Y%m') = #{month} or DATE_FORMAT(practice_super_store_be_time,'%Y%m') = #{month})
+  </select>
+
+  <select id="countMonthStoreAndVipNumForDirector" resultType="com.gialen.tools.dao.dto.CommunityDto">
+    select
+    count(case when user_level_new_id = 1 and user_type = 'STORE' then 1 else null end) as monthNewStoreNum,
+    count(case when user_type = 'VIP' then 1 else null end) as monthNewVipNum
+    from blc_customer
+    where shop_store_id = #{directorId}
+    and DATE_FORMAT(DATE_CREATED,'%Y%m') = #{month}
+  </select>
+
+  <select id="countDayStoreAndVipNumForDirector" resultType="com.gialen.tools.dao.dto.CommunityDto">
+    select
+    count(case when user_level_new_id = 1 and user_type = 'STORE' then 1 else null end) as dayNewStoreNum,
+    count(case when user_type = 'VIP' then 1 else null end) as dayNewVipNum
+    from blc_customer
+    where shop_store_id = #{directorId}
+    and DATE_FORMAT(DATE_CREATED,'%Y%m%d') = #{day}
+  </select>
+
+  <select id="getMonthUserChildListForDirector" resultMap="BaseResultMap">
+    select customer_id as customerId, REAL_NAME as realName, DATE_CREATED as dateCreated, is_temp_store_customer as isTempStoreCustomer
+    from blc_customer
+    where shop_store_id = #{directorId}
+    <if test="childType==4">
+      and user_level_new_id = 4 and user_type = 'STORE'
+      and (DATE_FORMAT(super_store_be_time,'%Y%m') = #{month} or DATE_FORMAT(practice_super_store_be_time,'%Y%m') = #{month})
+    </if>
+    <if test="childType==2 or childType ==3">
+      and user_level_new_id = 1 and user_type = 'STORE' and DATE_FORMAT(DATE_CREATED,'%Y%m') = #{month}
+    </if>
+    <if test="childType==1">
+      and user_type = 'VIP' and DATE_FORMAT(DATE_CREATED,'%Y%m') = #{month}
+    </if>
+    order by DATE_CREATED desc
+    limit #{page.offset}, #{page.limit};
+  </select>
+
+  <select id="getMonthNewVipListForDirector" resultType="com.gialen.tools.dao.dto.CommunityDto">
+    select h.CUSTOMER_ID as storeId, h.REAL_NAME as storeName,
+    <if test="day != null">
+      count(case when DATE_FORMAT(c.DATE_CREATED,'%Y%m%d') = #{day} then 1 else null end) as dayNewVipNum,
+    </if>
+    count(1) as monthNewVipNum
+    from blc_customer c, blc_customer h
+    where c.HIGHER_CUSTOMER_ID = h.CUSTOMER_ID and c.shop_store_id = #{directorId}
+    and DATE_FORMAT(c.DATE_CREATED,'%Y%m') = #{month}
+    and c.user_type = 'VIP'
+    GROUP BY c.HIGHER_CUSTOMER_ID
+    order by count(1) desc
+    limit #{page.offset}, #{page.limit}
+  </select>
+
+  <select id="countMonthNewVipNumForDirector" resultType="java.lang.Long">
+    select count(DISTINCT HIGHER_CUSTOMER_ID)
+    from blc_customer
+    where shop_store_id = #{directorId} and DATE_FORMAT(DATE_CREATED,'%Y%m') = #{month}
+    and user_type = 'VIP'
+  </select>
+
 </mapper>

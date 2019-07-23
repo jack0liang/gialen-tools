@@ -5,6 +5,7 @@ import com.gialen.common.model.GLResponse;
 import com.gialen.common.model.PageRequest;
 import com.gialen.common.model.PageResponse;
 import com.gialen.common.model.ResponseStatus;
+import com.gialen.tools.common.enums.ChildTypeEnum;
 import com.gialen.tools.common.enums.DateTypeEnum;
 import com.gialen.tools.common.enums.UserTypeEnum;
 import com.gialen.tools.common.util.ThreadPoolManager;
@@ -18,16 +19,15 @@ import com.gialen.tools.dao.entity.gialen.RomaStoreExample;
 import com.gialen.tools.dao.entity.tools.ManagerAndDirector;
 import com.gialen.tools.dao.entity.tools.ManagerAndDirectorExample;
 import com.gialen.tools.dao.repository.gialen.BlcCustomerMapper;
+import com.gialen.tools.dao.repository.gialen.BlcCustomerRelationMapper;
 import com.gialen.tools.dao.repository.gialen.RomaStoreMapper;
 import com.gialen.tools.dao.repository.settlement.CommissionSettlementDetailMapper;
 import com.gialen.tools.dao.repository.settlement.CommissionSettlementMapper;
 import com.gialen.tools.dao.repository.tools.ManagerAndDirectorMapper;
 import com.gialen.tools.service.StoreManagerService;
+import com.gialen.tools.service.business.CommunityBusiness;
 import com.gialen.tools.service.exception.StoreManagerServiceException;
-import com.gialen.tools.service.model.OrderDetailModel;
-import com.gialen.tools.service.model.UserAchievementModel;
-import com.gialen.tools.service.model.UserIncomeModel;
-import com.gialen.tools.service.model.UserSalesModel;
+import com.gialen.tools.service.model.*;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -38,6 +38,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Date;
@@ -67,6 +68,15 @@ public class StoreManagerServiceImpl implements StoreManagerService {
 
     @Autowired
     private RomaStoreMapper romaStoreMapper;
+
+    @Autowired
+    private BlcCustomerRelationMapper blcCustomerRelationMapper;
+
+    @Resource(name = "storeDirectorCommunityBiz")
+    private CommunityBusiness storeDirectorCommunityBiz;
+
+    @Resource(name = "storeManagerCommunityBiz")
+    private CommunityBusiness storeManagerCommunityBiz;
 
     @Override
     public GLResponse<Long> login(String logigId, String password, UserTypeEnum userType) {
@@ -141,6 +151,88 @@ public class StoreManagerServiceImpl implements StoreManagerService {
     public GLResponse<PageResponse<OrderDetailModel>> getPreMonthUserOrderList(Long userId, UserTypeEnum userType, Byte subOrderStatus, PageRequest pageRequest) {
         Integer month = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyyMM"));
         return GLResponse.succ(getOrderDetailPageByMonth(userId, userType, month, subOrderStatus, pageRequest));
+    }
+
+    @Override
+    public CommunityModel getCurMonthCommunity(Long userId, UserTypeEnum userType) {
+        Integer month = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMM"));
+        if(UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
+            return storeDirectorCommunityBiz.countMonthCommunityData(userId, month);
+        } else {
+            return storeManagerCommunityBiz.countMonthCommunityData(userId, month);
+        }
+    }
+
+    @Override
+    public CommunityModel getCommunity(Long userId, UserTypeEnum userType) {
+        if(UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
+            return storeDirectorCommunityBiz.countTotalCommunityData(userId);
+        } else {
+            return storeManagerCommunityBiz.countTotalCommunityData(userId);
+        }
+    }
+
+    @Override
+    public PageResponse<CustomerModel> getUserChildList(Long userId, UserTypeEnum userType, ChildTypeEnum childType, PageRequest pageRequest) {
+        if(UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
+            return storeDirectorCommunityBiz.getChildList(userId, childType.getCode(), pageRequest);
+        } else {
+            return storeManagerCommunityBiz.getChildList(userId, childType.getCode(), pageRequest);
+        }
+    }
+
+    @Override
+    public PageResponse<CustomerModel> getCurMonthUserChildList(Long userId, UserTypeEnum userType, ChildTypeEnum childType, PageRequest pageRequest) {
+        Integer month = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMM"));
+        if(UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
+            return storeDirectorCommunityBiz.getMonthChildList(userId, childType.getCode(), pageRequest, month);
+        } else {
+            return storeManagerCommunityBiz.getMonthChildList(userId, childType.getCode(), pageRequest, month);
+        }
+    }
+
+    @Override
+    public VipCommunityModel getNewVipNum(Long userId, UserTypeEnum userType) {
+        Integer curMonth = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMM"));
+        Integer preMonth = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyyMM"));
+        Integer today = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMMdd"));
+        VipCommunityModel vipCommunityModel = new VipCommunityModel();
+        CommunityModel curMonthModel;
+        CommunityModel preMonthModel;
+        CommunityModel todayModel;
+        if(UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
+            curMonthModel = storeDirectorCommunityBiz.countMonthVipData(userId, curMonth);
+            preMonthModel = storeDirectorCommunityBiz.countMonthVipData(userId, preMonth);
+            todayModel = storeDirectorCommunityBiz.countDayVipData(userId, today);
+        } else {
+            curMonthModel = storeManagerCommunityBiz.countMonthVipData(userId, curMonth);
+            preMonthModel = storeManagerCommunityBiz.countMonthVipData(userId, preMonth);
+            todayModel = storeManagerCommunityBiz.countDayVipData(userId, today);
+        }
+        vipCommunityModel.setCurMonthNewVipNum(curMonthModel.getMonthNewVipNum());
+        vipCommunityModel.setPreMonthNewVipNum(preMonthModel.getMonthNewVipNum());
+        vipCommunityModel.setTodayNewVipNum(todayModel.getTodayNewVipNum());
+        return vipCommunityModel;
+    }
+
+    @Override
+    public PageResponse<VipCommunityModel> getCurMonthNewVipList(Long userId, UserTypeEnum userType, PageRequest pageRequest) {
+        Integer month = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMM"));
+        if(UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
+            return storeDirectorCommunityBiz.getMonthNewVipList(userId, pageRequest, month);
+        } else {
+            return storeManagerCommunityBiz.getMonthNewVipList(userId, pageRequest, month);
+        }
+    }
+
+    @Override
+    public PageResponse<VipCommunityModel> getPreMonthNewVipList(Long userId, UserTypeEnum userType, PageRequest pageRequest) {
+        Integer month = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyyMM"));
+        if(UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
+            return storeDirectorCommunityBiz.getMonthNewVipList(userId, pageRequest, month);
+        } else {
+            return storeManagerCommunityBiz.getMonthNewVipList(userId, pageRequest, month);
+        }
     }
 
     /**

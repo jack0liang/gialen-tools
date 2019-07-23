@@ -9,4 +9,4 @@ logging:
     root: info
 
 swagger:
-  enabled: false
+  enabled: true
