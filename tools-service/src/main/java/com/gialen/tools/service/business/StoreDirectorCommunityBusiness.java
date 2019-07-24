@@ -18,6 +18,7 @@ import com.gialen.tools.service.model.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,7 +130,7 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
     @Override
     public PageResponse<VipCommunityModel> getMonthNewVipList(Long userId, PageRequest pageRequest, Integer month) {
         Long totalCount = blcCustomerMapper.countMonthNewVipNumForDirector(userId, month);
-        if(totalCount <= 0) {
+        if(totalCount == null || totalCount <= 0L) {
             return PageResponse.empty(pageRequest.getPage(), pageRequest.getLimit());
         }
         int today = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMMdd"));
@@ -139,6 +140,7 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
             List<VipCommunityModel> vipCommunityModelList = Lists.newArrayListWithCapacity(communityDtoList.size());
             for(CommunityDto communityDto : communityDtoList) {
                 VipCommunityModel model = new VipCommunityModel();
+                model.setStoreName(StringUtils.isNotBlank(communityDto.getStoreName()) ? communityDto.getStoreName() : "");
                 model.setCurMonthNewVipNum(communityDto.getMonthNewVipNum());
                 model.setTodayNewVipNum(communityDto.getDayNewVipNum());
                 vipCommunityModelList.add(model);

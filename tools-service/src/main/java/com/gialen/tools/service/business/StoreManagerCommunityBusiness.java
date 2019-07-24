@@ -18,6 +18,7 @@ import com.gialen.tools.service.model.StoreActivityModel;
 import com.gialen.tools.service.model.VipCommunityModel;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,6 +161,7 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
             List<VipCommunityModel> vipCommunityModelList = Lists.newArrayListWithCapacity(communityDtoList.size());
             for(CommunityDto communityDto : communityDtoList) {
                 VipCommunityModel model = new VipCommunityModel();
+                model.setStoreName(StringUtils.isNotBlank(communityDto.getStoreName()) ? communityDto.getStoreName() : "");
                 model.setCurMonthNewVipNum(communityDto.getMonthNewVipNum());
                 model.setTodayNewVipNum(communityDto.getDayNewVipNum());
                 vipCommunityModelList.add(model);
