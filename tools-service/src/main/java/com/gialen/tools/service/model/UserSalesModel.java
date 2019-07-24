@@ -22,4 +22,19 @@ public class UserSalesModel implements Serializable {
      * 今日销售
      */
     private BigDecimal todaySales = BigDecimal.ZERO;
+
+    /**
+     * 月度退款销售额
+     */
+    private BigDecimal monthRefundSales = BigDecimal.ZERO;
+
+    /**
+     * 月度销售率
+     */
+    private BigDecimal monthSalseRate = BigDecimal.ZERO;
+
+    /**
+     * 月度退款率
+     */
+    private BigDecimal monthRefundRate = BigDecimal.ZERO;
 }

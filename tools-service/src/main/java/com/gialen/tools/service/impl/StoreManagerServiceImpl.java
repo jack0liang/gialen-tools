@@ -5,6 +5,7 @@ import com.gialen.common.model.GLResponse;
 import com.gialen.common.model.PageRequest;
 import com.gialen.common.model.PageResponse;
 import com.gialen.common.model.ResponseStatus;
+import com.gialen.common.utils.DecimalCalculate;
 import com.gialen.tools.common.enums.ChildTypeEnum;
 import com.gialen.tools.common.enums.DateTypeEnum;
 import com.gialen.tools.common.enums.UserTypeEnum;
@@ -291,6 +292,8 @@ public class StoreManagerServiceImpl implements StoreManagerService {
         //获取今日销售额
         Future<BigDecimal> todaySalesFuture = executeGetUserSalesByToday(userId, userType.getType(),today);
 
+        Future<UserIncomeDto> monthSalesFuture = executeGetUserSalesByMonth(userId, userType.getType(), month);
+
         UserIncomeModel userIncomeModel = new UserIncomeModel();
         UserSalesModel userSalesModel = new UserSalesModel();
         try {
@@ -308,6 +311,16 @@ public class StoreManagerServiceImpl implements StoreManagerService {
             }
             if(todaySalesFuture != null) {
                 userSalesModel.setTodaySales(todaySalesFuture.get() != null ? todaySalesFuture.get() : BigDecimal.ZERO);
+            }
+            if(monthSalesFuture != null) {
+                userSalesModel.setMonthRefundSales(monthSalesFuture.get().getMonthRefundSales() != null ?
+                        monthSalesFuture.get().getMonthRefundSales() : BigDecimal.ZERO);
+                BigDecimal monthSalesRate = monthSalesFuture.get().getMonthSalesRate() != null ?
+                        monthSalesFuture.get().getMonthSalesRate() : BigDecimal.ZERO;
+                userSalesModel.setMonthSalseRate(BigDecimal.valueOf(DecimalCalculate.round(monthSalesRate.doubleValue(),4)));
+                BigDecimal monthRefundRate = monthSalesFuture.get().getMonthRefundRate() != null ?
+                        monthSalesFuture.get().getMonthRefundRate() : BigDecimal.ZERO;
+                userSalesModel.setMonthRefundRate(BigDecimal.valueOf(DecimalCalculate.round(monthRefundRate.doubleValue(),4)));
             }
         } catch (Exception e) {
             log.error("getUserAchievement exception : {} \nuserId = {}, userType = {}, month = {}",
@@ -332,6 +345,13 @@ public class StoreManagerServiceImpl implements StoreManagerService {
      */
     private Future<UserIncomeDto> executeGetUserTotalIncomeByMonth(final long userId, final byte userType, final int month) {
         return ThreadPoolManager.getsInstance().submit(() -> commissionSettlementMapper.getUserTotalIncomeByMonth(userId, userType, month));
+    }
+
+    /**
+     * 开启线程查询用户月销售数据
+     */
+    private Future<UserIncomeDto> executeGetUserSalesByMonth(final long userId, final byte userType, final int month) {
+        return ThreadPoolManager.getsInstance().submit(() -> commissionSettlementMapper.getUserSalesByMonth(userId, userType, month));
     }
 
     /**

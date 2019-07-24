@@ -630,6 +630,20 @@
     <if test="userType == 4"> and s.store_id = #{userId}</if>
   </select>
 
+  <select id="getUserSalesByMonth" resultType="com.gialen.tools.dao.dto.UserIncomeDto">
+    select
+    sum(case when d.status in (1,2) then d.buy_num * d.item_price else 0 end) as monthTotalSales,
+    sum(case when d.status = 3 then d.buy_num * d.item_price else 0 end) as monthRefundSales,
+    sum(case when d.status in (1,2) then d.buy_num * d.item_price else 0 end)/sum(d.buy_num * d.item_price) as monthSalesRate,
+    sum(case when d.status = 3 then d.buy_num * d.item_price else 0 end)/sum(d.buy_num * d.item_price) as monthRefundRate
+    from commission_settlement s, commission_settlement_detail d
+    where s.order_sn = d.order_sn
+    and DATE_FORMAT(s.order_create_time,'%Y%m') = #{month}
+    <if test="userType == 2"> and s.store_master_id = #{userId}</if>
+    <if test="userType == 3"> and s.store_manage_id = #{userId}</if>
+    <if test="userType == 4"> and s.store_id = #{userId}</if>
+  </select>
+
   <select id="getUserTodaySales" resultType="java.math.BigDecimal">
     select sum(d.buy_num * d.item_price) as sales
     from commission_settlement s, commission_settlement_detail d

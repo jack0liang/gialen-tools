@@ -30,7 +30,22 @@ public class UserIncomeDto {
     private BigDecimal monthAvailableIncome;
 
     /**
-     * 月度销售额
+     * 月度净销售额
      */
     private BigDecimal monthTotalSales;
+
+    /**
+     * 月度退款销售额
+     */
+    private BigDecimal monthRefundSales;
+
+    /**
+     * 月销售率
+     */
+    private BigDecimal monthSalesRate;
+
+    /**
+     * 月退款率
+     */
+    private BigDecimal monthRefundRate;
 }

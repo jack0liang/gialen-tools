@@ -11,6 +11,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -36,6 +37,12 @@ public class StoreManagerConvertor {
             userAchievementVo.setMonthAvailableIncome(model.getIncomeModel().getMonthAvailableIncome());
             userAchievementVo.setToBeIncome(model.getIncomeModel().getToBeIncome());
         }
+        PieChartDataVo pieChartDataVo = new PieChartDataVo();
+        List<PieSeriesNodeVo> seriesNodeVoList = Lists.newArrayListWithCapacity(2);
+        seriesNodeVoList.add(new PieSeriesNodeVo("净销售额", model.getSalesModel().getMonthSales(), model.getSalesModel().getMonthSalseRate()));
+        seriesNodeVoList.add(new PieSeriesNodeVo("退款", model.getSalesModel().getMonthRefundSales(), model.getSalesModel().getMonthRefundRate()));
+        pieChartDataVo.setSeries(seriesNodeVoList);
+        userAchievementVo.setChartData(pieChartDataVo);
         return userAchievementVo;
     }
 
@@ -157,8 +164,8 @@ public class StoreManagerConvertor {
         vo.setMonth(Byte.parseByte(DateFormatUtils.format(new Date(), "MM")));
         PieChartDataVo pieChartDataVo = new PieChartDataVo();
         List<PieSeriesNodeVo> seriesNodeVoList = Lists.newArrayListWithCapacity(2);
-        seriesNodeVoList.add(new PieSeriesNodeVo("已开单", model.getPurchasedStoreNum(), model.getPurchasedRate()));
-        seriesNodeVoList.add(new PieSeriesNodeVo("未开单", model.getNotPurchasedStoreNum(), model.getNotPurchasedRate()));
+        seriesNodeVoList.add(new PieSeriesNodeVo("已开单", BigDecimal.valueOf(model.getPurchasedStoreNum()), model.getPurchasedRate()));
+        seriesNodeVoList.add(new PieSeriesNodeVo("未开单", BigDecimal.valueOf(model.getNotPurchasedStoreNum()), model.getNotPurchasedRate()));
         pieChartDataVo.setSeries(seriesNodeVoList);
         vo.setChartData(pieChartDataVo);
         vo.setCurMonth(DateFormatUtils.format(new Date(), "yyyy年M月"));

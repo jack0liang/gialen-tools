@@ -18,13 +18,13 @@ public class PieSeriesNodeVo implements Serializable  {
 
     private String name;
 
-    private Integer data;
+    private BigDecimal data;
 
     private BigDecimal rate;
 
     public PieSeriesNodeVo() {}
 
-    public PieSeriesNodeVo(String name, Integer data, BigDecimal rate) {
+    public PieSeriesNodeVo(String name, BigDecimal data, BigDecimal rate) {
         this.name = name;
         this.data = data;
         this.rate = rate;

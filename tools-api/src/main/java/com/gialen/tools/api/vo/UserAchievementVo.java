@@ -40,4 +40,9 @@ public class UserAchievementVo implements Serializable {
      * 今日销售
      */
     private BigDecimal todaySales;
+
+    /**
+     * 饼图数据
+     */
+    private PieChartDataVo chartData;
 }

@@ -3,13 +3,22 @@ package com.gialen.tools.dao.repository.settlement;
 import com.gialen.tools.dao.dto.UserIncomeDto;
 import com.gialen.tools.dao.entity.settlement.CommissionSettlement;
 import com.gialen.tools.dao.entity.settlement.CommissionSettlementExample;
+import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.apache.ibatis.annotations.Param;
 
 @org.springframework.stereotype.Repository
 public interface CommissionSettlementMapper {
+
+    /**
+     * 获取用户的月度销售数据（包含退款数据）
+     * @param userId
+     * @param userType
+     * @param month
+     * @return
+     */
+    UserIncomeDto getUserSalesByMonth(long userId, byte userType, int month);
 
     /**
      * 获取用户待收益
