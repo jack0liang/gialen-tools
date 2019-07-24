@@ -235,6 +235,34 @@ public class StoreManagerServiceImpl implements StoreManagerService {
         }
     }
 
+    @Override
+    public StoreActivityModel getStoreActivity(Long userId, UserTypeEnum userType) {
+        if(UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
+            return storeDirectorCommunityBiz.countMonthActivityStore(userId);
+        } else {
+            return storeManagerCommunityBiz.countMonthActivityStore(userId);
+        }
+    }
+
+    @Override
+    public PageResponse<StoreActivityDetailModel> getCurMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest) {
+        int curMonth = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMM"));
+        return getMonthActivityStoreList(userId, userType, purchasedType, pageRequest, curMonth);
+    }
+
+    @Override
+    public PageResponse<StoreActivityDetailModel> getPreMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest) {
+        int preMonth = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMM"));
+        return getMonthActivityStoreList(userId, userType, purchasedType, pageRequest, preMonth);
+    }
+
+    private PageResponse<StoreActivityDetailModel> getMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest, Integer month) {
+        if (UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
+            return storeDirectorCommunityBiz.getMonthActivityStoreList(userId, month, purchasedType, pageRequest);
+        } else {
+            return storeManagerCommunityBiz.getMonthActivityStoreList(userId, month, purchasedType, pageRequest);
+        }
+    }
     /**
      * 获取店经店董的战绩数据
      * @param userId

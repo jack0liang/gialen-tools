@@ -104,10 +104,57 @@ public interface StoreManagerService {
      */
     PageResponse<CustomerModel> getCurMonthUserChildList(Long userId, UserTypeEnum userType, ChildTypeEnum childType, PageRequest pageRequest);
 
-
+    /**
+     * 统计新增vip数据
+     * @param userId
+     * @param userType
+     * @return
+     */
     VipCommunityModel getNewVipNum(Long userId, UserTypeEnum userType);
 
+    /**
+     * 查询当前月新增vip列表
+     * @param userId
+     * @param userType
+     * @param pageRequest
+     * @return
+     */
     PageResponse<VipCommunityModel> getCurMonthNewVipList(Long userId, UserTypeEnum userType, PageRequest pageRequest);
 
+    /**
+     * 查询上月新增vip列表
+     * @param userId
+     * @param userType
+     * @param pageRequest
+     * @return
+     */
     PageResponse<VipCommunityModel> getPreMonthNewVipList(Long userId, UserTypeEnum userType, PageRequest pageRequest);
+
+    /**
+     * 统计店主活跃数据
+     * @param userId
+     * @param userType
+     * @return
+     */
+    StoreActivityModel getStoreActivity(Long userId, UserTypeEnum userType);
+
+    /**
+     * 查询当前月活跃店主明细列表
+     * @param userId
+     * @param userType
+     * @param purchasedType
+     * @param pageRequest
+     * @return
+     */
+    PageResponse<StoreActivityDetailModel> getCurMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest);
+
+    /**
+     * 查询上月活跃店主明细列表
+     * @param userId
+     * @param userType
+     * @param purchasedType
+     * @param pageRequest
+     * @return
+     */
+    PageResponse<StoreActivityDetailModel> getPreMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest);
 }

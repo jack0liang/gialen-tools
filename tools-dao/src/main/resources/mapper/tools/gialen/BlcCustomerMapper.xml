@@ -1991,7 +1991,7 @@
       </choose>
   </select>
 
-  <select id="getIndirectStoreOrVipListForManager" resultMap="BaseResultMap">
+  <select id="getIndirectStoreOrVipListForManager" resultType="com.gialen.tools.dao.entity.gialen.BlcCustomer">
     select c.REAL_NAME as realName, c.DATE_CREATED as dateCreated, c.is_temp_store_customer as isTempStoreCustomer
     from blc_customer c, blc_customer_relation r
     where c.CUSTOMER_ID = r.customer_id and r.store_super_mgr_id = #{managerId}
@@ -2008,7 +2008,7 @@
     limit #{page.offset}, #{page.limit}
   </select>
 
-  <select id="getMonthManagerOrDirectStoreListForManager" resultMap="BaseResultMap">
+  <select id="getMonthManagerOrDirectStoreListForManager" resultType="com.gialen.tools.dao.entity.gialen.BlcCustomer">
     select REAL_NAME as realName, DATE_CREATED as dateCreated, is_temp_store_customer as isTempStoreCustomer
     from blc_customer
     where HIGHER_CUSTOMER_ID = #{managerId}
@@ -2059,7 +2059,7 @@
     and DATE_FORMAT(DATE_CREATED,'%Y%m%d') = #{day}
   </select>
 
-  <select id="getMonthUserChildListForDirector" resultMap="BaseResultMap">
+  <select id="getMonthUserChildListForDirector" resultType="com.gialen.tools.dao.entity.gialen.BlcCustomer">
     select customer_id as customerId, REAL_NAME as realName, DATE_CREATED as dateCreated, is_temp_store_customer as isTempStoreCustomer
     from blc_customer
     where shop_store_id = #{directorId}

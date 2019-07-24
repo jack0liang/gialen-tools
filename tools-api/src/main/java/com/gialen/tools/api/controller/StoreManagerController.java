@@ -9,6 +9,7 @@ import com.gialen.tools.api.vo.*;
 import com.gialen.tools.common.enums.ChildTypeEnum;
 import com.gialen.tools.common.enums.CommunityQueryTypeEnum;
 import com.gialen.tools.common.enums.UserTypeEnum;
+import com.gialen.tools.common.util.PageResponseEx;
 import com.gialen.tools.common.util.TokenUtil;
 import com.gialen.tools.service.StoreManagerService;
 import com.gialen.tools.service.model.*;
@@ -155,7 +156,7 @@ public class StoreManagerController {
     @RequestMapping("/getCommunity")
     @ResponseBody
     @RequireLogin
-    public GLResponse<PageResponse<CommunityVo>> getCommunity(@RequestParam(name = "userType") Byte userType, HttpServletRequest request) {
+    public GLResponse<CommunityVo> getCommunity(@RequestParam(name = "userType") Byte userType, HttpServletRequest request) {
         String token = request.getHeader("token");
         Long userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
         log.info("userId = {}, userType = {}", userId, userType);
@@ -166,7 +167,7 @@ public class StoreManagerController {
     @RequestMapping("/getCurMonthCommunity")
     @ResponseBody
     @RequireLogin
-    public GLResponse<PageResponse<CommunityVo>> getCurMonthCommunity(@RequestParam(name = "userType") Byte userType, HttpServletRequest request) {
+    public GLResponse<CommunityVo> getCurMonthCommunity(@RequestParam(name = "userType") Byte userType, HttpServletRequest request) {
         String token = request.getHeader("token");
         Long userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
         log.info("userId = {}, userType = {}", userId, userType);
@@ -219,7 +220,7 @@ public class StoreManagerController {
     @RequestMapping("/getNewVipNum")
     @ResponseBody
     @RequireLogin
-    public GLResponse<PageResponse<VipCommunityVo>> getNewVipNum(@RequestParam(name = "userType") Byte userType, HttpServletRequest request) {
+    public GLResponse<VipCommunityVo> getNewVipNum(@RequestParam(name = "userType") Byte userType, HttpServletRequest request) {
         String token = request.getHeader("token");
         Long userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
         log.info("userId = {}, userType = {}", userId, userType);
@@ -240,7 +241,8 @@ public class StoreManagerController {
         PageResponse<VipCommunityModel> modelPageResponse = storeManagerService.getCurMonthNewVipList(userId, UserTypeEnum.getByType(userType), new PageRequest(page, limit));
         List<NewVipVo> voList = StoreManagerConvertor.convertToNewVipVoList(modelPageResponse.getList());
 
-        return GLResponse.succ(PageResponse.success(voList, page, limit, modelPageResponse.getTotalCount()));
+        byte month = Byte.parseByte(DateFormatUtils.format(new Date(), "MM"));
+        return GLResponse.succ(PageResponseEx.buildPageResponseEx(PageResponse.success(voList, page, limit, modelPageResponse.getTotalCount()), month));
     }
 
     @RequestMapping("/getPreMonthNewVipList")
@@ -256,7 +258,55 @@ public class StoreManagerController {
         PageResponse<VipCommunityModel> modelPageResponse = storeManagerService.getPreMonthNewVipList(userId, UserTypeEnum.getByType(userType), new PageRequest(page, limit));
         List<NewVipVo> voList = StoreManagerConvertor.convertToNewVipVoList(modelPageResponse.getList());
 
-        return GLResponse.succ(PageResponse.success(voList, page, limit, modelPageResponse.getTotalCount()));
+        byte month = Byte.parseByte(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "MM"));
+        return GLResponse.succ(PageResponseEx.buildPageResponseEx(PageResponse.success(voList, page, limit, modelPageResponse.getTotalCount()), month));
+    }
+
+    @RequestMapping("/getStoreActivity")
+    @ResponseBody
+    @RequireLogin
+    public GLResponse<StoreActivityDataVo> getStoreActivity(@RequestParam(name = "userType") Byte userType, HttpServletRequest request) {
+        String token = request.getHeader("token");
+        Long userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
+        log.info("getStoreActivity ：userId = {}, userType = {}", userId, userType);
+        StoreActivityModel model = storeManagerService.getStoreActivity(userId, UserTypeEnum.getByType(userType));
+        return GLResponse.succ(StoreManagerConvertor.convertStoreActivityModelToVo(model));
+    }
+
+    @RequestMapping("/getCurMonthActivityStoreList")
+    @ResponseBody
+    @RequireLogin
+    public GLResponse<PageResponseEx<StoreActivityDetailVo>> getCurMonthActivityStoreList(@RequestParam(name = "userType") Byte userType,
+                                                                                          @RequestParam(name = "purchasedType") Byte purchasedType,
+                                                                                          @RequestParam(name = "page") int page,
+                                                                                          @RequestParam(name = "limit") int limit,
+                                                                                          HttpServletRequest request) {
+        String token = request.getHeader("token");
+        Long userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
+        log.info("getCurMonthActivityStoreList : userId = {}, userType = {}, purchasedType = {}, page = {}, limit = {}", userId, userType, purchasedType, page, limit);
+        PageResponse<StoreActivityDetailModel> modelPageResponse = storeManagerService.getCurMonthActivityStoreList(userId, UserTypeEnum.getByType(userType), purchasedType, new PageRequest(page, limit));
+        List<StoreActivityDetailVo> voList = StoreManagerConvertor.convertStoreActivityDetailModelToVoList(modelPageResponse.getList());
+
+        byte month = Byte.parseByte(DateFormatUtils.format(new Date(), "MM"));
+        return GLResponse.succ(PageResponseEx.buildPageResponseEx(PageResponse.success(voList, page, limit, modelPageResponse.getTotalCount()), month));
+    }
+
+    @RequestMapping("/getPreMonthActivityStoreList")
+    @ResponseBody
+    @RequireLogin
+    public GLResponse<PageResponseEx<StoreActivityDetailVo>> getPreMonthActivityStoreList(@RequestParam(name = "userType") Byte userType,
+                                                                                          @RequestParam(name = "purchasedType") Byte purchasedType,
+                                                                                          @RequestParam(name = "page") int page,
+                                                                                          @RequestParam(name = "limit") int limit,
+                                                                                          HttpServletRequest request) {
+        String token = request.getHeader("token");
+        Long userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
+        log.info("getCurMonthActivityStoreList : userId = {}, userType = {}, purchasedType = {}, page = {}, limit = {}", userId, userType, purchasedType, page, limit);
+        PageResponse<StoreActivityDetailModel> modelPageResponse = storeManagerService.getPreMonthActivityStoreList(userId, UserTypeEnum.getByType(userType), purchasedType, new PageRequest(page, limit));
+        List<StoreActivityDetailVo> voList = StoreManagerConvertor.convertStoreActivityDetailModelToVoList(modelPageResponse.getList());
+
+        byte month = Byte.parseByte(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "MM"));
+        return GLResponse.succ(PageResponseEx.buildPageResponseEx(PageResponse.success(voList, page, limit, modelPageResponse.getTotalCount()), month));
     }
 
 }

@@ -18,6 +18,7 @@
         <module>tools-service</module>
         <module>tools-dao</module>
         <module>tools-common</module>
+        <module>tools-job</module>
     </modules>
     <dependencies>
         <dependency>

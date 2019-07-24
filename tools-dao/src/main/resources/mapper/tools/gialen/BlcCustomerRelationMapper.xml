@@ -465,24 +465,24 @@
   <select id="countStoreAndVipCommunityNumForManager" resultType="com.gialen.tools.dao.dto.CommunityDto">
     select
     <if test="month == null and day == null">
-      count(case when customer_type = 1 then 1 else null end) as totalStoreNum,
-      count(case when customer_type = 3 then 1 else null end) as totalVipNum
+      count(case when r.customer_type = 1 then 1 else null end) as totalStoreNum,
+      count(case when r.customer_type = 3 then 1 else null end) as totalVipNum
     </if>
     <if test="month != null">
-      count(case when customer_type = 1 then 1 else null end) as monthNewStoreNum,
-      count(case when customer_type = 3 then 1 else null end) as monthNewVipNum
+      count(case when r.customer_type = 1 then 1 else null end) as monthNewStoreNum,
+      count(case when r.customer_type = 3 then 1 else null end) as monthNewVipNum
     </if>
     <if test="day != null">
-      count(case when customer_type = 1 then 1 else null end) as dayNewStoreNum,
-      count(case when customer_type = 3 then 1 else null end) as dayNewVipNum
+      count(case when r.customer_type = 1 then 1 else null end) as dayNewStoreNum,
+      count(case when r.customer_type = 3 then 1 else null end) as dayNewVipNum
     </if>
-    from blc_customer_relation
-    where store_super_mgr_id = #{managerId}
+    from blc_customer_relation r, blc_customer c
+    where r.customer_id = c.customer_id and r.store_super_mgr_id = #{managerId}
     <if test="month != null">
-    and DATE_FORMAT(str_to_date(modify_date, '%Y-%m-%d'),'%Y%m') = #{month}
+    and DATE_FORMAT(c.date_created,'%Y%m') = #{month}
     </if>
     <if test="day != null">
-      and DATE_FORMAT(str_to_date(modify_date, '%Y-%m-%d'),'%Y%m%d') = #{day}
+      and DATE_FORMAT(c.date_created,'%Y%m%d') = #{day}
     </if>
   </select>
 
@@ -529,4 +529,50 @@
     and DATE_FORMAT(str_to_date(modify_date, '%Y-%m-%d'),'%Y%m') = #{month}
   </select>
 
+  <select id="getActivityOrSilenceStoreList" resultType="com.gialen.tools.dao.dto.ActivityUserDetailDto">
+    select c.CUSTOMER_ID as userId, c.REAL_NAME as realName, h.REAL_NAME as invitor, IFNULL(sum(o.ORDER_TOTAL),0) as salesNum
+    from blc_customer_relation r
+    LEFT JOIN blc_customer c on r.store_mgr_id = c.CUSTOMER_ID
+    LEFT JOIN blc_customer h on c.HIGHER_CUSTOMER_ID = h.CUSTOMER_ID
+    LEFT JOIN blc_order o on o.CUSTOMER_ID = r.CUSTOMER_ID and DATE_FORMAT(o.DATE_CREATED,'%Y%m') = #{month} and o.ORDER_PAY_STATUS = 'PAYED' and o.ORDER_STATUS != 'CANCELLED'
+    where
+    <if test="userType == 3">
+      r.store_super_mgr_id = #{userId}
+    </if>
+    <if test="userType == 4">
+      r.store_id = #{userId}
+    </if>
+    group by r.store_mgr_id
+    <if test="dataType == 1">
+      HAVING salesNum &gt; 0
+    </if>
+    <if test="dataType == 2">
+      HAVING salesNum &lt;= 0
+    </if>
+    order by salesNum desc
+    limit #{page.offset}, #{page.limit}
+  </select>
+
+  <select id="countActivityOrSilenceStoreTotal" resultType="java.lang.Long">
+    select count(1) from
+    (select IFNULL(sum(o.ORDER_TOTAL),0) as salesNum
+    from blc_customer_relation r
+    LEFT JOIN blc_order o on o.CUSTOMER_ID = r.CUSTOMER_ID and DATE_FORMAT(o.DATE_CREATED,'%Y%m') = #{month} and
+    o.ORDER_PAY_STATUS = 'PAYED' and o.ORDER_STATUS != 'CANCELLED'
+    where
+    <if test="userType == 3">
+      r.store_super_mgr_id = #{userId}
+    </if>
+    <if test="userType == 4">
+      r.store_id = #{userId}
+    </if>
+    group by r.store_mgr_id
+    <if test="dataType == 1">
+      HAVING salesNum &gt; 0
+    </if>
+    <if test="dataType == 2">
+      HAVING salesNum &lt;= 0
+    </if>
+    ) t
+  </select>
 </mapper>

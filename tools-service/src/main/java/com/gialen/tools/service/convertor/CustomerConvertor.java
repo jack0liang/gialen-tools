@@ -1,6 +1,5 @@
 package com.gialen.tools.service.convertor;
 
-import com.gialen.common.beantools.Copier;
 import com.gialen.tools.dao.entity.gialen.BlcCustomer;
 import com.gialen.tools.service.model.CustomerModel;
 import com.google.common.collect.Lists;
@@ -26,7 +25,9 @@ public class CustomerConvertor {
         }
         List<CustomerModel> modelList = Lists.newArrayListWithCapacity(customerList.size());
         customerList.forEach(blcCustomer -> {
-            CustomerModel model = Copier.copy(blcCustomer, new CustomerModel());
+            CustomerModel model = new CustomerModel();
+            model.setRealName(blcCustomer.getRealName());
+            model.setDateCreated(blcCustomer.getDateCreated());
             model.setIsTempStoreCustomer(blcCustomer.getIsTempStoreCustomer() == 1);
             modelList.add(model);
         });

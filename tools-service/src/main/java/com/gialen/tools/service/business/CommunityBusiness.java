@@ -6,9 +6,7 @@ import com.gialen.tools.common.enums.ChildTypeEnum;
 import com.gialen.tools.common.enums.UserTypeEnum;
 import com.gialen.tools.dao.entity.gialen.BlcCustomer;
 import com.gialen.tools.service.convertor.CustomerConvertor;
-import com.gialen.tools.service.model.CommunityModel;
-import com.gialen.tools.service.model.CustomerModel;
-import com.gialen.tools.service.model.VipCommunityModel;
+import com.gialen.tools.service.model.*;
 
 import java.util.List;
 
@@ -72,4 +70,21 @@ public interface CommunityBusiness {
      * @return
      */
     PageResponse<VipCommunityModel> getMonthNewVipList(Long userId, PageRequest pageRequest, Integer month);
+
+    /**
+     * 统计月活跃店主数据
+     * @param userId
+     * @return
+     */
+    StoreActivityModel countMonthActivityStore(Long userId);
+
+    /**
+     * 查询月活跃店主明细列表
+     * @param userId
+     * @param month
+     * @param purchasedType
+     * @param pageRequest
+     * @return
+     */
+    PageResponse<StoreActivityDetailModel> getMonthActivityStoreList(Long userId, Integer month, Byte purchasedType, PageRequest pageRequest);
 }

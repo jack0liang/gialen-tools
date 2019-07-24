@@ -26,7 +26,4 @@ public class NewVipVo implements Serializable {
     @ApiModelProperty("今日新增vip")
     private Integer todayNewVipNum;
 
-    @ApiModelProperty("统计月份")
-    private Integer month;
-
 }

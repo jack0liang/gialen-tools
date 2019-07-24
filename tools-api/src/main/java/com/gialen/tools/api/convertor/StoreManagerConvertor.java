@@ -110,7 +110,6 @@ public class StoreManagerConvertor {
         List<NewVipVo> voList = Lists.newArrayListWithCapacity(modelList.size());
         modelList.forEach(model -> {
             NewVipVo vo = Copier.copy(model, new NewVipVo());
-            vo.setMonth(Integer.parseInt(DateFormatUtils.format(new Date(), "MM")));
             voList.add(vo);
         });
         return voList;
@@ -146,6 +145,40 @@ public class StoreManagerConvertor {
         vo.setChartData(chartDataVo);
         vo.setMonth(Byte.parseByte(DateFormatUtils.format(new Date(), "MM")));
         return vo;
+    }
+
+    /**
+     * 店主活跃数据model转vo
+     * @param model
+     * @return
+     */
+    public static StoreActivityDataVo convertStoreActivityModelToVo(StoreActivityModel model) {
+        StoreActivityDataVo vo = Copier.copy(model, new StoreActivityDataVo());
+        vo.setMonth(Byte.parseByte(DateFormatUtils.format(new Date(), "MM")));
+        PieChartDataVo pieChartDataVo = new PieChartDataVo();
+        List<PieSeriesNodeVo> seriesNodeVoList = Lists.newArrayListWithCapacity(2);
+        seriesNodeVoList.add(new PieSeriesNodeVo("已开单", model.getPurchasedStoreNum(), model.getPurchasedRate()));
+        seriesNodeVoList.add(new PieSeriesNodeVo("未开单", model.getNotPurchasedStoreNum(), model.getNotPurchasedRate()));
+        pieChartDataVo.setSeries(seriesNodeVoList);
+        vo.setChartData(pieChartDataVo);
+        vo.setCurMonth(DateFormatUtils.format(new Date(), "yyyy年M月"));
+        vo.setPreMonth(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyy年M月"));
+        vo.setMonth(Byte.parseByte(DateFormatUtils.format(new Date(), "MM")));
+        return vo;
+    }
+
+    /**
+     * 活跃店主明细model转vo
+     * @param modelList
+     * @return
+     */
+    public static List<StoreActivityDetailVo> convertStoreActivityDetailModelToVoList(List<StoreActivityDetailModel> modelList) {
+        if(CollectionUtils.isEmpty(modelList)) {
+            return Collections.emptyList();
+        }
+        List<StoreActivityDetailVo> voList = Lists.newArrayListWithCapacity(modelList.size());
+        modelList.forEach(model -> voList.add(Copier.copy(model, new StoreActivityDetailVo())));
+        return voList;
     }
 
     private static void addDirectorChartData(List<Integer> dataList, CommunityModel model, CommunityQueryTypeEnum queryType) {
