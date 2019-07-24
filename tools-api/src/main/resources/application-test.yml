@@ -1,4 +1,8 @@
 ---
+spring:
+  profiles:
+    include: datasource-dev
+
 logging:
   path: /home/app/tools/logs
   level:
