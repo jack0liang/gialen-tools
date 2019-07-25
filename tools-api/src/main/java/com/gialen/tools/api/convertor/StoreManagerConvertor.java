@@ -2,6 +2,7 @@ package com.gialen.tools.api.convertor;
 
 import com.gialen.common.beantools.Copier;
 import com.gialen.common.model.PageResponse;
+import com.gialen.common.utils.DecimalCalculate;
 import com.gialen.tools.api.vo.*;
 import com.gialen.tools.common.enums.ChildTypeEnum;
 import com.gialen.tools.common.enums.CommunityQueryTypeEnum;
@@ -41,8 +42,10 @@ public class StoreManagerConvertor {
         }
         PieChartDataVo pieChartDataVo = new PieChartDataVo();
         List<PieSeriesNodeVo> seriesNodeVoList = Lists.newArrayListWithCapacity(2);
-        seriesNodeVoList.add(new PieSeriesNodeVo("净销售额", model.getSalesModel().getMonthSales(), model.getSalesModel().getMonthSalseRate()));
-        seriesNodeVoList.add(new PieSeriesNodeVo("退款", model.getSalesModel().getMonthRefundSales(), model.getSalesModel().getMonthRefundRate()));
+        seriesNodeVoList.add(new PieSeriesNodeVo("净销售额", model.getSalesModel().getMonthSales(),
+                BigDecimal.valueOf(DecimalCalculate.round(model.getSalesModel().getMonthSalseRate().doubleValue(),4))));
+        seriesNodeVoList.add(new PieSeriesNodeVo("退款", model.getSalesModel().getMonthRefundSales(),
+                BigDecimal.valueOf(DecimalCalculate.round(model.getSalesModel().getMonthRefundRate().doubleValue(),4))));
         pieChartDataVo.setSeries(seriesNodeVoList);
         userAchievementVo.setChartData(pieChartDataVo);
         return userAchievementVo;

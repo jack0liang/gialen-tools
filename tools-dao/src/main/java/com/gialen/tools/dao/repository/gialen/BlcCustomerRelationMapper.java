@@ -19,7 +19,8 @@ public interface BlcCustomerRelationMapper {
      * @param day
      * @return
      */
-    CommunityDto countStoreAndVipCommunityNumForManager(@Param("managerId") Long managerId, @Param("month") Integer month, @Param("day") Integer day);
+    CommunityDto countIndirectStoreAndVipNumForManager(@Param("managerId") Long managerId, @Param("month") Integer month, @Param("day") Integer day,
+                                                       @Param("userName") String userName);
 
     /**
      * 查询店经的月新增vip列表

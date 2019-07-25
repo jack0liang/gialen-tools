@@ -2,9 +2,7 @@ package com.gialen.tools.service.business;
 
 import com.gialen.common.model.PageRequest;
 import com.gialen.common.model.PageResponse;
-import com.gialen.common.utils.DecimalCalculate;
 import com.gialen.tools.common.enums.ChildTypeEnum;
-import com.gialen.tools.common.enums.PurchasedTypeEnum;
 import com.gialen.tools.common.enums.UserTypeEnum;
 import com.gialen.tools.dao.dto.CommunityDto;
 import com.gialen.tools.dao.entity.gialen.BlcCustomer;
@@ -16,15 +14,12 @@ import com.gialen.tools.service.model.CommunityModel;
 import com.gialen.tools.service.model.CustomerModel;
 import com.gialen.tools.service.model.StoreActivityModel;
 import com.gialen.tools.service.model.VipCommunityModel;
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -43,16 +38,16 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
     private BlcCustomerRelationMapper blcCustomerRelationMapper;
 
     @Override
-    public CommunityModel countTotalCommunityData(Long userId) {
+    public CommunityModel countTotalCommunityData(Long userId, String userName) {
         CommunityModel model = new CommunityModel();
-        CommunityDto storeAndVipDto = blcCustomerRelationMapper.countStoreAndVipCommunityNumForManager(userId, null, null);
-        model.setTotalVipNum(storeAndVipDto != null ? storeAndVipDto.getTotalVipNum() : 0);
-        model.setTotalStoreNum(storeAndVipDto != null ? storeAndVipDto.getTotalStoreNum() : 0);
+        CommunityDto indirectStoreAndVipDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, null, null, userName);
+        model.setTotalVipNum(indirectStoreAndVipDto != null ? indirectStoreAndVipDto.getTotalVipNum() : 0);
+        model.setTotalIndirectStoreNum(indirectStoreAndVipDto != null ? indirectStoreAndVipDto.getTotalIndirectStoreNum() : 0);
 
-        CommunityDto directStoreAndManagerDto = blcCustomerMapper.countDirectStoreAndManagerNumForManager(userId);
+        CommunityDto directStoreAndManagerDto = blcCustomerMapper.countDirectStoreAndManagerNumForManager(userId, userName);
         model.setTotalStoreManagerNum(directStoreAndManagerDto != null ? directStoreAndManagerDto.getTotalStoreManagerNum() : 0);
         model.setTotalDirectStoreNum(directStoreAndManagerDto != null ? directStoreAndManagerDto.getTotalDirectStoreNum() : 0);
-        model.setTotalIndirectStoreNum(model.getTotalStoreNum() - model.getTotalDirectStoreNum());
+        model.setTotalStoreNum(model.getTotalIndirectStoreNum() + model.getTotalDirectStoreNum());
         model.setTotalNum(model.getTotalVipNum() + model.getTotalStoreNum() + model.getTotalStoreManagerNum());
         return model;
     }
@@ -61,27 +56,27 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
     public CommunityModel countMonthCommunityData(Long userId, Integer month) {
         CommunityModel model = new CommunityModel();
         int today = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMMdd"));
-        CommunityDto monthStoreAndVipDto = blcCustomerRelationMapper.countStoreAndVipCommunityNumForManager(userId, month, null);
-        CommunityDto todayStoreAndVipDto = blcCustomerRelationMapper.countStoreAndVipCommunityNumForManager(userId, null, today);
-        model.setMonthNewVipNum(monthStoreAndVipDto != null ? monthStoreAndVipDto.getMonthNewVipNum() : 0);
-        model.setMonthNewStoreNum(monthStoreAndVipDto != null ? monthStoreAndVipDto.getMonthNewStoreNum() : 0);
-        model.setTodayNewVipNum(todayStoreAndVipDto != null ? todayStoreAndVipDto.getDayNewVipNum() : 0);
-        model.setTodayNewStoreNum(todayStoreAndVipDto != null ? todayStoreAndVipDto.getDayNewStoreNum() : 0);
+        CommunityDto monthIndirectStoreAndVipDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, month, null, null);
+        CommunityDto todayIndirectStoreAndVipDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, null, today, null);
+        model.setMonthNewVipNum(monthIndirectStoreAndVipDto != null ? monthIndirectStoreAndVipDto.getMonthNewVipNum() : 0);
+        model.setMonthNewIndirectStoreNum(monthIndirectStoreAndVipDto != null ? monthIndirectStoreAndVipDto.getMonthNewIndirectStoreNum() : 0);
+        model.setTodayNewVipNum(todayIndirectStoreAndVipDto != null ? todayIndirectStoreAndVipDto.getDayNewVipNum() : 0);
+        model.setTodayNewStoreNum(todayIndirectStoreAndVipDto != null ? todayIndirectStoreAndVipDto.getDayNewStoreNum() : 0);
 
         Integer monthNewDirectStoreNum = blcCustomerMapper.countMonthDirectStoreAndManagerNumForManager(userId, UserTypeEnum.STORE.getType(), month);
         model.setMonthNewDirectStoreNum(monthNewDirectStoreNum);
-        model.setMonthNewIndirectStoreNum(model.getMonthNewStoreNum() - model.getMonthNewDirectStoreNum());
+        model.setMonthNewStoreNum(model.getMonthNewIndirectStoreNum() + model.getMonthNewDirectStoreNum());
         Integer monthNewStoreManagerNum = blcCustomerMapper.countMonthDirectStoreAndManagerNumForManager(userId, UserTypeEnum.STORE_MANAGER.getType(), month);
         model.setMonthNewStoreManagerNum(monthNewStoreManagerNum);
 
-        CommunityModel totalModel = countTotalCommunityData(userId);
+        CommunityModel totalModel = countTotalCommunityData(userId, null);
         model.setTotalNum(totalModel.getTotalNum());
         return model;
     }
 
     @Override
-    public PageResponse<CustomerModel> getChildList(Long userId, Byte childType, PageRequest pageRequest) {
-        CommunityModel communityModel = countTotalCommunityData(userId);
+    public PageResponse<CustomerModel> getChildList(Long userId, Byte childType, PageRequest pageRequest, String userName) {
+        CommunityModel communityModel = countTotalCommunityData(userId, userName);
         long totalCount = 0L;
         if(ChildTypeEnum.STORE_MANAGER.getCode() == childType) {
             totalCount = communityModel != null ? communityModel.getTotalStoreManagerNum() : 0L;
@@ -98,10 +93,10 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
         List<CustomerModel> modelList = null;
         //查店经或直接店主
         if(ChildTypeEnum.STORE_MANAGER.getCode() == childType || ChildTypeEnum.DIRECT_STORE.getCode() == childType) {
-            modelList = getManagerOrDirectStoreList(userId, pageRequest, childType);
+            modelList = getManagerOrDirectStoreList(userId, pageRequest, childType, userName);
         //查间接店主或vip
         } else if (ChildTypeEnum.INDIRECT_STORE.getCode() == childType || ChildTypeEnum.VIP.getCode() == childType) {
-            modelList = getIndirectStoreOrVipList(userId, pageRequest, childType);
+            modelList = getIndirectStoreOrVipList(userId, pageRequest, childType, userName);
         }
         return PageResponse.success(modelList, pageRequest.getPage(), pageRequest.getLimit(), totalCount);
     }
@@ -116,12 +111,10 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
             Integer monthNewDirectStoreNum = blcCustomerMapper.countMonthDirectStoreAndManagerNumForManager(userId, UserTypeEnum.STORE.getType(), month);
             totalCount = monthNewDirectStoreNum != null ? monthNewDirectStoreNum.longValue() : 0L;
         } else if (ChildTypeEnum.INDIRECT_STORE.getCode() == childType) {
-            CommunityDto monthStoreAndVipDto = blcCustomerRelationMapper.countStoreAndVipCommunityNumForManager(userId, month, null);
-            Integer monthNewDirectStoreNum = blcCustomerMapper.countMonthDirectStoreAndManagerNumForManager(userId, UserTypeEnum.STORE.getType(), month);
-            Integer monthNewStoreNum = monthStoreAndVipDto != null ? monthStoreAndVipDto.getMonthNewStoreNum() : 0;
-            totalCount = monthNewStoreNum - (monthNewDirectStoreNum != null ? monthNewDirectStoreNum : 0L);
+            CommunityDto monthNewIndirectStoreDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, month, null, null);
+            totalCount = monthNewIndirectStoreDto != null ? monthNewIndirectStoreDto.getMonthNewIndirectStoreNum() : 0L;
         } else if (ChildTypeEnum.VIP.getCode() == childType) {
-            CommunityDto monthStoreAndVipDto = blcCustomerRelationMapper.countStoreAndVipCommunityNumForManager(userId, month, null);
+            CommunityDto monthStoreAndVipDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, month, null, null);
             totalCount = monthStoreAndVipDto != null ? monthStoreAndVipDto.getMonthNewVipNum().longValue() : 0L;
         }
         if(totalCount <= 0L) {
@@ -141,7 +134,7 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
     @Override
     public CommunityModel countMonthVipData(Long userId, Integer month) {
         CommunityModel model = new CommunityModel();
-        CommunityDto monthStoreAndVipDto = blcCustomerRelationMapper.countStoreAndVipCommunityNumForManager(userId, month, null);
+        CommunityDto monthStoreAndVipDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, month, null, null);
         model.setMonthNewVipNum(monthStoreAndVipDto != null ? monthStoreAndVipDto.getMonthNewVipNum() : 0);
         return model;
     }
@@ -149,7 +142,7 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
     @Override
     public CommunityModel countDayVipData(Long userId, Integer day) {
         CommunityModel model = new CommunityModel();
-        CommunityDto dayStoreAndVipDto = blcCustomerRelationMapper.countStoreAndVipCommunityNumForManager(userId, null, day);
+        CommunityDto dayStoreAndVipDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, null, day, null);
         model.setTodayNewVipNum(dayStoreAndVipDto != null ? dayStoreAndVipDto.getDayNewVipNum() : 0);
         return model;
     }
@@ -173,10 +166,13 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
         int preMonth = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyyMM"));
         model = countActivityOrSilenceStoreTotal(userId, UserTypeEnum.STORE_MANAGER.getType(), curMonth, model);
 
-        CommunityDto curMonthDto = blcCustomerRelationMapper.countStoreAndVipCommunityNumForManager(userId, curMonth, null);
-        model.setCurMonthNewStoreNum(curMonthDto != null ? curMonthDto.getMonthNewStoreNum() : 0);
-        CommunityDto preMonthDto = blcCustomerRelationMapper.countStoreAndVipCommunityNumForManager(userId, preMonth, null);
-        model.setPreMonthNewStoreNum(preMonthDto != null ? preMonthDto.getMonthNewStoreNum() : 0);
+        Integer curMonthDirectStoreNum = blcCustomerMapper.countMonthDirectStoreAndManagerNumForManager(userId, ChildTypeEnum.DIRECT_STORE.getCode(), curMonth);
+        CommunityDto curMonthInDirectStoreDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, curMonth, null, null);
+        model.setCurMonthNewStoreNum(curMonthDirectStoreNum + (curMonthInDirectStoreDto != null ? curMonthInDirectStoreDto.getMonthNewIndirectStoreNum() : 0));
+
+        Integer preMonthDirectStoreNum = blcCustomerMapper.countMonthDirectStoreAndManagerNumForManager(userId, ChildTypeEnum.DIRECT_STORE.getCode(), preMonth);
+        CommunityDto preMonthInDirectStoreDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, preMonth, null, null);
+        model.setPreMonthNewStoreNum(preMonthDirectStoreNum + (preMonthInDirectStoreDto != null ? preMonthInDirectStoreDto.getMonthNewStoreNum() : 0));
         return model;
     }
 
@@ -187,7 +183,7 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
      * @param childType
      * @return
      */
-    private List<CustomerModel> getManagerOrDirectStoreList(Long userId, PageRequest page, Byte childType) {
+    private List<CustomerModel> getManagerOrDirectStoreList(Long userId, PageRequest page, Byte childType, String userName) {
         BlcCustomerExample example = new BlcCustomerExample();
         BlcCustomerExample.Criteria criteria = example.createCriteria();
         criteria.andUserTypeEqualTo(UserTypeEnum.STORE.getCode());
@@ -196,6 +192,9 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
             criteria.andUserLevelNewIdEqualTo("4");
         } else if(ChildTypeEnum.DIRECT_STORE.getCode() == childType) {
             criteria.andUserLevelNewIdEqualTo("1");
+        }
+        if(StringUtils.isNotBlank(userName)) {
+            criteria.andRealNameLike(userName);
         }
         example.setOrderByClause("DATE_CREATED desc");
         example.setLimit(page.getLimit());
@@ -211,8 +210,8 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
      * @param childType
      * @return
      */
-    private List<CustomerModel> getIndirectStoreOrVipList(Long userId, PageRequest page, Byte childType) {
-        List<BlcCustomer> customerList = blcCustomerMapper.getIndirectStoreOrVipListForManager(userId, childType, page, null);
+    private List<CustomerModel> getIndirectStoreOrVipList(Long userId, PageRequest page, Byte childType, String userName) {
+        List<BlcCustomer> customerList = blcCustomerMapper.getIndirectStoreOrVipListForManager(userId, childType, page, null, userName);
         return CustomerConvertor.convertCustomerListToModelList(customerList);
     }
 
@@ -238,7 +237,7 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
      * @return
      */
     private List<CustomerModel> getMonthIndirectStoreOrVipList(Long userId, PageRequest page, Byte childType, Integer month) {
-        List<BlcCustomer> customerList = blcCustomerMapper.getIndirectStoreOrVipListForManager(userId, childType, page, month);
+        List<BlcCustomer> customerList = blcCustomerMapper.getIndirectStoreOrVipListForManager(userId, childType, page, month, null);
         return CustomerConvertor.convertCustomerListToModelList(customerList);
     }
 }

@@ -167,18 +167,18 @@ public class StoreManagerServiceImpl implements StoreManagerService {
     @Override
     public CommunityModel getCommunity(Long userId, UserTypeEnum userType) {
         if(UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
-            return storeDirectorCommunityBiz.countTotalCommunityData(userId);
+            return storeDirectorCommunityBiz.countTotalCommunityData(userId, null);
         } else {
-            return storeManagerCommunityBiz.countTotalCommunityData(userId);
+            return storeManagerCommunityBiz.countTotalCommunityData(userId, null);
         }
     }
 
     @Override
-    public PageResponse<CustomerModel> getUserChildList(Long userId, UserTypeEnum userType, ChildTypeEnum childType, PageRequest pageRequest) {
+    public PageResponse<CustomerModel> getUserChildList(Long userId, UserTypeEnum userType, ChildTypeEnum childType, PageRequest pageRequest, String userName) {
         if(UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
-            return storeDirectorCommunityBiz.getChildList(userId, childType.getCode(), pageRequest);
+            return storeDirectorCommunityBiz.getChildList(userId, childType.getCode(), pageRequest, userName);
         } else {
-            return storeManagerCommunityBiz.getChildList(userId, childType.getCode(), pageRequest);
+            return storeManagerCommunityBiz.getChildList(userId, childType.getCode(), pageRequest, userName);
         }
     }
 

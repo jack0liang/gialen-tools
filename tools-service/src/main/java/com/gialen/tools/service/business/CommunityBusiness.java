@@ -17,7 +17,7 @@ public interface CommunityBusiness {
      * @param userId
      * @return
      */
-    CommunityModel countTotalCommunityData(Long userId);
+    CommunityModel countTotalCommunityData(Long userId, String userName);
 
     /**
      * 统计月社群数据
@@ -34,7 +34,7 @@ public interface CommunityBusiness {
      * @param pageRequest
      * @return
      */
-    PageResponse<CustomerModel> getChildList(Long userId, Byte childType, PageRequest pageRequest);
+    PageResponse<CustomerModel> getChildList(Long userId, Byte childType, PageRequest pageRequest, String userName);
 
     /**
      * 查询月新增会员列表

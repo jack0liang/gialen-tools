@@ -28,6 +28,11 @@ public class CommunityDto {
     private Integer monthNewDirectStoreNum;
 
     /**
+     * 月新增间接店主数
+     */
+    private Integer monthNewIndirectStoreNum;
+
+    /**
      * 月新增vip数
      */
     private Integer monthNewVipNum;
@@ -66,6 +71,11 @@ public class CommunityDto {
      * 总直接店主数
      */
     private Integer totalDirectStoreNum;
+
+    /**
+     * 总间接店主数
+     */
+    private Integer totalIndirectStoreNum;
 
     /**
      * 总vip数

@@ -92,7 +92,7 @@ public interface StoreManagerService {
      * @param pageRequest
      * @return
      */
-    PageResponse<CustomerModel> getUserChildList(Long userId, UserTypeEnum userType, ChildTypeEnum childType, PageRequest pageRequest);
+    PageResponse<CustomerModel> getUserChildList(Long userId, UserTypeEnum userType, ChildTypeEnum childType, PageRequest pageRequest, String userName);
 
     /**
      * 查询店经店董当月会员明细列表

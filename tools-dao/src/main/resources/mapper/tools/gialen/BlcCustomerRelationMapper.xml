@@ -462,14 +462,14 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 
-  <select id="countStoreAndVipCommunityNumForManager" resultType="com.gialen.tools.dao.dto.CommunityDto">
+  <select id="countIndirectStoreAndVipNumForManager" resultType="com.gialen.tools.dao.dto.CommunityDto">
     select
     <if test="month == null and day == null">
-      count(case when r.customer_type = 1 then 1 else null end) as totalStoreNum,
+      count(case when r.customer_type = 1 and c.HIGHER_CUSTOMER_ID != #{managerId} then 1 else null end) as totalIndirectStoreNum,
       count(case when r.customer_type = 3 then 1 else null end) as totalVipNum
     </if>
     <if test="month != null">
-      count(case when r.customer_type = 1 then 1 else null end) as monthNewStoreNum,
+      count(case when r.customer_type = 1 and c.HIGHER_CUSTOMER_ID != #{managerId} then 1 else null end) as monthNewIndirectStoreNum,
       count(case when r.customer_type = 3 then 1 else null end) as monthNewVipNum
     </if>
     <if test="day != null">
@@ -478,6 +478,9 @@
     </if>
     from blc_customer_relation r, blc_customer c
     where r.customer_id = c.customer_id and r.store_super_mgr_id = #{managerId}
+    <if test="userName != null and userName != ''">
+      and c.REAL_NAME like concat(#{userName},"%")
+    </if>
     <if test="month != null">
     and DATE_FORMAT(c.date_created,'%Y%m') = #{month}
     </if>
@@ -495,7 +498,7 @@
     from blc_customer_relation r, blc_customer h, blc_customer c
     where r.store_mgr_id = h.CUSTOMER_ID and r.customer_id = c.customer_id and r.store_super_mgr_id = #{managerId} and r.customer_type = 3
     and DATE_FORMAT(c.date_created,'%Y%m') = #{month}
-    <if test="storeName != null or storeName != ''">
+    <if test="storeName != null and storeName != ''">
       and h.REAL_NAME like concat(#{storeName},"%")
     </if>
     GROUP BY r.store_mgr_id
@@ -508,7 +511,7 @@
     from blc_customer_relation r, blc_customer c, blc_customer h
     where r.customer_id = c.customer_id and c.HIGHER_CUSTOMER_ID = h.customer_id and r.store_super_mgr_id = #{managerId} and r.customer_type = 3
     and DATE_FORMAT(c.date_created,'%Y%m') = #{month}
-    <if test="storeName != null or storeName != ''">
+    <if test="storeName != null and storeName != ''">
       and h.REAL_NAME like concat(#{storeName},"%")
     </if>
   </select>
@@ -526,7 +529,7 @@
     <if test="userType == 4">
       r.store_id = #{userId}
     </if>
-    <if test="storeName != null or storeName != ''">
+    <if test="storeName != null and storeName != ''">
       and c.REAL_NAME like concat(#{storeName},"%")
     </if>
     group by r.store_mgr_id
@@ -554,7 +557,7 @@
     <if test="userType == 4">
       r.store_id = #{userId}
     </if>
-    <if test="storeName != null or storeName != ''">
+    <if test="storeName != null and storeName != ''">
       and c.REAL_NAME like concat(#{storeName},"%")
     </if>
     group by r.store_mgr_id

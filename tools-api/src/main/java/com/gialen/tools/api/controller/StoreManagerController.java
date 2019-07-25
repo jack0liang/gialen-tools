@@ -114,6 +114,7 @@ public class StoreManagerController {
         UserAchievementVo vo = StoreManagerConvertor.userAchievementModelConvertToVo(modelGLResponse.getData());
         byte month = Byte.parseByte(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "M"));
         vo.setMonth(month);
+        log.info("response : " + vo);
         return GLResponse.succ(vo);
     }
 
@@ -182,15 +183,16 @@ public class StoreManagerController {
                                                               @RequestParam(name = "childType") Byte childType,
                                                               @RequestParam(name = "page") int page,
                                                               @RequestParam(name = "limit") int limit,
+                                                              @RequestParam(name = "storeName", required = false) String userName,
                                                               HttpServletRequest request) {
         String token = request.getHeader("token");
         Long userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
         if(UserTypeEnum.STORE_DIRECTOR.getType() == userType) {
             childType = ChildTypeEnum.getByIndexForDirector(childType).getCode();
         }
-        log.info("getUserChildList : userId = {}, userType = {}, childType = {}, page = {}, limit = {}", userId, userType, childType, page, limit);
+        log.info("getUserChildList : userId = {}, userType = {}, childType = {}, page = {}, limit = {}, userName = {}", userId, userType, childType, page, limit, userName);
         PageResponse<CustomerModel> modelPageResponse = storeManagerService.getUserChildList(userId, UserTypeEnum.getByType(userType),
-                ChildTypeEnum.getByType(childType), new PageRequest(page, limit));
+                ChildTypeEnum.getByType(childType), new PageRequest(page, limit), userName);
         List<ChildVo> voList = StoreManagerConvertor.convertToChildVoList(modelPageResponse.getList(), childType);
 
         return GLResponse.succ(PageResponse.success(voList, page, limit, modelPageResponse.getTotalCount()));

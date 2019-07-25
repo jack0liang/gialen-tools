@@ -15,7 +15,7 @@ public interface BlcCustomerMapper {
      * @param directorId
      * @return
      */
-    CommunityDto countTotalNumForDirector(@Param("directorId") Long directorId);
+    CommunityDto countTotalNumForDirector(@Param("directorId") Long directorId, @Param("userName") String userName);
 
     Integer countMonthManagerNumForDirector(@Param("directorId") Long directorId, @Param("month") Integer month);
 
@@ -56,7 +56,7 @@ public interface BlcCustomerMapper {
      * @param managerId
      * @return
      */
-    CommunityDto countDirectStoreAndManagerNumForManager(@Param("managerId") Long managerId);
+    CommunityDto countDirectStoreAndManagerNumForManager(@Param("managerId") Long managerId, @Param("userName") String userName);
 
     /**
      * 统计店经的月新增店经和直接店主数
@@ -74,7 +74,7 @@ public interface BlcCustomerMapper {
      * @param page
      * @return
      */
-    List<BlcCustomer> getIndirectStoreOrVipListForManager(@Param("managerId") Long userId, @Param("childType") Byte childType, @Param("page") PageRequest page, @Param("month") Integer month);
+    List<BlcCustomer> getIndirectStoreOrVipListForManager(@Param("managerId") Long userId, @Param("childType") Byte childType, @Param("page") PageRequest page, @Param("month") Integer month, @Param("userName") String userName);
 
 
     List<BlcCustomer> getMonthManagerOrDirectStoreListForManager(@Param("managerId") Long userId, @Param("childType") Byte childType, @Param("page") PageRequest page, @Param("month") Integer month);

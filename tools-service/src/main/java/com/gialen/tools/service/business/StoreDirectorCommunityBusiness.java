@@ -14,6 +14,7 @@ import com.gialen.tools.service.model.CommunityModel;
 import com.gialen.tools.service.model.CustomerModel;
 import com.gialen.tools.service.model.StoreActivityModel;
 import com.gialen.tools.service.model.VipCommunityModel;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,8 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
     private BlcCustomerMapper blcCustomerMapper;
 
     @Override
-    public CommunityModel countTotalCommunityData(Long userId) {
-        CommunityDto dto = blcCustomerMapper.countTotalNumForDirector(userId);
+    public CommunityModel countTotalCommunityData(Long userId, String userName) {
+        CommunityDto dto = blcCustomerMapper.countTotalNumForDirector(userId, userName);
         if(dto == null) {
             return null;
         }
@@ -62,14 +63,14 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
         model.setTodayNewVipNum(dayDto != null ? dayDto.getDayNewVipNum() : 0);
 
         //统计所有下级人数
-        CommunityDto totalDto = blcCustomerMapper.countTotalNumForDirector(userId);
+        CommunityDto totalDto = blcCustomerMapper.countTotalNumForDirector(userId, null);
         model.setTotalNum(totalDto != null ? totalDto.getTotalNum() : 0);
         return model;
     }
 
     @Override
-    public PageResponse<CustomerModel> getChildList(Long userId, Byte childType, PageRequest pageRequest) {
-        CommunityModel communityModel = countTotalCommunityData(userId);
+    public PageResponse<CustomerModel> getChildList(Long userId, Byte childType, PageRequest pageRequest, String userName) {
+        CommunityModel communityModel = countTotalCommunityData(userId, userName);
 
         long totalCount = 0L;
         if(ChildTypeEnum.STORE_MANAGER.getCode() == childType) {
@@ -82,7 +83,7 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
         if(totalCount <= 0L) {
             return PageResponse.empty(pageRequest.getPage(), pageRequest.getLimit());
         }
-        List<CustomerModel> modelList = getChildListForStoreDirector(userId, pageRequest, childType);
+        List<CustomerModel> modelList = getChildListForStoreDirector(userId, pageRequest, childType, userName);
         return PageResponse.success(modelList,pageRequest.getPage(), pageRequest.getLimit(), totalCount);
     }
 
@@ -156,7 +157,7 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
      * @param childType
      * @return
      */
-    private List<CustomerModel> getChildListForStoreDirector(Long storeDirectorId, PageRequest page, Byte childType) {
+    private List<CustomerModel> getChildListForStoreDirector(Long storeDirectorId, PageRequest page, Byte childType, String userName) {
         BlcCustomerExample example = new BlcCustomerExample();
         BlcCustomerExample.Criteria criteria = example.createCriteria();
         criteria.andShopStoreIdEqualTo(storeDirectorId);
@@ -168,6 +169,10 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
         } else if (ChildTypeEnum.VIP.getCode() == childType) { //vip
             criteria.andUserTypeEqualTo(UserTypeEnum.VIP.getCode());
         }
+        if(StringUtils.isNotBlank(userName) && ChildTypeEnum.VIP.getCode() != childType) {
+            criteria.andRealNameLike(userName);
+        }
+
         example.setOrderByClause("DATE_CREATED desc");
         example.setLimit(page.getLimit());
         example.setOffset(page.getOffset());

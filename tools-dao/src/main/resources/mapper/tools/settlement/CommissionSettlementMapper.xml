@@ -594,9 +594,9 @@
 
   <select id="getUserToBeIncome" resultType="java.math.BigDecimal">
     select
-    <if test="userType == 2"> sum(d.store_master_commission) as masterToBeIncome</if>
-    <if test="userType == 3"> sum(d.store_manage_commission) as managerToBeIncome</if>
-    <if test="userType == 4"> sum(d.store_commission) as storeToBeIncome</if>
+    <if test="userType == 2"> ifnull(sum(d.store_master_commission),0) as masterToBeIncome</if>
+    <if test="userType == 3"> ifnull(sum(d.store_manage_commission),0) as managerToBeIncome</if>
+    <if test="userType == 4"> ifnull(sum(d.store_commission),0) as storeToBeIncome</if>
     from commission_settlement s, commission_settlement_detail d
     where s.order_sn = d.order_sn and d.`status`=1
     <if test="userType == 2"> and s.store_master_id = #{userId}</if>
@@ -606,9 +606,9 @@
 
   <select id="getUserAvailableIncomeByMonth" resultType="java.math.BigDecimal">
     select
-    <if test="userType == 2"> sum(d.store_master_commission) as masterToBeIncome</if>
-    <if test="userType == 3"> sum(d.store_manage_commission) as managerToBeIncome</if>
-    <if test="userType == 4"> sum(d.store_commission) as storeToBeIncome</if>
+    <if test="userType == 2"> ifnull(sum(d.store_master_commission),0) as masterToBeIncome</if>
+    <if test="userType == 3"> ifnull(sum(d.store_manage_commission),0) as managerToBeIncome</if>
+    <if test="userType == 4"> ifnull(sum(d.store_commission),0) as storeToBeIncome</if>
     from commission_settlement s, commission_settlement_detail d
     where s.order_sn = d.order_sn and d.`status`=2
     and DATE_FORMAT(s.settlement_end_time,'%Y%m') = #{month}
@@ -618,10 +618,10 @@
   </select>
 
   <select id="getUserTotalIncomeByMonth" resultType="com.gialen.tools.dao.dto.UserIncomeDto">
-    select sum(d.buy_num * d.item_price) as monthTotalSales,
-    <if test="userType == 2"> sum(d.store_master_commission) as monthTotalIncome</if>
-    <if test="userType == 3"> sum(d.store_manage_commission) as monthTotalIncome</if>
-    <if test="userType == 4"> sum(d.store_commission) as monthTotalIncome</if>
+    select ifnull(sum(d.buy_num * d.item_price),0) as monthTotalSales,
+    <if test="userType == 2"> ifnull(sum(d.store_master_commission),0) as monthTotalIncome</if>
+    <if test="userType == 3"> ifnull(sum(d.store_manage_commission),0) as monthTotalIncome</if>
+    <if test="userType == 4"> ifnull(sum(d.store_commission),0) as monthTotalIncome</if>
     from commission_settlement s, commission_settlement_detail d
     where s.order_sn = d.order_sn and d.`status` in (1,2)
     and DATE_FORMAT(s.order_create_time,'%Y%m') = #{month}
@@ -632,10 +632,10 @@
 
   <select id="getUserSalesByMonth" resultType="com.gialen.tools.dao.dto.UserIncomeDto">
     select
-    sum(case when d.status in (1,2) then d.buy_num * d.item_price else 0 end) as monthTotalSales,
-    sum(case when d.status = 3 then d.buy_num * d.item_price else 0 end) as monthRefundSales,
-    sum(case when d.status in (1,2) then d.buy_num * d.item_price else 0 end)/sum(d.buy_num * d.item_price) as monthSalesRate,
-    sum(case when d.status = 3 then d.buy_num * d.item_price else 0 end)/sum(d.buy_num * d.item_price) as monthRefundRate
+    ifnull(sum(case when d.status in (1,2) then d.buy_num * d.item_price else 0 end),0) as monthTotalSales,
+    ifnull(sum(case when d.status = 3 then d.buy_num * d.item_price else 0 end),0) as monthRefundSales,
+    ifnull(sum(case when d.status in (1,2) then d.buy_num * d.item_price else 0 end),0)/ifnull(sum(d.buy_num * d.item_price),0) as monthSalesRate,
+    ifnull(sum(case when d.status = 3 then d.buy_num * d.item_price else 0 end),0)/ifnull(sum(d.buy_num * d.item_price),0) as monthRefundRate
     from commission_settlement s, commission_settlement_detail d
     where s.order_sn = d.order_sn
     and DATE_FORMAT(s.order_create_time,'%Y%m') = #{month}
@@ -645,7 +645,7 @@
   </select>
 
   <select id="getUserTodaySales" resultType="java.math.BigDecimal">
-    select sum(d.buy_num * d.item_price) as sales
+    select ifnull(sum(d.buy_num * d.item_price),0) as sales
     from commission_settlement s, commission_settlement_detail d
     where s.order_sn = d.order_sn and d.`status` in (1,2)
     and DATE_FORMAT(s.order_create_time,'%Y%m%d') = #{day}
