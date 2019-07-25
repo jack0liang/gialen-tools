@@ -86,5 +86,5 @@ public interface CommunityBusiness {
      * @param pageRequest
      * @return
      */
-    PageResponse<StoreActivityDetailModel> getMonthActivityStoreList(Long userId, Integer month, Byte purchasedType, PageRequest pageRequest);
+    PageResponse<StoreActivityDetailModel> getMonthActivityStoreList(Long userId, Byte userType, Integer month, Byte purchasedType, PageRequest pageRequest);
 }

@@ -248,22 +248,23 @@ public class StoreManagerServiceImpl implements StoreManagerService {
     @Override
     public PageResponse<StoreActivityDetailModel> getCurMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest) {
         int curMonth = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMM"));
-        return getMonthActivityStoreList(userId, userType, purchasedType, pageRequest, curMonth);
+        if (UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
+            return storeDirectorCommunityBiz.getMonthActivityStoreList(userId, UserTypeEnum.STORE_DIRECTOR.getType(), curMonth, purchasedType, pageRequest);
+        } else {
+            return storeManagerCommunityBiz.getMonthActivityStoreList(userId, UserTypeEnum.STORE_MANAGER.getType(), curMonth, purchasedType, pageRequest);
+        }
     }
 
     @Override
     public PageResponse<StoreActivityDetailModel> getPreMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest) {
-        int preMonth = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMM"));
-        return getMonthActivityStoreList(userId, userType, purchasedType, pageRequest, preMonth);
-    }
-
-    private PageResponse<StoreActivityDetailModel> getMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest, Integer month) {
+        int preMonth = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyyMM"));
         if (UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
-            return storeDirectorCommunityBiz.getMonthActivityStoreList(userId, month, purchasedType, pageRequest);
+            return storeDirectorCommunityBiz.getMonthActivityStoreList(userId, UserTypeEnum.STORE_DIRECTOR.getType(), preMonth, purchasedType, pageRequest);
         } else {
-            return storeManagerCommunityBiz.getMonthActivityStoreList(userId, month, purchasedType, pageRequest);
+            return storeManagerCommunityBiz.getMonthActivityStoreList(userId, UserTypeEnum.STORE_MANAGER.getType(), preMonth, purchasedType, pageRequest);
         }
     }
+
     /**
      * 获取店经店董的战绩数据
      * @param userId

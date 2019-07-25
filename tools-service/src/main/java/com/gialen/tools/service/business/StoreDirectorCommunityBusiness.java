@@ -155,7 +155,7 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
         StoreActivityModel model = new StoreActivityModel();
         int curMonth = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMM"));
         int preMonth = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyyMM"));
-        model = countActivityOrSilenceStoreTotal(userId, curMonth, model);
+        model = countActivityOrSilenceStoreTotal(userId, UserTypeEnum.STORE_DIRECTOR.getType(), curMonth, model);
 
         CommunityDto curMonthDto = blcCustomerMapper.countMonthStoreAndVipNumForDirector(userId, curMonth);
         model.setCurMonthNewStoreNum(curMonthDto != null ? curMonthDto.getMonthNewStoreNum() : 0);

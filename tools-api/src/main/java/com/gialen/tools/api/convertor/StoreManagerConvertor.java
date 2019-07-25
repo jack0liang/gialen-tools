@@ -161,7 +161,6 @@ public class StoreManagerConvertor {
      */
     public static StoreActivityDataVo convertStoreActivityModelToVo(StoreActivityModel model) {
         StoreActivityDataVo vo = Copier.copy(model, new StoreActivityDataVo());
-        vo.setMonth(Byte.parseByte(DateFormatUtils.format(new Date(), "MM")));
         PieChartDataVo pieChartDataVo = new PieChartDataVo();
         List<PieSeriesNodeVo> seriesNodeVoList = Lists.newArrayListWithCapacity(2);
         seriesNodeVoList.add(new PieSeriesNodeVo("已开单", BigDecimal.valueOf(model.getPurchasedStoreNum()), model.getPurchasedRate()));

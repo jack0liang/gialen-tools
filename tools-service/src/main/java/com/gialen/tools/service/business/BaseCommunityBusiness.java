@@ -39,12 +39,12 @@ public abstract class BaseCommunityBusiness implements CommunityBusiness {
     private BlcCustomerRelationMapper blcCustomerRelationMapper;
 
     @Override
-    public PageResponse<StoreActivityDetailModel> getMonthActivityStoreList(Long userId, Integer month, Byte purchasedType, PageRequest pageRequest) {
-        Long countTotal = blcCustomerRelationMapper.countActivityOrSilenceStoreTotal(userId, month, UserTypeEnum.STORE_DIRECTOR.getType(), purchasedType);
+    public PageResponse<StoreActivityDetailModel> getMonthActivityStoreList(Long userId, Byte userType, Integer month, Byte purchasedType, PageRequest pageRequest) {
+        Long countTotal = blcCustomerRelationMapper.countActivityOrSilenceStoreTotal(userId, month, userType, purchasedType);
         if(countTotal == null || countTotal <= 0L) {
             return PageResponse.empty(pageRequest.getPage(), pageRequest.getLimit());
         }
-        List<ActivityUserDetailDto> dtoList = blcCustomerRelationMapper.getActivityOrSilenceStoreList(userId, month, UserTypeEnum.STORE_DIRECTOR.getType(), purchasedType, pageRequest);
+        List<ActivityUserDetailDto> dtoList = blcCustomerRelationMapper.getActivityOrSilenceStoreList(userId, month, userType, purchasedType, pageRequest);
         List<StoreActivityDetailModel> modelList = Lists.newArrayListWithCapacity(dtoList.size());
         dtoList.forEach(dto -> modelList.add(Copier.copy(dto, new StoreActivityDetailModel())));
 
@@ -58,9 +58,9 @@ public abstract class BaseCommunityBusiness implements CommunityBusiness {
      * @param model
      * @return
      */
-    protected StoreActivityModel countActivityOrSilenceStoreTotal(Long userId, Integer month, StoreActivityModel model) {
-        Long activityStoreNum = blcCustomerRelationMapper.countActivityOrSilenceStoreTotal(userId, month, UserTypeEnum.STORE_DIRECTOR.getType(), PurchasedTypeEnum.PURCHASED.getCode());
-        Long silenceStoreNum = blcCustomerRelationMapper.countActivityOrSilenceStoreTotal(userId, month, UserTypeEnum.STORE_DIRECTOR.getType(), PurchasedTypeEnum.PURCHASED.getCode());
+    protected StoreActivityModel countActivityOrSilenceStoreTotal(Long userId, Byte userType, Integer month, StoreActivityModel model) {
+        Long activityStoreNum = blcCustomerRelationMapper.countActivityOrSilenceStoreTotal(userId, month, userType, PurchasedTypeEnum.PURCHASED.getCode());
+        Long silenceStoreNum = blcCustomerRelationMapper.countActivityOrSilenceStoreTotal(userId, month, userType, PurchasedTypeEnum.NOT_PURCHASED.getCode());
         Long total = activityStoreNum + silenceStoreNum;
 
         model.setPurchasedStoreNum(activityStoreNum.intValue());
