@@ -282,11 +282,12 @@ public class StoreManagerController {
                                                                                           @RequestParam(name = "purchasedType") Byte purchasedType,
                                                                                           @RequestParam(name = "page") int page,
                                                                                           @RequestParam(name = "limit") int limit,
+                                                                                          @RequestParam(name = "storeName", required = false) String storeName,
                                                                                           HttpServletRequest request) {
         String token = request.getHeader("token");
         Long userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
-        log.info("getCurMonthActivityStoreList : userId = {}, userType = {}, purchasedType = {}, page = {}, limit = {}", userId, userType, purchasedType, page, limit);
-        PageResponse<StoreActivityDetailModel> modelPageResponse = storeManagerService.getCurMonthActivityStoreList(userId, UserTypeEnum.getByType(userType), purchasedType, new PageRequest(page, limit));
+        log.info("getCurMonthActivityStoreList : userId = {}, userType = {}, purchasedType = {}, page = {}, limit = {}, storeName = {}", userId, userType, purchasedType, page, limit, storeName);
+        PageResponse<StoreActivityDetailModel> modelPageResponse = storeManagerService.getCurMonthActivityStoreList(userId, UserTypeEnum.getByType(userType), purchasedType, new PageRequest(page, limit), storeName);
         List<StoreActivityDetailVo> voList = StoreManagerConvertor.convertStoreActivityDetailModelToVoList(modelPageResponse.getList());
 
         byte month = Byte.parseByte(DateFormatUtils.format(new Date(), "MM"));
@@ -300,11 +301,12 @@ public class StoreManagerController {
                                                                                           @RequestParam(name = "purchasedType") Byte purchasedType,
                                                                                           @RequestParam(name = "page") int page,
                                                                                           @RequestParam(name = "limit") int limit,
+                                                                                          @RequestParam(name = "storeName", required = false) String storeName,
                                                                                           HttpServletRequest request) {
         String token = request.getHeader("token");
         Long userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
-        log.info("getPreMonthActivityStoreList : userId = {}, userType = {}, purchasedType = {}, page = {}, limit = {}", userId, userType, purchasedType, page, limit);
-        PageResponse<StoreActivityDetailModel> modelPageResponse = storeManagerService.getPreMonthActivityStoreList(userId, UserTypeEnum.getByType(userType), purchasedType, new PageRequest(page, limit));
+        log.info("getPreMonthActivityStoreList : userId = {}, userType = {}, purchasedType = {}, page = {}, limit = {}, storeName = {}", userId, userType, purchasedType, page, limit, storeName);
+        PageResponse<StoreActivityDetailModel> modelPageResponse = storeManagerService.getPreMonthActivityStoreList(userId, UserTypeEnum.getByType(userType), purchasedType, new PageRequest(page, limit), storeName);
         List<StoreActivityDetailVo> voList = StoreManagerConvertor.convertStoreActivityDetailModelToVoList(modelPageResponse.getList());
 
         byte month = Byte.parseByte(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "MM"));

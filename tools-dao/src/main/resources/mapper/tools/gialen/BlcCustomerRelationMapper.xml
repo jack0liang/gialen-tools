@@ -526,6 +526,9 @@
     <if test="userType == 4">
       r.store_id = #{userId}
     </if>
+    <if test="storeName != null or storeName != ''">
+      and c.REAL_NAME like concat(#{storeName},"%")
+    </if>
     group by r.store_mgr_id
     <if test="dataType == 1">
       HAVING salesNum &gt; 0
@@ -541,6 +544,7 @@
     select count(1) from
     (select IFNULL(sum(o.ORDER_TOTAL),0) as salesNum
     from blc_customer_relation r
+    LEFT JOIN blc_customer c on r.store_mgr_id = c.CUSTOMER_ID
     LEFT JOIN blc_order o on o.CUSTOMER_ID = r.CUSTOMER_ID and DATE_FORMAT(o.DATE_CREATED,'%Y%m') = #{month} and
     o.ORDER_PAY_STATUS = 'PAYED' and o.ORDER_STATUS != 'CANCELLED'
     where
@@ -549,6 +553,9 @@
     </if>
     <if test="userType == 4">
       r.store_id = #{userId}
+    </if>
+    <if test="storeName != null or storeName != ''">
+      and c.REAL_NAME like concat(#{storeName},"%")
     </if>
     group by r.store_mgr_id
     <if test="dataType == 1">

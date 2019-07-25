@@ -146,7 +146,7 @@ public interface StoreManagerService {
      * @param pageRequest
      * @return
      */
-    PageResponse<StoreActivityDetailModel> getCurMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest);
+    PageResponse<StoreActivityDetailModel> getCurMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest, String storeName);
 
     /**
      * 查询上月活跃店主明细列表
@@ -156,5 +156,5 @@ public interface StoreManagerService {
      * @param pageRequest
      * @return
      */
-    PageResponse<StoreActivityDetailModel> getPreMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest);
+    PageResponse<StoreActivityDetailModel> getPreMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest, String storeName);
 }

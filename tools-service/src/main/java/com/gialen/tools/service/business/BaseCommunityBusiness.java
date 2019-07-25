@@ -4,31 +4,21 @@ import com.gialen.common.beantools.Copier;
 import com.gialen.common.model.PageRequest;
 import com.gialen.common.model.PageResponse;
 import com.gialen.common.utils.DecimalCalculate;
-import com.gialen.tools.common.enums.ChildTypeEnum;
 import com.gialen.tools.common.enums.PurchasedTypeEnum;
-import com.gialen.tools.common.enums.UserTypeEnum;
 import com.gialen.tools.dao.dto.ActivityUserDetailDto;
 import com.gialen.tools.dao.dto.CommunityDto;
-import com.gialen.tools.dao.entity.gialen.BlcCustomer;
-import com.gialen.tools.dao.entity.gialen.BlcCustomerExample;
-import com.gialen.tools.dao.repository.gialen.BlcCustomerMapper;
 import com.gialen.tools.dao.repository.gialen.BlcCustomerRelationMapper;
-import com.gialen.tools.service.convertor.CustomerConvertor;
-import com.gialen.tools.service.model.*;
+import com.gialen.tools.service.model.StoreActivityDetailModel;
+import com.gialen.tools.service.model.StoreActivityModel;
+import com.gialen.tools.service.model.VipCommunityModel;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 基础社群数据业务类
@@ -41,12 +31,12 @@ public abstract class BaseCommunityBusiness implements CommunityBusiness {
     private BlcCustomerRelationMapper blcCustomerRelationMapper;
 
     @Override
-    public PageResponse<StoreActivityDetailModel> getMonthActivityStoreList(Long userId, Byte userType, Integer month, Byte purchasedType, PageRequest pageRequest) {
-        Long countTotal = blcCustomerRelationMapper.countActivityOrSilenceStoreTotal(userId, month, userType, purchasedType);
+    public PageResponse<StoreActivityDetailModel> getMonthActivityStoreList(Long userId, Byte userType, Integer month, Byte purchasedType, PageRequest pageRequest, String storeName) {
+        Long countTotal = blcCustomerRelationMapper.countActivityOrSilenceStoreTotal(userId, month, userType, purchasedType, storeName);
         if(countTotal == null || countTotal <= 0L) {
             return PageResponse.empty(pageRequest.getPage(), pageRequest.getLimit());
         }
-        List<ActivityUserDetailDto> dtoList = blcCustomerRelationMapper.getActivityOrSilenceStoreList(userId, month, userType, purchasedType, pageRequest);
+        List<ActivityUserDetailDto> dtoList = blcCustomerRelationMapper.getActivityOrSilenceStoreList(userId, month, userType, purchasedType, pageRequest, storeName);
         List<StoreActivityDetailModel> modelList = Lists.newArrayListWithCapacity(dtoList.size());
         dtoList.forEach(dto -> modelList.add(Copier.copy(dto, new StoreActivityDetailModel())));
 
@@ -61,8 +51,8 @@ public abstract class BaseCommunityBusiness implements CommunityBusiness {
      * @return
      */
     protected StoreActivityModel countActivityOrSilenceStoreTotal(Long userId, Byte userType, Integer month, StoreActivityModel model) {
-        Long activityStoreNum = blcCustomerRelationMapper.countActivityOrSilenceStoreTotal(userId, month, userType, PurchasedTypeEnum.PURCHASED.getCode());
-        Long silenceStoreNum = blcCustomerRelationMapper.countActivityOrSilenceStoreTotal(userId, month, userType, PurchasedTypeEnum.NOT_PURCHASED.getCode());
+        Long activityStoreNum = blcCustomerRelationMapper.countActivityOrSilenceStoreTotal(userId, month, userType, PurchasedTypeEnum.PURCHASED.getCode(), null);
+        Long silenceStoreNum = blcCustomerRelationMapper.countActivityOrSilenceStoreTotal(userId, month, userType, PurchasedTypeEnum.NOT_PURCHASED.getCode(), null);
         Long total = activityStoreNum + silenceStoreNum;
 
         model.setPurchasedStoreNum(activityStoreNum.intValue());

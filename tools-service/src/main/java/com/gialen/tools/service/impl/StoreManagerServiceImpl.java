@@ -246,22 +246,22 @@ public class StoreManagerServiceImpl implements StoreManagerService {
     }
 
     @Override
-    public PageResponse<StoreActivityDetailModel> getCurMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest) {
+    public PageResponse<StoreActivityDetailModel> getCurMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest, String storeName) {
         int curMonth = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMM"));
         if (UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
-            return storeDirectorCommunityBiz.getMonthActivityStoreList(userId, UserTypeEnum.STORE_DIRECTOR.getType(), curMonth, purchasedType, pageRequest);
+            return storeDirectorCommunityBiz.getMonthActivityStoreList(userId, UserTypeEnum.STORE_DIRECTOR.getType(), curMonth, purchasedType, pageRequest, storeName);
         } else {
-            return storeManagerCommunityBiz.getMonthActivityStoreList(userId, UserTypeEnum.STORE_MANAGER.getType(), curMonth, purchasedType, pageRequest);
+            return storeManagerCommunityBiz.getMonthActivityStoreList(userId, UserTypeEnum.STORE_MANAGER.getType(), curMonth, purchasedType, pageRequest, storeName);
         }
     }
 
     @Override
-    public PageResponse<StoreActivityDetailModel> getPreMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest) {
+    public PageResponse<StoreActivityDetailModel> getPreMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest, String storeName) {
         int preMonth = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyyMM"));
         if (UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
-            return storeDirectorCommunityBiz.getMonthActivityStoreList(userId, UserTypeEnum.STORE_DIRECTOR.getType(), preMonth, purchasedType, pageRequest);
+            return storeDirectorCommunityBiz.getMonthActivityStoreList(userId, UserTypeEnum.STORE_DIRECTOR.getType(), preMonth, purchasedType, pageRequest, storeName);
         } else {
-            return storeManagerCommunityBiz.getMonthActivityStoreList(userId, UserTypeEnum.STORE_MANAGER.getType(), preMonth, purchasedType, pageRequest);
+            return storeManagerCommunityBiz.getMonthActivityStoreList(userId, UserTypeEnum.STORE_MANAGER.getType(), preMonth, purchasedType, pageRequest, storeName);
         }
     }
 
