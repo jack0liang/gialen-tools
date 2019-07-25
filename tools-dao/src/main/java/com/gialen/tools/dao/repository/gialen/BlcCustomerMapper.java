@@ -10,13 +10,23 @@ import org.apache.ibatis.annotations.Param;
 @org.springframework.stereotype.Repository
 public interface BlcCustomerMapper {
 
+    /**
+     * 统计店董的总社群数据
+     * @param directorId
+     * @return
+     */
     CommunityDto countTotalNumForDirector(@Param("directorId") Long directorId);
 
     Integer countMonthManagerNumForDirector(@Param("directorId") Long directorId, @Param("month") Integer month);
 
-    CommunityDto countMonthStoreAndVipNumForDirector(@Param("directorId") Long directorId, @Param("month") Integer month);
+    /**
+     * 统计店董的新增店主和vip数量
+     * @param directorId
+     * @param month
+     * @return
+     */
+    CommunityDto countStoreAndVipNumForDirector(@Param("directorId") Long directorId, @Param("month") Integer month, @Param("day") Integer day);
 
-    CommunityDto countDayStoreAndVipNumForDirector(@Param("directorId") Long directorId, @Param("day") Integer day);
 
     List<BlcCustomer> getMonthUserChildListForDirector(@Param("directorId") Long directorId, @Param("childType") Byte childType,
                                                        @Param("month") Integer month, @Param("page") PageRequest page);
@@ -30,16 +40,17 @@ public interface BlcCustomerMapper {
      * @return
      */
     List<CommunityDto> getMonthNewVipListForDirector(@Param("directorId") Long directorId, @Param("day") Integer day,
-                                                     @Param("month") Integer month, @Param("page") PageRequest page);
+                                                     @Param("month") Integer month, @Param("page") PageRequest page,
+                                                     @Param("storeName") String storeName);
 
 
     /**
-     * 统计店董的月新增vip总数
+     * 统计店董的月度 有新增vip的店主数量
      * @param directorId
      * @param month
      * @return
      */
-    Long countMonthNewVipNumForDirector(@Param("directorId") Long directorId, @Param("month") Integer month);
+    Long countMonthHasNewVipStoreNumForDirector(@Param("directorId") Long directorId, @Param("month") Integer month, @Param("storeName") String storeName);
     /**
      * 统计店经的店经和直接店主数
      * @param managerId

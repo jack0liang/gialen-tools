@@ -119,7 +119,7 @@ public interface StoreManagerService {
      * @param pageRequest
      * @return
      */
-    PageResponse<VipCommunityModel> getCurMonthNewVipList(Long userId, UserTypeEnum userType, PageRequest pageRequest);
+    PageResponse<VipCommunityModel> getCurMonthNewVipList(Long userId, UserTypeEnum userType, PageRequest pageRequest, String storeName);
 
     /**
      * 查询上月新增vip列表
@@ -128,7 +128,7 @@ public interface StoreManagerService {
      * @param pageRequest
      * @return
      */
-    PageResponse<VipCommunityModel> getPreMonthNewVipList(Long userId, UserTypeEnum userType, PageRequest pageRequest);
+    PageResponse<VipCommunityModel> getPreMonthNewVipList(Long userId, UserTypeEnum userType, PageRequest pageRequest, String storeName);
 
     /**
      * 统计店主活跃数据

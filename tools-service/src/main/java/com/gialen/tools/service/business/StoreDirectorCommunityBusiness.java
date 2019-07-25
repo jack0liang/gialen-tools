@@ -60,14 +60,14 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
         Integer monthNewStoreManagerNum = blcCustomerMapper.countMonthManagerNumForDirector(userId, month);
         model.setMonthNewStoreManagerNum(monthNewStoreManagerNum);
         //统计月新增店主和vip数
-        CommunityDto monthDto = blcCustomerMapper.countMonthStoreAndVipNumForDirector(userId, month);
+        CommunityDto monthDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, month, null);
         if(monthDto != null) {
             model.setMonthNewStoreNum(monthDto.getMonthNewStoreNum());
             model.setMonthNewVipNum(monthDto.getMonthNewVipNum());
         }
         //统计今日新增店主和vip数
         Integer today = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMMdd"));
-        CommunityDto dayDto = blcCustomerMapper.countDayStoreAndVipNumForDirector(userId, today);
+        CommunityDto dayDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, null, today);
         if(dayDto != null) {
             model.setTodayNewStoreNum(dayDto.getDayNewStoreNum());
             model.setTodayNewVipNum(dayDto.getDayNewVipNum());
@@ -102,10 +102,10 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
             Integer monthNewStoreManagerNum = blcCustomerMapper.countMonthManagerNumForDirector(userId, month);
             totalCount = monthNewStoreManagerNum != null ?  monthNewStoreManagerNum.longValue() : 0L;
         } else if (ChildTypeEnum.DIRECT_STORE.getCode() == childType || ChildTypeEnum.INDIRECT_STORE.getCode() == childType) {
-            CommunityDto monthDto = blcCustomerMapper.countMonthStoreAndVipNumForDirector(userId, month);
+            CommunityDto monthDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, month, null);
             totalCount = monthDto != null ? monthDto.getMonthNewStoreNum().longValue() : 0L;
         } else if (ChildTypeEnum.VIP.getCode() == childType) {
-            CommunityDto monthDto = blcCustomerMapper.countMonthStoreAndVipNumForDirector(userId, month);
+            CommunityDto monthDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, month, null);
             totalCount = monthDto != null ? monthDto.getMonthNewVipNum().longValue() : 0L;
         }
         return PageResponse.success(modelList,pageRequest.getPage(), pageRequest.getLimit(), totalCount);
@@ -114,7 +114,7 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
     @Override
     public CommunityModel countMonthVipData(Long userId, Integer month) {
         CommunityModel model = new CommunityModel();
-        CommunityDto monthDto = blcCustomerMapper.countMonthStoreAndVipNumForDirector(userId, month);
+        CommunityDto monthDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, month, null);
         model.setMonthNewVipNum(monthDto != null ? monthDto.getMonthNewVipNum() : 0);
         return model;
     }
@@ -122,32 +122,21 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
     @Override
     public CommunityModel countDayVipData(Long userId, Integer day) {
         CommunityModel model = new CommunityModel();
-        CommunityDto dayDto = blcCustomerMapper.countDayStoreAndVipNumForDirector(userId, day);
+        CommunityDto dayDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, null, day);
         model.setTodayNewVipNum(null != dayDto ? dayDto.getDayNewVipNum() : 0);
         return model;
     }
 
     @Override
-    public PageResponse<VipCommunityModel> getMonthNewVipList(Long userId, PageRequest pageRequest, Integer month) {
-        Long totalCount = blcCustomerMapper.countMonthNewVipNumForDirector(userId, month);
+    public PageResponse<VipCommunityModel> getMonthNewVipList(Long userId, PageRequest pageRequest, Integer month, String storeName) {
+        Long totalCount = blcCustomerMapper.countMonthHasNewVipStoreNumForDirector(userId, month, storeName);
         if(totalCount == null || totalCount <= 0L) {
             return PageResponse.empty(pageRequest.getPage(), pageRequest.getLimit());
         }
         int today = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMMdd"));
-        List<CommunityDto> communityDtoList = blcCustomerMapper.getMonthNewVipListForDirector(userId, today, month, pageRequest);
+        List<CommunityDto> communityDtoList = blcCustomerMapper.getMonthNewVipListForDirector(userId, today, month, pageRequest, storeName);
 
-        if(CollectionUtils.isNotEmpty(communityDtoList)) {
-            List<VipCommunityModel> vipCommunityModelList = Lists.newArrayListWithCapacity(communityDtoList.size());
-            for(CommunityDto communityDto : communityDtoList) {
-                VipCommunityModel model = new VipCommunityModel();
-                model.setStoreName(StringUtils.isNotBlank(communityDto.getStoreName()) ? communityDto.getStoreName() : "");
-                model.setCurMonthNewVipNum(communityDto.getMonthNewVipNum());
-                model.setTodayNewVipNum(communityDto.getDayNewVipNum());
-                vipCommunityModelList.add(model);
-            }
-            return PageResponse.success(vipCommunityModelList, pageRequest.getPage(), pageRequest.getLimit(), totalCount);
-        }
-        return PageResponse.empty(pageRequest.getPage(), pageRequest.getLimit());
+        return PageResponse.success(convertCommunityDtoToVipCommunityModel(communityDtoList), pageRequest.getPage(), pageRequest.getLimit(), totalCount);
     }
 
     @Override
@@ -157,39 +146,11 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
         int preMonth = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyyMM"));
         model = countActivityOrSilenceStoreTotal(userId, UserTypeEnum.STORE_DIRECTOR.getType(), curMonth, model);
 
-        CommunityDto curMonthDto = blcCustomerMapper.countMonthStoreAndVipNumForDirector(userId, curMonth);
+        CommunityDto curMonthDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, curMonth,null);
         model.setCurMonthNewStoreNum(curMonthDto != null ? curMonthDto.getMonthNewStoreNum() : 0);
-        CommunityDto preMonthDto = blcCustomerMapper.countMonthStoreAndVipNumForDirector(userId, preMonth);
+        CommunityDto preMonthDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, preMonth,null);
         model.setPreMonthNewStoreNum(preMonthDto != null ? preMonthDto.getMonthNewStoreNum() : 0);
         return model;
-    }
-
-    /**
-     * 获取店主的月新增vipMap
-     * @param storeIdList
-     * @param month
-     * @return
-     */
-    private Map<Long, CommunityDto> getStoreMonthVipNumMap(List<Long> storeIdList, Integer month) {
-        List<CommunityDto> storeVipNumDtoList = blcCustomerRelationMapper.batchCountVipCommunityNumForStore(storeIdList, month, null);
-        if(CollectionUtils.isEmpty(storeVipNumDtoList)) {
-            return Maps.newHashMap();
-        }
-        return storeVipNumDtoList.stream().collect(Collectors.toMap(CommunityDto::getStoreId, communityDto -> communityDto));
-    }
-
-    /**
-     * 获取店主的每日新增vipMap
-     * @param storeIdList
-     * @param day
-     * @return
-     */
-    private Map<Long, CommunityDto> getStoreDayVipNumMap(List<Long> storeIdList, Integer day) {
-        List<CommunityDto> storeVipNumDtoList = blcCustomerRelationMapper.batchCountVipCommunityNumForStore(storeIdList, null, day);
-        if(CollectionUtils.isEmpty(storeVipNumDtoList)) {
-            return Maps.newHashMap();
-        }
-        return storeVipNumDtoList.stream().collect(Collectors.toMap(CommunityDto::getStoreId, communityDto -> communityDto));
     }
 
     /**

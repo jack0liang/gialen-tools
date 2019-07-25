@@ -149,26 +149,15 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
     }
 
     @Override
-    public PageResponse<VipCommunityModel> getMonthNewVipList(Long userId, PageRequest pageRequest, Integer month) {
-        Long totalCount = blcCustomerRelationMapper.countMonthNewVipNumForManager(userId, month);
-        if(totalCount <= 0) {
+    public PageResponse<VipCommunityModel> getMonthNewVipList(Long userId, PageRequest pageRequest, Integer month, String storeName) {
+        Long totalCount = blcCustomerRelationMapper.countMonthHasNewVipStoreNumForManager(userId, month, storeName);
+        if(totalCount == null || totalCount <= 0L) {
             return PageResponse.empty(pageRequest.getPage(), pageRequest.getLimit());
         }
         int today = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMMdd"));
-        List<CommunityDto> communityDtoList = blcCustomerRelationMapper.getMonthNewVipListForManager(userId, today, month, pageRequest);
+        List<CommunityDto> communityDtoList = blcCustomerRelationMapper.getMonthNewVipListForManager(userId, today, month, pageRequest, storeName);
 
-        if(CollectionUtils.isNotEmpty(communityDtoList)) {
-            List<VipCommunityModel> vipCommunityModelList = Lists.newArrayListWithCapacity(communityDtoList.size());
-            for(CommunityDto communityDto : communityDtoList) {
-                VipCommunityModel model = new VipCommunityModel();
-                model.setStoreName(StringUtils.isNotBlank(communityDto.getStoreName()) ? communityDto.getStoreName() : "");
-                model.setCurMonthNewVipNum(communityDto.getMonthNewVipNum());
-                model.setTodayNewVipNum(communityDto.getDayNewVipNum());
-                vipCommunityModelList.add(model);
-            }
-            return PageResponse.success(vipCommunityModelList, pageRequest.getPage(), pageRequest.getLimit(), totalCount);
-        }
-        return PageResponse.empty(pageRequest.getPage(), pageRequest.getLimit());
+        return PageResponse.success(convertCommunityDtoToVipCommunityModel(communityDtoList), pageRequest.getPage(), pageRequest.getLimit(), totalCount);
     }
 
     @Override

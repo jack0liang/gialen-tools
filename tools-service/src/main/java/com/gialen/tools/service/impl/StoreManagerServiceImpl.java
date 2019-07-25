@@ -210,29 +210,29 @@ public class StoreManagerServiceImpl implements StoreManagerService {
             preMonthModel = storeManagerCommunityBiz.countMonthVipData(userId, preMonth);
             todayModel = storeManagerCommunityBiz.countDayVipData(userId, today);
         }
-        vipCommunityModel.setCurMonthNewVipNum(curMonthModel.getMonthNewVipNum());
-        vipCommunityModel.setPreMonthNewVipNum(preMonthModel.getMonthNewVipNum());
-        vipCommunityModel.setTodayNewVipNum(todayModel.getTodayNewVipNum());
+        vipCommunityModel.setCurMonthNewVipNum(curMonthModel != null ? curMonthModel.getMonthNewVipNum() : 0);
+        vipCommunityModel.setPreMonthNewVipNum(preMonthModel != null ? preMonthModel.getMonthNewVipNum() : 0);
+        vipCommunityModel.setTodayNewVipNum(todayModel != null ? todayModel.getTodayNewVipNum() : 0);
         return vipCommunityModel;
     }
 
     @Override
-    public PageResponse<VipCommunityModel> getCurMonthNewVipList(Long userId, UserTypeEnum userType, PageRequest pageRequest) {
+    public PageResponse<VipCommunityModel> getCurMonthNewVipList(Long userId, UserTypeEnum userType, PageRequest pageRequest, String storeName) {
         Integer month = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMM"));
         if(UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
-            return storeDirectorCommunityBiz.getMonthNewVipList(userId, pageRequest, month);
+            return storeDirectorCommunityBiz.getMonthNewVipList(userId, pageRequest, month, storeName);
         } else {
-            return storeManagerCommunityBiz.getMonthNewVipList(userId, pageRequest, month);
+            return storeManagerCommunityBiz.getMonthNewVipList(userId, pageRequest, month, storeName);
         }
     }
 
     @Override
-    public PageResponse<VipCommunityModel> getPreMonthNewVipList(Long userId, UserTypeEnum userType, PageRequest pageRequest) {
+    public PageResponse<VipCommunityModel> getPreMonthNewVipList(Long userId, UserTypeEnum userType, PageRequest pageRequest, String storeName) {
         Integer month = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyyMM"));
         if(UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
-            return storeDirectorCommunityBiz.getMonthNewVipList(userId, pageRequest, month);
+            return storeDirectorCommunityBiz.getMonthNewVipList(userId, pageRequest, month, storeName);
         } else {
-            return storeManagerCommunityBiz.getMonthNewVipList(userId, pageRequest, month);
+            return storeManagerCommunityBiz.getMonthNewVipList(userId, pageRequest, month, storeName);
         }
     }
 

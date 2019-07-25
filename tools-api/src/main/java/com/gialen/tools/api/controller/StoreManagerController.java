@@ -234,11 +234,12 @@ public class StoreManagerController {
     public GLResponse<PageResponse<NewVipVo>> getCurMonthNewVipList(@RequestParam(name = "userType") Byte userType,
                                                                     @RequestParam(name = "page") int page,
                                                                     @RequestParam(name = "limit") int limit,
+                                                                    @RequestParam(name = "storeName", required = false) String storeName,
                                                                     HttpServletRequest request) {
         String token = request.getHeader("token");
         Long userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
-        log.info("getCurMonthNewVipList : userId = {}, userType = {}, page = {}, limit = {}", userId, userType, page, limit);
-        PageResponse<VipCommunityModel> modelPageResponse = storeManagerService.getCurMonthNewVipList(userId, UserTypeEnum.getByType(userType), new PageRequest(page, limit));
+        log.info("getCurMonthNewVipList : userId = {}, userType = {}, page = {}, limit = {}, storeName = {}", userId, userType, page, limit, storeName);
+        PageResponse<VipCommunityModel> modelPageResponse = storeManagerService.getCurMonthNewVipList(userId, UserTypeEnum.getByType(userType), new PageRequest(page, limit), storeName);
         List<NewVipVo> voList = StoreManagerConvertor.convertToNewVipVoList(modelPageResponse.getList());
 
         byte month = Byte.parseByte(DateFormatUtils.format(new Date(), "MM"));
@@ -251,11 +252,12 @@ public class StoreManagerController {
     public GLResponse<PageResponse<NewVipVo>> getPreMonthNewVipList(@RequestParam(name = "userType") Byte userType,
                                                                     @RequestParam(name = "page") int page,
                                                                     @RequestParam(name = "limit") int limit,
+                                                                    @RequestParam(name = "storeName", required = false) String storeName,
                                                                     HttpServletRequest request) {
         String token = request.getHeader("token");
         Long userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
-        log.info("getPreMonthNewVipList : userId = {}, userType = {}, page = {}, limit = {}", userId, userType, page, limit);
-        PageResponse<VipCommunityModel> modelPageResponse = storeManagerService.getPreMonthNewVipList(userId, UserTypeEnum.getByType(userType), new PageRequest(page, limit));
+        log.info("getPreMonthNewVipList : userId = {}, userType = {}, page = {}, limit = {}, storeName = {}", userId, userType, page, limit, storeName);
+        PageResponse<VipCommunityModel> modelPageResponse = storeManagerService.getPreMonthNewVipList(userId, UserTypeEnum.getByType(userType), new PageRequest(page, limit), storeName);
         List<NewVipVo> voList = StoreManagerConvertor.convertToNewVipVoList(modelPageResponse.getList());
 
         byte month = Byte.parseByte(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "MM"));

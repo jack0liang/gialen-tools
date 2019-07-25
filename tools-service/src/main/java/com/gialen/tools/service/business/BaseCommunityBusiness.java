@@ -18,11 +18,13 @@ import com.gialen.tools.service.model.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -74,5 +76,20 @@ public abstract class BaseCommunityBusiness implements CommunityBusiness {
             model.setNotPurchasedRate(BigDecimal.valueOf(DecimalCalculate.div(silenceStoreNum.doubleValue(), total.doubleValue(), 4)));
         }
         return model;
+    }
+
+    protected List<VipCommunityModel> convertCommunityDtoToVipCommunityModel(List<CommunityDto> communityDtoList) {
+        if(CollectionUtils.isEmpty(communityDtoList)) {
+            return Collections.emptyList();
+        }
+        List<VipCommunityModel> vipCommunityModelList = Lists.newArrayListWithCapacity(communityDtoList.size());
+        for(CommunityDto communityDto : communityDtoList) {
+            VipCommunityModel model = new VipCommunityModel();
+            model.setStoreName(StringUtils.isNotBlank(communityDto.getStoreName()) ? communityDto.getStoreName() : "");
+            model.setCurMonthNewVipNum(communityDto.getMonthNewVipNum());
+            model.setTodayNewVipNum(communityDto.getDayNewVipNum());
+            vipCommunityModelList.add(model);
+        }
+        return vipCommunityModelList;
     }
 }

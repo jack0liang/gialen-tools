@@ -22,15 +22,6 @@ public interface BlcCustomerRelationMapper {
     CommunityDto countStoreAndVipCommunityNumForManager(@Param("managerId") Long managerId, @Param("month") Integer month, @Param("day") Integer day);
 
     /**
-     * 批量统计店主的vip数据
-     * @param storeIdList
-     * @param month
-     * @param day
-     * @return
-     */
-    List<CommunityDto> batchCountVipCommunityNumForStore(@Param("storeIdList") List<Long> storeIdList, @Param("month") Integer month, @Param("day") Integer day);
-
-    /**
      * 查询店经的月新增vip列表
      * @param managerId
      * @param day
@@ -39,15 +30,16 @@ public interface BlcCustomerRelationMapper {
      * @return
      */
     List<CommunityDto> getMonthNewVipListForManager(@Param("managerId") Long managerId, @Param("day") Integer day,
-                                                     @Param("month") Integer month, @Param("page") PageRequest page);
+                                                    @Param("month") Integer month, @Param("page") PageRequest page,
+                                                    @Param("storeName") String storeName);
 
     /**
-     * 统计店经的月新增vip总数
+     * 统计店经的月度 有新增vip的店主数量
      * @param managerId
      * @param month
      * @return
      */
-    Long countMonthNewVipNumForManager(@Param("managerId") Long managerId, @Param("month") Integer month);
+    Long countMonthHasNewVipStoreNumForManager(@Param("managerId") Long managerId, @Param("month") Integer month, @Param("storeName") String storeName);
 
     /**
      * 统计活跃或静默店主数量

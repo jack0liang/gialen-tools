@@ -486,47 +486,31 @@
     </if>
   </select>
 
-  <select id="batchCountVipCommunityNumForStore" resultType="com.gialen.tools.dao.dto.CommunityDto">
-    select r.store_mgr_id as storeId, c.real_name as storeName
-    <if test="month != null">
-      count(1) as monthNewVipNum
-    </if>
-    <if test="day != null">
-      count(1) as dayNewVipNum
-    </if>
-    from blc_customer_relation r, blc_customer c
-    where r.store_mgr_id = c.customer_id and r.customer_type = 3 and r.store_mgr_id in
-    <foreach collection="storeIdList" separator="," open="(" close=")" item="item">
-      #{item}
-    </foreach>
-    <if test="month != null">
-      and DATE_FORMAT(str_to_date(r.modify_date, '%Y-%m-%d'),'%Y%m') = #{month}
-    </if>
-    <if test="day != null">
-      and DATE_FORMAT(str_to_date(r.modify_date, '%Y-%m-%d'),'%Y%m%d') = #{day}
-    </if>
-    group by r.store_mgr_id
-  </select>
-
   <select id="getMonthNewVipListForManager" resultType="com.gialen.tools.dao.dto.CommunityDto">
-    select c.CUSTOMER_ID as storeId, c.REAL_NAME as storeName,
+    select h.CUSTOMER_ID as storeId, h.REAL_NAME as storeName,
     <if test="day != null">
-      count(case when DATE_FORMAT(str_to_date(r.modify_date, '%Y-%m-%d'),'%Y%m%d') = #{day} then 1 else null end) as dayNewVipNum
+      count(case when DATE_FORMAT(c.date_created,'%Y%m%d') = #{day} then 1 else null end) as dayNewVipNum,
     </if>
     count(1) as monthNewVipNum
-    from blc_customer_relation r, blc_customer c
-    where r.store_mgr_id = c.CUSTOMER_ID  and r.store_super_mgr_id = #{managerId} and r.customer_type = 3
-    and DATE_FORMAT(str_to_date(r.modify_date, '%Y-%m-%d'),'%Y%m') = #{month}
-    GROUP BY c.HIGHER_CUSTOMER_ID
+    from blc_customer_relation r, blc_customer h, blc_customer c
+    where r.store_mgr_id = h.CUSTOMER_ID and r.customer_id = c.customer_id and r.store_super_mgr_id = #{managerId} and r.customer_type = 3
+    and DATE_FORMAT(c.date_created,'%Y%m') = #{month}
+    <if test="storeName != null or storeName != ''">
+      and h.REAL_NAME like concat(#{storeName},"%")
+    </if>
+    GROUP BY r.store_mgr_id
     order by count(1) desc
     limit #{page.offset}, #{page.limit}
   </select>
 
-  <select id="countMonthNewVipNumForManager" resultType="java.lang.Long">
-    select count(DISTINCT store_mgr_id)
-    from blc_customer_relation
-    where store_super_mgr_id = #{managerId} and customer_type = 3
-    and DATE_FORMAT(str_to_date(modify_date, '%Y-%m-%d'),'%Y%m') = #{month}
+  <select id="countMonthHasNewVipStoreNumForManager" resultType="java.lang.Long">
+    select count(DISTINCT r.store_mgr_id)
+    from blc_customer_relation r, blc_customer c, blc_customer h
+    where r.customer_id = c.customer_id and c.HIGHER_CUSTOMER_ID = h.customer_id and r.store_super_mgr_id = #{managerId} and r.customer_type = 3
+    and DATE_FORMAT(c.date_created,'%Y%m') = #{month}
+    <if test="storeName != null or storeName != ''">
+      and h.REAL_NAME like concat(#{storeName},"%")
+    </if>
   </select>
 
   <select id="getActivityOrSilenceStoreList" resultType="com.gialen.tools.dao.dto.ActivityUserDetailDto">

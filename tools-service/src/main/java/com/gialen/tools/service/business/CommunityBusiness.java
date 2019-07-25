@@ -67,9 +67,10 @@ public interface CommunityBusiness {
      * @param userId
      * @param pageRequest
      * @param month
+     * @param storeName
      * @return
      */
-    PageResponse<VipCommunityModel> getMonthNewVipList(Long userId, PageRequest pageRequest, Integer month);
+    PageResponse<VipCommunityModel> getMonthNewVipList(Long userId, PageRequest pageRequest, Integer month, String storeName);
 
     /**
      * 统计月活跃店主数据

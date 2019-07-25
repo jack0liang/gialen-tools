@@ -2041,22 +2041,24 @@
     and (DATE_FORMAT(super_store_be_time,'%Y%m') = #{month} or DATE_FORMAT(practice_super_store_be_time,'%Y%m') = #{month})
   </select>
 
-  <select id="countMonthStoreAndVipNumForDirector" resultType="com.gialen.tools.dao.dto.CommunityDto">
+  <select id="countStoreAndVipNumForDirector" resultType="com.gialen.tools.dao.dto.CommunityDto">
     select
-    count(case when user_level_new_id = 1 and user_type = 'STORE' then 1 else null end) as monthNewStoreNum,
-    count(case when user_type = 'VIP' then 1 else null end) as monthNewVipNum
+    <if test="month != null">
+        count(case when user_level_new_id = 1 and user_type = 'STORE' then 1 else null end) as monthNewStoreNum,
+        count(case when user_type = 'VIP' then 1 else null end) as monthNewVipNum
+    </if>
+    <if test="day != null">
+        count(case when user_level_new_id = 1 and user_type = 'STORE' then 1 else null end) as dayNewStoreNum,
+        count(case when user_type = 'VIP' then 1 else null end) as dayNewVipNum
+    </if>
     from blc_customer
     where shop_store_id = #{directorId}
-    and DATE_FORMAT(DATE_CREATED,'%Y%m') = #{month}
-  </select>
-
-  <select id="countDayStoreAndVipNumForDirector" resultType="com.gialen.tools.dao.dto.CommunityDto">
-    select
-    count(case when user_level_new_id = 1 and user_type = 'STORE' then 1 else null end) as dayNewStoreNum,
-    count(case when user_type = 'VIP' then 1 else null end) as dayNewVipNum
-    from blc_customer
-    where shop_store_id = #{directorId}
-    and DATE_FORMAT(DATE_CREATED,'%Y%m%d') = #{day}
+    <if test="month != null">
+        and DATE_FORMAT(DATE_CREATED,'%Y%m') = #{month}
+    </if>
+    <if test="day != null">
+        and DATE_FORMAT(DATE_CREATED,'%Y%m%d') = #{day}
+    </if>
   </select>
 
   <select id="getMonthUserChildListForDirector" resultType="com.gialen.tools.dao.entity.gialen.BlcCustomer">
@@ -2087,16 +2089,22 @@
     where c.HIGHER_CUSTOMER_ID = h.CUSTOMER_ID and c.shop_store_id = #{directorId}
     and DATE_FORMAT(c.DATE_CREATED,'%Y%m') = #{month}
     and c.user_type = 'VIP'
+    <if test="storeName != null or storeName != ''">
+      and h.REAL_NAME like concat(#{storeName},"%")
+    </if>
     GROUP BY c.HIGHER_CUSTOMER_ID
     order by count(1) desc
     limit #{page.offset}, #{page.limit}
   </select>
 
-  <select id="countMonthNewVipNumForDirector" resultType="java.lang.Long">
-    select count(DISTINCT HIGHER_CUSTOMER_ID)
-    from blc_customer
-    where shop_store_id = #{directorId} and DATE_FORMAT(DATE_CREATED,'%Y%m') = #{month}
-    and user_type = 'VIP'
+  <select id="countMonthHasNewVipStoreNumForDirector" resultType="java.lang.Long">
+    select count(DISTINCT c.HIGHER_CUSTOMER_ID)
+    from blc_customer c, blc_customer h
+    where c.HIGHER_CUSTOMER_ID = h.customer_id and c.shop_store_id = #{directorId} and DATE_FORMAT(c.DATE_CREATED,'%Y%m') = #{month}
+    and c.user_type = 'VIP'
+    <if test="storeName != null or storeName != ''">
+      and h.REAL_NAME like concat(#{storeName},"%")
+    </if>
   </select>
 
 </mapper>

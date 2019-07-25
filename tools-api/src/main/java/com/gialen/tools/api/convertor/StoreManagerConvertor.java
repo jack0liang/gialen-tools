@@ -100,8 +100,8 @@ public class StoreManagerConvertor {
      */
     public static VipCommunityVo convertVipCommunityModelToVo(VipCommunityModel model) {
         VipCommunityVo vo = Copier.copy(model, new VipCommunityVo());
-        vo.setCurMonth(DateFormatUtils.format(new Date(), "yyyy年MM月"));
-        vo.setPreMonth(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyy年MM月"));
+        vo.setCurMonth(DateFormatUtils.format(new Date(), "yyyy年M月"));
+        vo.setPreMonth(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyy年M月"));
         return vo;
     }
 
@@ -115,10 +115,7 @@ public class StoreManagerConvertor {
             return Collections.emptyList();
         }
         List<NewVipVo> voList = Lists.newArrayListWithCapacity(modelList.size());
-        modelList.forEach(model -> {
-            NewVipVo vo = Copier.copy(model, new NewVipVo());
-            voList.add(vo);
-        });
+        modelList.forEach(model -> voList.add(Copier.copy(model, new NewVipVo())));
         return voList;
     }
 
