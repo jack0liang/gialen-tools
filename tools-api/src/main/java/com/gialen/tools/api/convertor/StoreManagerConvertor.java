@@ -3,11 +3,13 @@ package com.gialen.tools.api.convertor;
 import com.gialen.common.beantools.Copier;
 import com.gialen.common.model.PageResponse;
 import com.gialen.tools.api.vo.*;
+import com.gialen.tools.common.enums.ChildTypeEnum;
 import com.gialen.tools.common.enums.CommunityQueryTypeEnum;
 import com.gialen.tools.common.enums.UserTypeEnum;
 import com.gialen.tools.service.model.*;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -78,14 +80,19 @@ public class StoreManagerConvertor {
      * @param modelList
      * @return
      */
-    public static List<ChildVo> convertToChildVoList(List<CustomerModel> modelList) {
+    public static List<ChildVo> convertToChildVoList(List<CustomerModel> modelList, Byte childType) {
         if(CollectionUtils.isEmpty(modelList)) {
             return Collections.emptyList();
         }
         List<ChildVo> voList = Lists.newArrayListWithCapacity(modelList.size());
         modelList.forEach(model -> {
             ChildVo vo = new ChildVo();
-            vo.setUserName(model.getRealName());
+            vo.setUserName(StringUtils.isNotBlank(model.getRealName()) ? model.getRealName() : "");
+            if(ChildTypeEnum.VIP.getCode() == childType) {
+                String phone = StringUtils.isNotBlank(model.getPhone()) ?
+                        model.getPhone().substring(0, 3) + "****" + model.getPhone().substring(7, model.getPhone().length()) : "";
+                vo.setUserName(phone);
+            }
             vo.setRegistTime(model.getDateCreated());
             vo.setIsTempStore(model.getIsTempStoreCustomer());
             voList.add(vo);
@@ -147,7 +154,7 @@ public class StoreManagerConvertor {
         seriesNodeVoList.add(nodeVo);
         chartDataVo.setSeries(seriesNodeVoList);
         vo.setChartData(chartDataVo);
-        vo.setMonth(Byte.parseByte(DateFormatUtils.format(new Date(), "MM")));
+        vo.setMonth(Byte.parseByte(DateFormatUtils.format(new Date(), "M")));
         return vo;
     }
 
@@ -166,7 +173,7 @@ public class StoreManagerConvertor {
         vo.setChartData(pieChartDataVo);
         vo.setCurMonth(DateFormatUtils.format(new Date(), "yyyy年M月"));
         vo.setPreMonth(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyy年M月"));
-        vo.setMonth(Byte.parseByte(DateFormatUtils.format(new Date(), "MM")));
+        vo.setMonth(Byte.parseByte(DateFormatUtils.format(new Date(), "M")));
         return vo;
     }
 

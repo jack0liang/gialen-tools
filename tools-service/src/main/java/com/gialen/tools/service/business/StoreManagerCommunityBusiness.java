@@ -84,19 +84,22 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
         CommunityModel communityModel = countTotalCommunityData(userId);
         long totalCount = 0L;
         if(ChildTypeEnum.STORE_MANAGER.getCode() == childType) {
-            totalCount = communityModel.getTotalStoreManagerNum();
+            totalCount = communityModel != null ? communityModel.getTotalStoreManagerNum() : 0L;
         } else if (ChildTypeEnum.DIRECT_STORE.getCode() == childType) {
-            totalCount = communityModel.getTotalDirectStoreNum();
+            totalCount = communityModel != null ? communityModel.getTotalDirectStoreNum() : 0L;
         } else if (ChildTypeEnum.INDIRECT_STORE.getCode() == childType) {
-            totalCount = communityModel.getTotalIndirectStoreNum();
+            totalCount = communityModel != null ? communityModel.getTotalIndirectStoreNum() : 0L;
         } else if (ChildTypeEnum.VIP.getCode() == childType) {
-            totalCount = communityModel.getTotalVipNum();
+            totalCount = communityModel != null ? communityModel.getTotalVipNum() : 0L;
+        }
+        if(totalCount <= 0L) {
+            return PageResponse.empty(pageRequest.getPage(), pageRequest.getLimit());
         }
         List<CustomerModel> modelList = null;
-        //店经的下级店经和直接店主
+        //查店经或直接店主
         if(ChildTypeEnum.STORE_MANAGER.getCode() == childType || ChildTypeEnum.DIRECT_STORE.getCode() == childType) {
             modelList = getManagerOrDirectStoreList(userId, pageRequest, childType);
-        //店经的间接店主和vip
+        //查间接店主或vip
         } else if (ChildTypeEnum.INDIRECT_STORE.getCode() == childType || ChildTypeEnum.VIP.getCode() == childType) {
             modelList = getIndirectStoreOrVipList(userId, pageRequest, childType);
         }
@@ -121,11 +124,14 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
             CommunityDto monthStoreAndVipDto = blcCustomerRelationMapper.countStoreAndVipCommunityNumForManager(userId, month, null);
             totalCount = monthStoreAndVipDto != null ? monthStoreAndVipDto.getMonthNewVipNum().longValue() : 0L;
         }
+        if(totalCount <= 0L) {
+            return PageResponse.empty(pageRequest.getPage(), pageRequest.getLimit());
+        }
         List<CustomerModel> modelList = null;
-        //店经的下级店经和直接店主
+        //店经和直接店主
         if(ChildTypeEnum.STORE_MANAGER.getCode() == childType || ChildTypeEnum.DIRECT_STORE.getCode() == childType) {
             modelList = getMonthManagerOrDirectStoreList(userId, pageRequest, childType, month);
-            //店经的间接店主和vip
+        //间接店主和vip
         } else if (ChildTypeEnum.INDIRECT_STORE.getCode() == childType || ChildTypeEnum.VIP.getCode() == childType) {
             modelList = getMonthIndirectStoreOrVipList(userId, pageRequest, childType, month);
         }

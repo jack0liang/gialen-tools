@@ -27,6 +27,11 @@ public class CustomerModel {
     private String realName;
 
     /**
+     * 手机号
+     */
+    private String phone;
+
+    /**
      * 上级用户id
      */
     private Long higherCustomerId;

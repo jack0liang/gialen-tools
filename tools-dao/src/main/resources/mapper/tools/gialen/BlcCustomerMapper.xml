@@ -1992,7 +1992,7 @@
   </select>
 
   <select id="getIndirectStoreOrVipListForManager" resultType="com.gialen.tools.dao.entity.gialen.BlcCustomer">
-    select c.REAL_NAME as realName, c.DATE_CREATED as dateCreated, c.is_temp_store_customer as isTempStoreCustomer
+    select c.REAL_NAME as realName, c.phone, c.DATE_CREATED as dateCreated, c.is_temp_store_customer as isTempStoreCustomer
     from blc_customer c, blc_customer_relation r
     where c.CUSTOMER_ID = r.customer_id and r.store_super_mgr_id = #{managerId}
     <if test="childType == 1">
@@ -2009,7 +2009,7 @@
   </select>
 
   <select id="getMonthManagerOrDirectStoreListForManager" resultType="com.gialen.tools.dao.entity.gialen.BlcCustomer">
-    select REAL_NAME as realName, DATE_CREATED as dateCreated, is_temp_store_customer as isTempStoreCustomer
+    select REAL_NAME as realName, phone, DATE_CREATED as dateCreated, is_temp_store_customer as isTempStoreCustomer
     from blc_customer
     where HIGHER_CUSTOMER_ID = #{managerId}
     <if test="childType==4">
@@ -2062,7 +2062,7 @@
   </select>
 
   <select id="getMonthUserChildListForDirector" resultType="com.gialen.tools.dao.entity.gialen.BlcCustomer">
-    select customer_id as customerId, REAL_NAME as realName, DATE_CREATED as dateCreated, is_temp_store_customer as isTempStoreCustomer
+    select customer_id as customerId, phone, REAL_NAME as realName, DATE_CREATED as dateCreated, is_temp_store_customer as isTempStoreCustomer
     from blc_customer
     where shop_store_id = #{directorId}
     <if test="childType==4">

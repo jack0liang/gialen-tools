@@ -191,7 +191,7 @@ public class StoreManagerController {
         log.info("getUserChildList : userId = {}, userType = {}, childType = {}, page = {}, limit = {}", userId, userType, childType, page, limit);
         PageResponse<CustomerModel> modelPageResponse = storeManagerService.getUserChildList(userId, UserTypeEnum.getByType(userType),
                 ChildTypeEnum.getByType(childType), new PageRequest(page, limit));
-        List<ChildVo> voList = StoreManagerConvertor.convertToChildVoList(modelPageResponse.getList());
+        List<ChildVo> voList = StoreManagerConvertor.convertToChildVoList(modelPageResponse.getList(), childType);
 
         return GLResponse.succ(PageResponse.success(voList, page, limit, modelPageResponse.getTotalCount()));
     }
@@ -212,7 +212,7 @@ public class StoreManagerController {
         log.info("getCurMonthUserChildList : userId = {}, userType = {}, childType = {}, page = {}, limit = {}", userId, userType, childType, page, limit);
         PageResponse<CustomerModel> modelPageResponse = storeManagerService.getCurMonthUserChildList(userId, UserTypeEnum.getByType(userType),
                 ChildTypeEnum.getByType(childType), new PageRequest(page, limit));
-        List<ChildVo> voList = StoreManagerConvertor.convertToChildVoList(modelPageResponse.getList());
+        List<ChildVo> voList = StoreManagerConvertor.convertToChildVoList(modelPageResponse.getList(), childType);
 
         return GLResponse.succ(PageResponse.success(voList, page, limit, modelPageResponse.getTotalCount()));
     }

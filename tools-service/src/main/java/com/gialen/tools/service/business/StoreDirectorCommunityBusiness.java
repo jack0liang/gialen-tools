@@ -3,32 +3,24 @@ package com.gialen.tools.service.business;
 import com.gialen.common.beantools.Copier;
 import com.gialen.common.model.PageRequest;
 import com.gialen.common.model.PageResponse;
-import com.gialen.common.utils.DecimalCalculate;
 import com.gialen.tools.common.enums.ChildTypeEnum;
-import com.gialen.tools.common.enums.PurchasedTypeEnum;
 import com.gialen.tools.common.enums.UserTypeEnum;
-import com.gialen.tools.dao.dto.ActivityUserDetailDto;
 import com.gialen.tools.dao.dto.CommunityDto;
 import com.gialen.tools.dao.entity.gialen.BlcCustomer;
 import com.gialen.tools.dao.entity.gialen.BlcCustomerExample;
 import com.gialen.tools.dao.repository.gialen.BlcCustomerMapper;
-import com.gialen.tools.dao.repository.gialen.BlcCustomerRelationMapper;
 import com.gialen.tools.service.convertor.CustomerConvertor;
-import com.gialen.tools.service.model.*;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import com.gialen.tools.service.model.CommunityModel;
+import com.gialen.tools.service.model.CustomerModel;
+import com.gialen.tools.service.model.StoreActivityModel;
+import com.gialen.tools.service.model.VipCommunityModel;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 店董社群数据业务类
@@ -40,9 +32,6 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
 
     @Autowired
     private BlcCustomerMapper blcCustomerMapper;
-
-    @Autowired
-    private BlcCustomerRelationMapper blcCustomerRelationMapper;
 
     @Override
     public CommunityModel countTotalCommunityData(Long userId) {
@@ -56,47 +45,49 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
     @Override
     public CommunityModel countMonthCommunityData(Long userId, Integer month) {
         CommunityModel model = new CommunityModel();
+
         //统计月新增店经数
         Integer monthNewStoreManagerNum = blcCustomerMapper.countMonthManagerNumForDirector(userId, month);
         model.setMonthNewStoreManagerNum(monthNewStoreManagerNum);
+
         //统计月新增店主和vip数
         CommunityDto monthDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, month, null);
-        if(monthDto != null) {
-            model.setMonthNewStoreNum(monthDto.getMonthNewStoreNum());
-            model.setMonthNewVipNum(monthDto.getMonthNewVipNum());
-        }
+        model.setMonthNewStoreNum(monthDto != null ? monthDto.getMonthNewStoreNum() : 0);
+        model.setMonthNewVipNum(monthDto != null ? monthDto.getMonthNewVipNum() : 0);
+
         //统计今日新增店主和vip数
         Integer today = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMMdd"));
         CommunityDto dayDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, null, today);
-        if(dayDto != null) {
-            model.setTodayNewStoreNum(dayDto.getDayNewStoreNum());
-            model.setTodayNewVipNum(dayDto.getDayNewVipNum());
-        }
+        model.setTodayNewStoreNum(dayDto != null ? dayDto.getDayNewStoreNum() : 0);
+        model.setTodayNewVipNum(dayDto != null ? dayDto.getDayNewVipNum() : 0);
+
+        //统计所有下级人数
         CommunityDto totalDto = blcCustomerMapper.countTotalNumForDirector(userId);
-        if(totalDto != null) {
-            model.setTotalNum(totalDto.getTotalNum());
-        }
+        model.setTotalNum(totalDto != null ? totalDto.getTotalNum() : 0);
         return model;
     }
 
     @Override
     public PageResponse<CustomerModel> getChildList(Long userId, Byte childType, PageRequest pageRequest) {
         CommunityModel communityModel = countTotalCommunityData(userId);
-        List<CustomerModel> modelList = getChildListForStoreDirector(userId, pageRequest, childType);
+
         long totalCount = 0L;
         if(ChildTypeEnum.STORE_MANAGER.getCode() == childType) {
-            totalCount = communityModel.getTotalStoreManagerNum();
+            totalCount = communityModel != null ? communityModel.getTotalStoreManagerNum() : 0L;
         } else if (ChildTypeEnum.DIRECT_STORE.getCode() == childType || ChildTypeEnum.INDIRECT_STORE.getCode() == childType) {
-            totalCount = communityModel.getTotalStoreNum();
-        } else if (ChildTypeEnum.VIP.equals(childType)) {
-            totalCount = communityModel.getTotalVipNum();
+            totalCount = communityModel != null ? communityModel.getTotalStoreNum() : 0L;
+        } else if (ChildTypeEnum.VIP.getCode() == childType) {
+            totalCount = communityModel != null ? communityModel.getTotalVipNum() : 0L;
         }
+        if(totalCount <= 0L) {
+            return PageResponse.empty(pageRequest.getPage(), pageRequest.getLimit());
+        }
+        List<CustomerModel> modelList = getChildListForStoreDirector(userId, pageRequest, childType);
         return PageResponse.success(modelList,pageRequest.getPage(), pageRequest.getLimit(), totalCount);
     }
 
     @Override
     public PageResponse<CustomerModel> getMonthChildList(Long userId, Byte childType, PageRequest pageRequest, Integer month) {
-        List<CustomerModel> modelList = getMonthChildListForStoreDirector(userId, pageRequest, childType, month);
         long totalCount = 0L;
         if(ChildTypeEnum.STORE_MANAGER.getCode() == childType) {
             Integer monthNewStoreManagerNum = blcCustomerMapper.countMonthManagerNumForDirector(userId, month);
@@ -108,6 +99,11 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
             CommunityDto monthDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, month, null);
             totalCount = monthDto != null ? monthDto.getMonthNewVipNum().longValue() : 0L;
         }
+        if(totalCount <= 0L) {
+            return PageResponse.empty(pageRequest.getPage(), pageRequest.getLimit());
+        }
+
+        List<CustomerModel> modelList = getMonthChildListForStoreDirector(userId, pageRequest, childType, month);
         return PageResponse.success(modelList,pageRequest.getPage(), pageRequest.getLimit(), totalCount);
     }
 
@@ -167,8 +163,7 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
 
         if(ChildTypeEnum.STORE_MANAGER.getCode() == childType) { //店经
             criteria.andUserLevelNewIdEqualTo("4").andUserTypeEqualTo(UserTypeEnum.STORE.getCode());
-        } else if (ChildTypeEnum.DIRECT_STORE.getCode() == childType ||
-                ChildTypeEnum.INDIRECT_STORE.getCode() == childType) { //店主
+        } else if (ChildTypeEnum.DIRECT_STORE.getCode() == childType || ChildTypeEnum.INDIRECT_STORE.getCode() == childType) { //店主
             criteria.andUserLevelNewIdEqualTo("1").andUserTypeEqualTo(UserTypeEnum.STORE.getCode());
         } else if (ChildTypeEnum.VIP.getCode() == childType) { //vip
             criteria.andUserTypeEqualTo(UserTypeEnum.VIP.getCode());

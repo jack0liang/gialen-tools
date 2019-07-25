@@ -1,5 +1,6 @@
 package com.gialen.tools.service.convertor;
 
+import com.gialen.tools.common.enums.ChildTypeEnum;
 import com.gialen.tools.dao.entity.gialen.BlcCustomer;
 import com.gialen.tools.service.model.CustomerModel;
 import com.google.common.collect.Lists;
@@ -26,6 +27,7 @@ public class CustomerConvertor {
         List<CustomerModel> modelList = Lists.newArrayListWithCapacity(customerList.size());
         customerList.forEach(blcCustomer -> {
             CustomerModel model = new CustomerModel();
+            model.setPhone(blcCustomer.getPhone());
             model.setRealName(blcCustomer.getRealName());
             model.setDateCreated(blcCustomer.getDateCreated());
             model.setIsTempStoreCustomer(blcCustomer.getIsTempStoreCustomer() == 1);
