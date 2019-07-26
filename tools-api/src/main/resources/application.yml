@@ -13,7 +13,6 @@ spring:
     view:
       prefix: /WEB-INF/views/
       suffix: .jsp
-    static-path-pattern: /static/**
 
 server:
   port: 1088
