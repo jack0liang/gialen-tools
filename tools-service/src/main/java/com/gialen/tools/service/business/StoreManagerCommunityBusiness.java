@@ -57,11 +57,11 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
         CommunityModel model = new CommunityModel();
         int today = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMMdd"));
         CommunityDto monthIndirectStoreAndVipDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, month, null, null);
-        CommunityDto todayIndirectStoreAndVipDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, null, today, null);
+        CommunityDto todayStoreAndVipDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, null, today, null);
         model.setMonthNewVipNum(monthIndirectStoreAndVipDto != null ? monthIndirectStoreAndVipDto.getMonthNewVipNum() : 0);
         model.setMonthNewIndirectStoreNum(monthIndirectStoreAndVipDto != null ? monthIndirectStoreAndVipDto.getMonthNewIndirectStoreNum() : 0);
-        model.setTodayNewVipNum(todayIndirectStoreAndVipDto != null ? todayIndirectStoreAndVipDto.getDayNewVipNum() : 0);
-        model.setTodayNewStoreNum(todayIndirectStoreAndVipDto != null ? todayIndirectStoreAndVipDto.getDayNewStoreNum() : 0);
+        model.setTodayNewVipNum(todayStoreAndVipDto != null ? todayStoreAndVipDto.getDayNewVipNum() : 0);
+        model.setTodayNewStoreNum(todayStoreAndVipDto != null ? todayStoreAndVipDto.getDayNewStoreNum() : 0);
 
         Integer monthNewDirectStoreNum = blcCustomerMapper.countMonthDirectStoreAndManagerNumForManager(userId, UserTypeEnum.STORE.getType(), month);
         model.setMonthNewDirectStoreNum(monthNewDirectStoreNum);
@@ -194,7 +194,7 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
             criteria.andUserLevelNewIdEqualTo("1");
         }
         if(StringUtils.isNotBlank(userName)) {
-            criteria.andRealNameLike(userName);
+            criteria.andRealNameLike(userName + "%");
         }
         example.setOrderByClause("DATE_CREATED desc");
         example.setLimit(page.getLimit());

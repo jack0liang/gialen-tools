@@ -170,7 +170,7 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
             criteria.andUserTypeEqualTo(UserTypeEnum.VIP.getCode());
         }
         if(StringUtils.isNotBlank(userName) && ChildTypeEnum.VIP.getCode() != childType) {
-            criteria.andRealNameLike(userName);
+            criteria.andRealNameLike(userName+"%");
         }
 
         example.setOrderByClause("DATE_CREATED desc");
