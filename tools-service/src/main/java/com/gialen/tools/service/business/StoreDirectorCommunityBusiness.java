@@ -64,7 +64,9 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
 
         //统计所有下级人数
         CommunityDto totalDto = blcCustomerMapper.countTotalNumForDirector(userId, null);
-        model.setTotalNum(totalDto != null ? totalDto.getTotalNum() : 0);
+        model.setTotalNum((totalDto != null ? totalDto.getTotalVipNum() : 0)
+                + (totalDto != null ? totalDto.getTotalStoreNum() : 0)
+                + (totalDto != null ? totalDto.getTotalStoreManagerNum() : 0));
         return model;
     }
 
