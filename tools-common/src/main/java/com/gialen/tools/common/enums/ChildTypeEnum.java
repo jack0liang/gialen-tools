@@ -46,7 +46,8 @@ public enum ChildTypeEnum {
 
     public static ChildTypeEnum getByIndexForDirector(Byte index) {
         if(index == null) {
-            return null;
+            log.warn("index is null! defaul set to vip.");
+            return VIP;
         }
         switch (index) {
             case 1 :
@@ -56,9 +57,9 @@ public enum ChildTypeEnum {
             case 3 :
                 return STORE_MANAGER;
             default:
-                log.warn("not found this index!");
+                log.warn("not found this index : {}! defaul set to vip.", index);
+                return VIP;
         }
-        return null;
     }
 
     public byte getCode() {
