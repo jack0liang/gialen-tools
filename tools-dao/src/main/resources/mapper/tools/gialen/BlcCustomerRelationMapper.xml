@@ -516,19 +516,13 @@
     </if>
   </select>
 
-  <select id="getActivityOrSilenceStoreList" resultType="com.gialen.tools.dao.dto.ActivityUserDetailDto">
+  <select id="getActivityOrSilenceStoreListForManager" resultType="com.gialen.tools.dao.dto.ActivityUserDetailDto">
     select c.CUSTOMER_ID as userId, c.REAL_NAME as realName, h.REAL_NAME as invitor, IFNULL(sum(o.ORDER_TOTAL),0) as salesNum
     from blc_customer_relation r
     LEFT JOIN blc_customer c on r.store_mgr_id = c.CUSTOMER_ID
     LEFT JOIN blc_customer h on c.HIGHER_CUSTOMER_ID = h.CUSTOMER_ID
     LEFT JOIN blc_order o on o.CUSTOMER_ID = r.CUSTOMER_ID and DATE_FORMAT(o.DATE_CREATED,'%Y%m') = #{month} and o.ORDER_PAY_STATUS = 'PAYED' and o.ORDER_STATUS != 'CANCELLED'
-    where
-    <if test="userType == 3">
-      r.store_super_mgr_id = #{userId}
-    </if>
-    <if test="userType == 4">
-      r.store_id = #{userId}
-    </if>
+    where r.store_super_mgr_id = #{userId}
     <if test="storeName != null and storeName != ''">
       and c.REAL_NAME like concat(#{storeName},"%")
     </if>
@@ -543,20 +537,14 @@
     limit #{page.offset}, #{page.limit}
   </select>
 
-  <select id="countActivityOrSilenceStoreTotal" resultType="java.lang.Long">
+  <select id="countActivityOrSilenceStoreTotalForManager" resultType="java.lang.Long">
     select count(1) from
     (select IFNULL(sum(o.ORDER_TOTAL),0) as salesNum
     from blc_customer_relation r
     LEFT JOIN blc_customer c on r.store_mgr_id = c.CUSTOMER_ID
     LEFT JOIN blc_order o on o.CUSTOMER_ID = r.CUSTOMER_ID and DATE_FORMAT(o.DATE_CREATED,'%Y%m') = #{month} and
     o.ORDER_PAY_STATUS = 'PAYED' and o.ORDER_STATUS != 'CANCELLED'
-    where
-    <if test="userType == 3">
-      r.store_super_mgr_id = #{userId}
-    </if>
-    <if test="userType == 4">
-      r.store_id = #{userId}
-    </if>
+    where r.store_super_mgr_id = #{userId}
     <if test="storeName != null and storeName != ''">
       and c.REAL_NAME like concat(#{storeName},"%")
     </if>

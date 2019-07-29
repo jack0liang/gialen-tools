@@ -148,7 +148,7 @@ public class StoreManagerConvertor {
             chartDataVo.setCategories(Arrays.asList(categories));
             addDirectorChartData(dataList, model, queryType);
         } else {
-            String[] categories = {"VIP", "直接店主", "间接店主", "店经"};
+            String[] categories = {"VIP", "直接店主", "间接店主", "直接店经"};
             chartDataVo.setCategories(Arrays.asList(categories));
             addManagerChartData(dataList, model, queryType);
         }
@@ -194,6 +194,12 @@ public class StoreManagerConvertor {
         return voList;
     }
 
+    /**
+     * 设置店董图表数据
+     * @param dataList
+     * @param model
+     * @param queryType
+     */
     private static void addDirectorChartData(List<Integer> dataList, CommunityModel model, CommunityQueryTypeEnum queryType) {
         if(CommunityQueryTypeEnum.All.equals(queryType)) {
             dataList.add(model.getTotalVipNum());
@@ -206,6 +212,12 @@ public class StoreManagerConvertor {
         }
     }
 
+    /**
+     * 设置店经图表数据
+     * @param dataList
+     * @param model
+     * @param queryType
+     */
     private static void addManagerChartData(List<Integer> dataList, CommunityModel model, CommunityQueryTypeEnum queryType) {
         if(CommunityQueryTypeEnum.All.equals(queryType)) {
             dataList.add(model.getTotalVipNum());

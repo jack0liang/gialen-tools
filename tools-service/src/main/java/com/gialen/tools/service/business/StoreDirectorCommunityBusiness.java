@@ -16,7 +16,6 @@ import com.gialen.tools.service.model.StoreActivityModel;
 import com.gialen.tools.service.model.VipCommunityModel;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -142,13 +141,13 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
     public StoreActivityModel countMonthActivityStore(Long userId) {
         StoreActivityModel model = new StoreActivityModel();
         int curMonth = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMM"));
-        int preMonth = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyyMM"));
+//        int preMonth = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyyMM"));
         model = countActivityOrSilenceStoreTotal(userId, UserTypeEnum.STORE_DIRECTOR.getType(), curMonth, model);
 
-        CommunityDto curMonthDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, curMonth,null);
-        model.setCurMonthNewStoreNum(curMonthDto != null ? curMonthDto.getMonthNewStoreNum() : 0);
-        CommunityDto preMonthDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, preMonth,null);
-        model.setPreMonthNewStoreNum(preMonthDto != null ? preMonthDto.getMonthNewStoreNum() : 0);
+//        CommunityDto curMonthDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, curMonth,null);
+//        model.setCurMonthNewStoreNum(curMonthDto != null ? curMonthDto.getMonthNewStoreNum() : 0);
+//        CommunityDto preMonthDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, preMonth,null);
+//        model.setPreMonthNewStoreNum(preMonthDto != null ? preMonthDto.getMonthNewStoreNum() : 0);
         return model;
     }
 

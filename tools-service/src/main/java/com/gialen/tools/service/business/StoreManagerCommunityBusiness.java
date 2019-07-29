@@ -7,6 +7,7 @@ import com.gialen.tools.common.enums.UserTypeEnum;
 import com.gialen.tools.dao.dto.CommunityDto;
 import com.gialen.tools.dao.entity.gialen.BlcCustomer;
 import com.gialen.tools.dao.entity.gialen.BlcCustomerExample;
+import com.gialen.tools.dao.entity.gialen.RomaImportSuperCustomerRecord;
 import com.gialen.tools.dao.repository.gialen.BlcCustomerMapper;
 import com.gialen.tools.dao.repository.gialen.BlcCustomerRelationMapper;
 import com.gialen.tools.service.convertor.CustomerConvertor;
@@ -16,7 +17,6 @@ import com.gialen.tools.service.model.StoreActivityModel;
 import com.gialen.tools.service.model.VipCommunityModel;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -71,6 +71,12 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
 
         CommunityModel totalModel = countTotalCommunityData(userId, null);
         model.setTotalNum(totalModel.getTotalNum());
+        BlcCustomer customer = getCustomer(userId);
+        if(customer != null && customer.getIsTempSuperCustomer()) {
+            //实习店经查询到期时间
+            RomaImportSuperCustomerRecord record = getTempSuperCustomerRecord(userId);
+            model.setCountDown(calCountDown(record.getExpireDate()));
+        }
         return model;
     }
 
@@ -163,16 +169,16 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
     public StoreActivityModel countMonthActivityStore(Long userId) {
         StoreActivityModel model = new StoreActivityModel();
         int curMonth = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMM"));
-        int preMonth = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyyMM"));
+//        int preMonth = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyyMM"));
         model = countActivityOrSilenceStoreTotal(userId, UserTypeEnum.STORE_MANAGER.getType(), curMonth, model);
 
-        Integer curMonthDirectStoreNum = blcCustomerMapper.countMonthDirectStoreAndManagerNumForManager(userId, ChildTypeEnum.DIRECT_STORE.getCode(), curMonth);
-        CommunityDto curMonthInDirectStoreDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, curMonth, null, null);
-        model.setCurMonthNewStoreNum(curMonthDirectStoreNum + (curMonthInDirectStoreDto != null ? curMonthInDirectStoreDto.getMonthNewIndirectStoreNum() : 0));
-
-        Integer preMonthDirectStoreNum = blcCustomerMapper.countMonthDirectStoreAndManagerNumForManager(userId, ChildTypeEnum.DIRECT_STORE.getCode(), preMonth);
-        CommunityDto preMonthInDirectStoreDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, preMonth, null, null);
-        model.setPreMonthNewStoreNum(preMonthDirectStoreNum + (preMonthInDirectStoreDto != null ? preMonthInDirectStoreDto.getMonthNewStoreNum() : 0));
+//        Integer curMonthDirectStoreNum = blcCustomerMapper.countMonthDirectStoreAndManagerNumForManager(userId, ChildTypeEnum.DIRECT_STORE.getCode(), curMonth);
+//        CommunityDto curMonthInDirectStoreDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, curMonth, null, null);
+//        model.setCurMonthNewStoreNum(curMonthDirectStoreNum + (curMonthInDirectStoreDto != null ? curMonthInDirectStoreDto.getMonthNewIndirectStoreNum() : 0));
+//
+//        Integer preMonthDirectStoreNum = blcCustomerMapper.countMonthDirectStoreAndManagerNumForManager(userId, ChildTypeEnum.DIRECT_STORE.getCode(), preMonth);
+//        CommunityDto preMonthInDirectStoreDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, preMonth, null, null);
+//        model.setPreMonthNewStoreNum(preMonthDirectStoreNum + (preMonthInDirectStoreDto != null ? preMonthInDirectStoreDto.getMonthNewIndirectStoreNum(): 0));
         return model;
     }
 

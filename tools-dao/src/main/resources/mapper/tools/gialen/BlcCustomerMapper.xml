@@ -2115,4 +2115,47 @@
     </if>
   </select>
 
+  <select id="getActivityOrSilenceStoreListForDirector" resultType="com.gialen.tools.dao.dto.ActivityUserDetailDto">
+    select store.CUSTOMER_ID as userId, store.REAL_NAME as realName, super_store.REAL_NAME as invitor, IFNULL(sum(o.ORDER_TOTAL),0) as salesNum
+    from blc_customer store
+    join blc_customer_relation r on r.store_mgr_id = store.CUSTOMER_ID
+    JOIN blc_customer c on r.customer_id = c.customer_id
+    LEFT JOIN blc_customer super_store on store.HIGHER_CUSTOMER_ID = super_store.CUSTOMER_ID
+    LEFT JOIN blc_order o on o.CUSTOMER_ID = c.CUSTOMER_ID and DATE_FORMAT(o.DATE_CREATED,'%Y%m') = #{month} and o.ORDER_PAY_STATUS = 'PAYED' and o.ORDER_STATUS != 'CANCELLED'
+    where store.shop_store_id = #{directorId} and store.user_level_new_id = 1 and store.user_type = 'STORE'
+    <if test="storeName != null and storeName != ''">
+      and store.REAL_NAME like concat(#{storeName},"%")
+    </if>
+    group by store.CUSTOMER_ID
+    <if test="dataType == 1">
+      HAVING salesNum &gt; 0
+    </if>
+    <if test="dataType == 2">
+      HAVING salesNum &lt;= 0
+    </if>
+    order by salesNum desc
+    limit #{page.offset}, #{page.limit}
+  </select>
+
+  <select id="countActivityOrSilenceStoreTotalForDirector" resultType="java.lang.Long">
+    select count(1) from
+    (select IFNULL(sum(o.ORDER_TOTAL),0) as salesNum
+    from blc_customer store
+    join blc_customer_relation r on r.store_mgr_id = store.CUSTOMER_ID
+    JOIN blc_customer c on r.customer_id = c.customer_id
+    LEFT JOIN blc_order o on o.CUSTOMER_ID = c.CUSTOMER_ID and DATE_FORMAT(o.DATE_CREATED,'%Y%m') = #{month} and o.ORDER_PAY_STATUS = 'PAYED' and o.ORDER_STATUS != 'CANCELLED'
+    where store.shop_store_id = #{directorId} and store.user_level_new_id = 1 and store.user_type = 'STORE'
+    <if test="storeName != null and storeName != ''">
+      and store.REAL_NAME like concat(#{storeName},"%")
+    </if>
+    group by store.CUSTOMER_ID
+    <if test="dataType == 1">
+      HAVING salesNum &gt; 0
+    </if>
+    <if test="dataType == 2">
+      HAVING salesNum &lt;= 0
+    </if>
+    ) t
+  </select>
+
 </mapper>
