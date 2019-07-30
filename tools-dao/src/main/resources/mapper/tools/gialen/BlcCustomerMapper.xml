@@ -95,7 +95,7 @@
     <result column="practice_super_store_be_time" jdbcType="TIMESTAMP" property="practiceSuperStoreBeTime" />
     <result column="is_login_first" jdbcType="BOOLEAN" property="isLoginFirst" />
     <result column="is_temp_store_customer" jdbcType="INTEGER" property="isTempStoreCustomer" />
-    <result column="is_temp_super_customer" jdbcType="BOOLEAN" property="isTempSuperCustomer" />
+    <result column="is_temp_super_customer" jdbcType="TINYINT" property="isTempSuperCustomer" />
     <result column="super_store_be_time" jdbcType="TIMESTAMP" property="superStoreBeTime" />
     <result column="login_first_data_time" jdbcType="DATE" property="loginFirstDataTime" />
     <result column="is_down_store" jdbcType="BOOLEAN" property="isDownStore" />
@@ -348,7 +348,7 @@
       #{shopLogo,jdbcType=VARCHAR}, #{shopBanner,jdbcType=VARCHAR}, #{wxQrCode,jdbcType=VARCHAR}, 
       #{regType,jdbcType=TINYINT}, #{wechatName,jdbcType=VARCHAR}, #{effectiveTime,jdbcType=BIGINT}, 
       #{isPayed,jdbcType=BOOLEAN}, #{practiceSuperStoreBeTime,jdbcType=TIMESTAMP}, #{isLoginFirst,jdbcType=BOOLEAN}, 
-      #{isTempStoreCustomer,jdbcType=INTEGER}, #{isTempSuperCustomer,jdbcType=BOOLEAN}, 
+      #{isTempStoreCustomer,jdbcType=INTEGER}, #{isTempSuperCustomer,jdbcType=TINYINT},
       #{superStoreBeTime,jdbcType=TIMESTAMP}, #{loginFirstDataTime,jdbcType=DATE}, #{isDownStore,jdbcType=BOOLEAN}, 
       #{firstLoginAppDate,jdbcType=TIMESTAMP}, #{position,jdbcType=VARCHAR}, #{street,jdbcType=LONGVARCHAR}
       )
@@ -918,7 +918,7 @@
         #{isTempStoreCustomer,jdbcType=INTEGER},
       </if>
       <if test="isTempSuperCustomer != null">
-        #{isTempSuperCustomer,jdbcType=BOOLEAN},
+        #{isTempSuperCustomer,jdbcType=TINYINT},
       </if>
       <if test="superStoreBeTime != null">
         #{superStoreBeTime,jdbcType=TIMESTAMP},
@@ -1225,7 +1225,7 @@
         is_temp_store_customer = #{record.isTempStoreCustomer,jdbcType=INTEGER},
       </if>
       <if test="record.isTempSuperCustomer != null">
-        is_temp_super_customer = #{record.isTempSuperCustomer,jdbcType=BOOLEAN},
+        is_temp_super_customer = #{record.isTempSuperCustomer,jdbcType=TINYINT},
       </if>
       <if test="record.superStoreBeTime != null">
         super_store_be_time = #{record.superStoreBeTime,jdbcType=TIMESTAMP},
@@ -1345,7 +1345,7 @@
       practice_super_store_be_time = #{record.practiceSuperStoreBeTime,jdbcType=TIMESTAMP},
       is_login_first = #{record.isLoginFirst,jdbcType=BOOLEAN},
       is_temp_store_customer = #{record.isTempStoreCustomer,jdbcType=INTEGER},
-      is_temp_super_customer = #{record.isTempSuperCustomer,jdbcType=BOOLEAN},
+      is_temp_super_customer = #{record.isTempSuperCustomer,jdbcType=TINYINT},
       super_store_be_time = #{record.superStoreBeTime,jdbcType=TIMESTAMP},
       login_first_data_time = #{record.loginFirstDataTime,jdbcType=DATE},
       is_down_store = #{record.isDownStore,jdbcType=BOOLEAN},
@@ -1451,7 +1451,7 @@
       practice_super_store_be_time = #{record.practiceSuperStoreBeTime,jdbcType=TIMESTAMP},
       is_login_first = #{record.isLoginFirst,jdbcType=BOOLEAN},
       is_temp_store_customer = #{record.isTempStoreCustomer,jdbcType=INTEGER},
-      is_temp_super_customer = #{record.isTempSuperCustomer,jdbcType=BOOLEAN},
+      is_temp_super_customer = #{record.isTempSuperCustomer,jdbcType=TINYINT},
       super_store_be_time = #{record.superStoreBeTime,jdbcType=TIMESTAMP},
       login_first_data_time = #{record.loginFirstDataTime,jdbcType=DATE},
       is_down_store = #{record.isDownStore,jdbcType=BOOLEAN},
@@ -1733,7 +1733,7 @@
         is_temp_store_customer = #{isTempStoreCustomer,jdbcType=INTEGER},
       </if>
       <if test="isTempSuperCustomer != null">
-        is_temp_super_customer = #{isTempSuperCustomer,jdbcType=BOOLEAN},
+        is_temp_super_customer = #{isTempSuperCustomer,jdbcType=TINYINT},
       </if>
       <if test="superStoreBeTime != null">
         super_store_be_time = #{superStoreBeTime,jdbcType=TIMESTAMP},
@@ -1850,7 +1850,7 @@
       practice_super_store_be_time = #{practiceSuperStoreBeTime,jdbcType=TIMESTAMP},
       is_login_first = #{isLoginFirst,jdbcType=BOOLEAN},
       is_temp_store_customer = #{isTempStoreCustomer,jdbcType=INTEGER},
-      is_temp_super_customer = #{isTempSuperCustomer,jdbcType=BOOLEAN},
+      is_temp_super_customer = #{isTempSuperCustomer,jdbcType=TINYINT},
       super_store_be_time = #{superStoreBeTime,jdbcType=TIMESTAMP},
       login_first_data_time = #{loginFirstDataTime,jdbcType=DATE},
       is_down_store = #{isDownStore,jdbcType=BOOLEAN},
@@ -1953,7 +1953,7 @@
       practice_super_store_be_time = #{practiceSuperStoreBeTime,jdbcType=TIMESTAMP},
       is_login_first = #{isLoginFirst,jdbcType=BOOLEAN},
       is_temp_store_customer = #{isTempStoreCustomer,jdbcType=INTEGER},
-      is_temp_super_customer = #{isTempSuperCustomer,jdbcType=BOOLEAN},
+      is_temp_super_customer = #{isTempSuperCustomer,jdbcType=TINYINT},
       super_store_be_time = #{superStoreBeTime,jdbcType=TIMESTAMP},
       login_first_data_time = #{loginFirstDataTime,jdbcType=DATE},
       is_down_store = #{isDownStore,jdbcType=BOOLEAN},

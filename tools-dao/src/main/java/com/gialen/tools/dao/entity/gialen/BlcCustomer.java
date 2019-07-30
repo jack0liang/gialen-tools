@@ -813,7 +813,7 @@ public class BlcCustomer implements Serializable {
      *
      * @mbg.generated
      */
-    private Boolean isTempSuperCustomer;
+    private Byte isTempSuperCustomer;
 
     /**
      *
@@ -3021,7 +3021,7 @@ public class BlcCustomer implements Serializable {
      *
      * @mbg.generated
      */
-    public Boolean getIsTempSuperCustomer() {
+    public Byte getIsTempSuperCustomer() {
         return isTempSuperCustomer;
     }
 
@@ -3033,7 +3033,7 @@ public class BlcCustomer implements Serializable {
      *
      * @mbg.generated
      */
-    public void setIsTempSuperCustomer(Boolean isTempSuperCustomer) {
+    public void setIsTempSuperCustomer(Byte isTempSuperCustomer) {
         this.isTempSuperCustomer = isTempSuperCustomer;
     }
 

@@ -6079,52 +6079,52 @@ public class BlcCustomerExample {
             return (Criteria) this;
         }
 
-        public Criteria andIsTempSuperCustomerEqualTo(Boolean value) {
+        public Criteria andIsTempSuperCustomerEqualTo(Byte value) {
             addCriterion("is_temp_super_customer =", value, "isTempSuperCustomer");
             return (Criteria) this;
         }
 
-        public Criteria andIsTempSuperCustomerNotEqualTo(Boolean value) {
+        public Criteria andIsTempSuperCustomerNotEqualTo(Byte value) {
             addCriterion("is_temp_super_customer <>", value, "isTempSuperCustomer");
             return (Criteria) this;
         }
 
-        public Criteria andIsTempSuperCustomerGreaterThan(Boolean value) {
+        public Criteria andIsTempSuperCustomerGreaterThan(Byte value) {
             addCriterion("is_temp_super_customer >", value, "isTempSuperCustomer");
             return (Criteria) this;
         }
 
-        public Criteria andIsTempSuperCustomerGreaterThanOrEqualTo(Boolean value) {
+        public Criteria andIsTempSuperCustomerGreaterThanOrEqualTo(Byte value) {
             addCriterion("is_temp_super_customer >=", value, "isTempSuperCustomer");
             return (Criteria) this;
         }
 
-        public Criteria andIsTempSuperCustomerLessThan(Boolean value) {
+        public Criteria andIsTempSuperCustomerLessThan(Byte value) {
             addCriterion("is_temp_super_customer <", value, "isTempSuperCustomer");
             return (Criteria) this;
         }
 
-        public Criteria andIsTempSuperCustomerLessThanOrEqualTo(Boolean value) {
+        public Criteria andIsTempSuperCustomerLessThanOrEqualTo(Byte value) {
             addCriterion("is_temp_super_customer <=", value, "isTempSuperCustomer");
             return (Criteria) this;
         }
 
-        public Criteria andIsTempSuperCustomerIn(List<Boolean> values) {
+        public Criteria andIsTempSuperCustomerIn(List<Byte> values) {
             addCriterion("is_temp_super_customer in", values, "isTempSuperCustomer");
             return (Criteria) this;
         }
 
-        public Criteria andIsTempSuperCustomerNotIn(List<Boolean> values) {
+        public Criteria andIsTempSuperCustomerNotIn(List<Byte> values) {
             addCriterion("is_temp_super_customer not in", values, "isTempSuperCustomer");
             return (Criteria) this;
         }
 
-        public Criteria andIsTempSuperCustomerBetween(Boolean value1, Boolean value2) {
+        public Criteria andIsTempSuperCustomerBetween(Byte value1, Byte value2) {
             addCriterion("is_temp_super_customer between", value1, value2, "isTempSuperCustomer");
             return (Criteria) this;
         }
 
-        public Criteria andIsTempSuperCustomerNotBetween(Boolean value1, Boolean value2) {
+        public Criteria andIsTempSuperCustomerNotBetween(Byte value1, Byte value2) {
             addCriterion("is_temp_super_customer not between", value1, value2, "isTempSuperCustomer");
             return (Criteria) this;
         }

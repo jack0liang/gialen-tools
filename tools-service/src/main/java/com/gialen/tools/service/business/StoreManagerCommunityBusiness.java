@@ -72,7 +72,7 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
         CommunityModel totalModel = countTotalCommunityData(userId, null);
         model.setTotalNum(totalModel.getTotalNum());
         BlcCustomer customer = getCustomer(userId);
-        if(customer != null && customer.getIsTempSuperCustomer()) {
+        if(customer != null && customer.getIsTempSuperCustomer() == (byte)1) {
             //实习店经查询到期时间
             RomaImportSuperCustomerRecord record = getTempSuperCustomerRecord(userId);
             model.setCountDown(calCountDown(record.getExpireDate()));
