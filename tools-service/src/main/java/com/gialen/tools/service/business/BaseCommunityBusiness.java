@@ -132,6 +132,7 @@ public abstract class BaseCommunityBusiness implements CommunityBusiness {
     protected RomaImportSuperCustomerRecord getTempSuperCustomerRecord(Long customerId) {
         RomaImportSuperCustomerRecordExample example = new RomaImportSuperCustomerRecordExample();
         example.createCriteria().andCustomerIdEqualTo(customerId);
+        example.setOrderByClause("expire_date desc");
         List<RomaImportSuperCustomerRecord> list = romaImportSuperCustomerRecordMapper.selectByExample(example);
         if(CollectionUtils.isEmpty(list)) {
             return null;

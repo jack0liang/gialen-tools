@@ -75,7 +75,7 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
         if(customer != null && customer.getIsTempSuperCustomer() == (byte)1) {
             //实习店经查询到期时间
             RomaImportSuperCustomerRecord record = getTempSuperCustomerRecord(userId);
-            model.setCountDown(calCountDown(record.getExpireDate()));
+            model.setCountDown(record == null ? null : calCountDown(record.getExpireDate()));
         }
         return model;
     }
