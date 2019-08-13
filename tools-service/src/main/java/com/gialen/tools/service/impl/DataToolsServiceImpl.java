@@ -117,8 +117,22 @@ public class DataToolsServiceImpl implements DataToolsService {
         DataToolsModel dataToolsModel = new DataToolsModel();
         DateTimeDto dateTimeDto = DateTimeDtoBuilder.createDateTimeDto(startTime, endTime);
 
-        UvDto uv = gdataPointMapper.countUv(dateTimeDto.getStartTime(), dateTimeDto.getEndTime());
-        UvDto relativeUv = gdataPointMapper.countUv(dateTimeDto.getRelativeStartTime(), dateTimeDto.getRelativeEndTime());
+        UvDto uv = new UvDto();
+
+        Integer miniappUv = gdataPointMapper.countMiniappUv(dateTimeDto.getStartTime(), dateTimeDto.getEndTime());
+        Integer appUv = gdataPointMapper.countAppUv(dateTimeDto.getStartTime(), dateTimeDto.getEndTime());
+        Integer h5Uv = gdataPointMapper.countH5Uv(dateTimeDto.getStartTime(), dateTimeDto.getEndTime());
+        uv.setMiniProgramUv(miniappUv);
+        uv.setAppUv(appUv);
+        uv.setH5Uv(h5Uv);
+
+        UvDto relativeUv = new UvDto();
+        Integer relativeMiniappUv = gdataPointMapper.countMiniappUv(dateTimeDto.getRelativeStartTime(), dateTimeDto.getRelativeEndTime());
+        Integer relativeAppUv = gdataPointMapper.countAppUv(dateTimeDto.getRelativeStartTime(), dateTimeDto.getRelativeEndTime());
+        Integer relativeH5Uv = gdataPointMapper.countH5Uv(dateTimeDto.getRelativeStartTime(), dateTimeDto.getRelativeEndTime());
+        relativeUv.setMiniProgramUv(relativeMiniappUv);
+        relativeUv.setAppUv(relativeAppUv);
+        relativeUv.setH5Uv(relativeH5Uv);
 
         UvDataModel uvDataModel = calculateUv(uv, relativeUv);
 
@@ -136,6 +150,7 @@ public class DataToolsServiceImpl implements DataToolsService {
         itemList.add(appItem);
         itemList.add(h5Item);
         dataToolsModel.setItems(itemList);
+        log.info("miniProgramItem = {}, appItem = {}, h5Item = {}", miniProgramItem, appItem, h5Item);
         return dataToolsModel;
     }
 

@@ -2,6 +2,7 @@ package com.gialen.tools.service.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * @author lupeibo
@@ -9,6 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@ToString
 public class ItemModel {
 
     private String label;

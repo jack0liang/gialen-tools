@@ -384,11 +384,24 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 
-  <select id="countUv" resultType="com.gialen.tools.dao.dto.UvDto">
-    select count(DISTINCT case when platform='miniapp' then user_id  else null end) as miniProgramUv,
-    count(DISTINCT case when platform='app' then session_id  else null end) as appUv,
-    count(DISTINCT case when platform='h5' then user_id  else null end) as h5Uv
+  <select id="countMiniappUv" resultType="java.lang.Integer">
+    select count(distinct user_id) as miniProgramUv
     from gdata_point
     where create_date BETWEEN #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+    and platform='miniapp'
+  </select>
+
+  <select id="countAppUv" resultType="java.lang.Integer">
+    select count(distinct session_id) as appUv
+    from gdata_point
+    where create_date BETWEEN #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+    and platform='app'
+  </select>
+
+  <select id="countH5Uv" resultType="java.lang.Integer">
+    select count(distinct user_id) as h5Uv
+    from gdata_point
+    where create_date BETWEEN #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+    and platform='h5'
   </select>
 </mapper>
