@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author lupeibo
@@ -27,15 +29,19 @@ public class WxMessageServiceImpl implements WxMessageService {
 
     public static String sendWxMsgUrl = "https://app.pinquest.cn/gialenx/SendTemplateMsg";
 
-    private String templateId = "y_ZW7P_QDr41ePD9JQXLar0u8FDjRh8-kAWFkaFSTz0";
+    private String templateId = "1Dk9pdqeqVUG2kCaM7HYMiA-eM8cH5pfK1Nu-Aaupfc";
 
     private String filePath = "/Users/lupeibo/Downloads/sendmsg.csv";
 
-    private String page = "/pages/product/coupons/coupons";
+    private String page = "/pages/index/index";
 
-    private String keyword1 = "您的全部爱心已兑换成娇币，到账啦！";
+    private String keyword1 = "WIS隐形水润面膜";
 
-    private String keyword2 = "可在小程序底部菜单“我的-我的娇币”查看娇币金额！娇币可用于商城免费购物，直接抵现金！马上去查看使用>>";
+    private String keyword2 = "2019-08-16";
+
+    private String keyword3 = "您的预约即将过期，请及时查看！";
+
+    private ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
     @Override
     public GLResponse sendWxMsgUrl() {
@@ -48,6 +54,11 @@ public class WxMessageServiceImpl implements WxMessageService {
 
         datas.forEach(row -> phoneList.add(row.get(0)));
 
+        Map<String, String> keywordsMap = Maps.newHashMap();
+        keywordsMap.put("keyword1", keyword1);
+        keywordsMap.put("keyword2", keyword2);
+        keywordsMap.put("keyword3", keyword3);
+
         for(String phone : phoneList) {
             if(StringUtils.isBlank(phone)) {
                 continue;
@@ -56,27 +67,29 @@ public class WxMessageServiceImpl implements WxMessageService {
             params.put("templateId", templateId);
             params.put("page", page);
             params.put("phone", phone);
-            Map<String, String> keywordsMap = Maps.newHashMap();
-            keywordsMap.put("keyword1", keyword1);
-            keywordsMap.put("keyword2", keyword2);
             params.put("keywords", keywordsMap);
-            try {
-                String result = HttpUtil.sendPost(sendWxMsgUrl, params);
-                if (StringUtils.isNotBlank(result)) {
-                    JSONObject json = JSON.parseObject(result);
-                    int code = json.getIntValue("errcode");
-                    String msg = json.getString("errmsg");
-                    if (code != 0) {
-                        log.error(String.format("发送失败! phone=%s, errmsg=%s", phone, msg));
-                    } else {
-                        log.info(String.format("发送微信模版消息成功！phone=%s, templateId=%s", phone, templateId));
-                    }
-                }
-            } catch (Exception e) {
-                log.error(String.format("phone=%s, templateId=%s, 发送微信模版消息接口异常：%s",
-                        phone, templateId, e.getMessage()));
-            }
+            threadPool.execute(() -> executeSendMsg(params));
         }
         return GLResponse.succ("发送成功");
+    }
+
+    private void executeSendMsg(Map<String, Object> params) {
+        try {
+            String result = HttpUtil.sendPost(sendWxMsgUrl, params);
+            log.info("response : {}", result);
+            if (StringUtils.isNotBlank(result)) {
+                JSONObject json = JSON.parseObject(result);
+                int code = json.getIntValue("errcode");
+                String msg = json.getString("errmsg");
+                if (code != 0) {
+                    log.error(String.format("发送失败! phone=%s, errmsg=%s", params.get("phone"), msg));
+                } else {
+                    log.info(String.format("发送微信模版消息成功！phone=%s, templateId=%s", params.get("phone"), templateId));
+                }
+            }
+        } catch (Exception e) {
+            log.error(String.format("phone=%s, templateId=%s, 发送微信模版消息接口异常：%s",
+                    params.get("phone"), templateId, e.getMessage()));
+        }
     }
 }
