@@ -35,9 +35,9 @@ public class WxMessageServiceImpl implements WxMessageService {
 
     private String page = "/pages/index/index";
 
-    private String keyword1 = "WIS隐形水润面膜";
+    private String keyword1 = "初秋补水节";
 
-    private String keyword2 = "2019-08-16";
+    private String keyword2 = "2019-08-23";
 
     private String keyword3 = "您的预约即将过期，请及时查看！";
 

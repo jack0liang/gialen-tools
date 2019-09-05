@@ -1,9 +1,5 @@
 package com.gialen.tools.dao.repository.gialenMain;
 
-import com.gialen.tools.dao.dto.DateTimeDto;
-import com.gialen.tools.dao.dto.OrderDto;
-import com.gialen.tools.dao.dto.SalesDto;
-import com.gialen.tools.dao.dto.UserDataDto;
 import com.gialen.tools.dao.entity.gialen.BlcOrder;
 import com.gialen.tools.dao.entity.gialen.BlcOrderExample;
 import org.apache.ibatis.annotations.Param;
