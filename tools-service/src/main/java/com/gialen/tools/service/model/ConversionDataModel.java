@@ -57,4 +57,19 @@ public class ConversionDataModel {
      */
     private Double orderSuccessRateRelativeRatio;
 
+    /**
+     * 转化率
+     */
+    private Double conversionRate;
+
+    /**
+     * 环比转化率
+     */
+    private Double conversionRateRelative;
+
+    /**
+     * 转化率环比
+     */
+    private Double conversionRateRelativeRatio;
+
 }

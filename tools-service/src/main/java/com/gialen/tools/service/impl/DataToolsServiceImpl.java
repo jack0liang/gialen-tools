@@ -40,6 +40,10 @@ public class DataToolsServiceImpl implements DataToolsService {
     @Autowired
     private GdataPointMapper gdataPointMapper;
 
+    public static int totalUv = 0;
+
+    public static int totalUvRelative = 0;
+
     @Override
     public GLResponse getDataList(Long startTime, Long endTime, Byte dataType) {
         List<DataToolsModel> dataList = Lists.newArrayList();
@@ -115,6 +119,29 @@ public class DataToolsServiceImpl implements DataToolsService {
      */
     private DataToolsModel getUv(Long startTime, Long endTime) {
         DataToolsModel dataToolsModel = new DataToolsModel();
+
+        UvDataModel uvDataModel = getUvData(startTime, endTime);
+
+        dataToolsModel.setTitle(DataToolsConstant.TITLE_UV);
+        List<ItemModel> itemList = Lists.newArrayList();
+
+        ItemModel miniProgramItem = createItem(DataToolsConstant.LABEL_MINI_PROGRAM,
+                String.valueOf(uvDataModel.getMiniProgramUv()), uvDataModel.getMiniProgramUvRelativeRatio());
+        ItemModel appItem = createItem(DataToolsConstant.LABEL_APP,
+                String.valueOf(uvDataModel.getAppUv()), uvDataModel.getAppUvRelativeRatio());
+        ItemModel h5Item = createItem(DataToolsConstant.LABEL_H5,
+                String.valueOf(uvDataModel.getH5Uv()), uvDataModel.getH5UvRelativeRatio());
+
+        itemList.add(miniProgramItem);
+        itemList.add(appItem);
+        itemList.add(h5Item);
+        dataToolsModel.setItems(itemList);
+        log.info("miniProgramItem = {}, appItem = {}, h5Item = {}", miniProgramItem, appItem, h5Item);
+        return dataToolsModel;
+    }
+
+    private UvDataModel getUvData(Long startTime, Long endTime) {
+
         DateTimeDto dateTimeDto = DateTimeDtoBuilder.createDateTimeDto(startTime, endTime);
 
         UvDto uv = new UvDto();
@@ -134,24 +161,7 @@ public class DataToolsServiceImpl implements DataToolsService {
         relativeUv.setAppUv(relativeAppUv);
         relativeUv.setH5Uv(relativeH5Uv);
 
-        UvDataModel uvDataModel = calculateUv(uv, relativeUv);
-
-        dataToolsModel.setTitle(DataToolsConstant.TITLE_UV);
-        List<ItemModel> itemList = Lists.newArrayList();
-
-        ItemModel miniProgramItem = createItem(DataToolsConstant.LABEL_MINI_PROGRAM,
-                String.valueOf(uvDataModel.getMiniProgramUv()), uvDataModel.getMiniProgramUvRelativeRatio());
-        ItemModel appItem = createItem(DataToolsConstant.LABEL_APP,
-                String.valueOf(uvDataModel.getAppUv()), uvDataModel.getAppUvRelativeRatio());
-        ItemModel h5Item = createItem(DataToolsConstant.LABEL_H5,
-                String.valueOf(uvDataModel.getH5Uv()), uvDataModel.getH5UvRelativeRatio());
-
-        itemList.add(miniProgramItem);
-        itemList.add(appItem);
-        itemList.add(h5Item);
-        dataToolsModel.setItems(itemList);
-        log.info("miniProgramItem = {}, appItem = {}, h5Item = {}", miniProgramItem, appItem, h5Item);
-        return dataToolsModel;
+        return calculateUv(uv, relativeUv);
     }
 
     /**
@@ -338,9 +348,12 @@ public class DataToolsServiceImpl implements DataToolsService {
         Integer miniProgramUv = getUvData(uv.getMiniProgramUv());
         Integer appUv = getUvData(uv.getAppUv());
         Integer h5Uv = getUvData(uv.getH5Uv());
+        totalUv = miniProgramUv + appUv + h5Uv;
+
         Integer miniProgramUvRelative = getUvData(relativeUv.getMiniProgramUv());
         Integer appUvRelative = getUvData(relativeUv.getAppUv());
         Integer h5UvRelative = getUvData(relativeUv.getH5Uv());
+        totalUvRelative = miniProgramUvRelative + appUvRelative + h5UvRelative;
 
         model.setMiniProgramUv(miniProgramUv);
         model.setMiniProgramUvRelativeRatio(calculateRelativeRatio(
@@ -436,7 +449,7 @@ public class DataToolsServiceImpl implements DataToolsService {
         List<OrderDto> orderDtoList = orderMapper.countOrderNum(dateTimeDto);
         List<OrderDto> undaiedOrderDtoList = orderMapper.countUnPaiedOrderNum(dateTimeDto);
 
-        ConversionDataModel conversionDataModel = calculateOrderConversion(orderDtoList, undaiedOrderDtoList, startTime);
+        ConversionDataModel conversionDataModel = calculateOrderConversion(orderDtoList, undaiedOrderDtoList, startTime, endTime);
 
         dataToolsModel.setTitle(DataToolsConstant.TITLE_ORDER_CONVERSION);
         List<ItemModel> itemList = Lists.newArrayList();
@@ -446,9 +459,14 @@ public class DataToolsServiceImpl implements DataToolsService {
                 conversionDataModel.getOrderSuccess() + "", conversionDataModel.getOrderSuccessRelativeRatio());
         ItemModel successRateItem = createItem(DataToolsConstant.LABEL_ORDER_SUCCESS_RATE,
                 conversionDataModel.getOrderSuccessRate() + "", conversionDataModel.getOrderSuccessRateRelativeRatio());
+        ItemModel conversionRateItem = createItem(DataToolsConstant.CONVERSION_RATE,
+                conversionDataModel.getConversionRate() + "", conversionDataModel.getConversionRateRelativeRatio());
+
         itemList.add(createNumItem);
         itemList.add(successNumItem);
         itemList.add(successRateItem);
+        itemList.add(conversionRateItem);
+
         dataToolsModel.setItems(itemList);
         return dataToolsModel;
     }
@@ -458,16 +476,25 @@ public class DataToolsServiceImpl implements DataToolsService {
      * @param orderDtoList
      * @return
      */
-    private ConversionDataModel calculateOrderConversion(List<OrderDto> orderDtoList, List<OrderDto> undaiedList, Long startTime) {
+    private ConversionDataModel calculateOrderConversion(List<OrderDto> orderDtoList, List<OrderDto> undaiedList, Long startTime, Long endTime) {
         ConversionDataModel model = new ConversionDataModel();
         Integer createNum = NumberUtils.INTEGER_ZERO;
         Integer successNum = NumberUtils.INTEGER_ZERO;
         Double successRate = NumberUtils.DOUBLE_ZERO;
+        Double conversionRate = NumberUtils.DOUBLE_ZERO;
+
         Integer createNumRelative = NumberUtils.INTEGER_ZERO;
         Integer successNumRelative = NumberUtils.INTEGER_ZERO;
         Double successRateRelative = NumberUtils.DOUBLE_ZERO;
-        String startTimeStr = DateFormatUtils.format(startTime, "yyyyMMdd");
+        Double conversionRateRelative = NumberUtils.DOUBLE_ZERO;
 
+        String startTimeStr = DateFormatUtils.format(startTime, "yyyyMMdd");
+        if(totalUv <= 0 && totalUvRelative <= 0) {
+            getUvData(startTime, endTime);
+            totalUv = totalUv <= 0 ? 1 : totalUv;
+            totalUvRelative = totalUvRelative <= 0 ? 1 : totalUvRelative;
+        }
+        log.info("totalUv : {}, totalUvRelative : {}", totalUv, totalUvRelative);
         if(CollectionUtils.isNotEmpty(orderDtoList) && CollectionUtils.isNotEmpty(undaiedList)) {
             for(OrderDto orderDto : orderDtoList) {
                 if(startTimeStr.equals(orderDto.getCountTime())) { //当前数据
@@ -477,6 +504,9 @@ public class DataToolsServiceImpl implements DataToolsService {
                     successRate = DecimalCalculate.div(
                             NumberUtils.createDouble(successNum+""),
                             NumberUtils.createDouble(createNum+""), 4);
+                    conversionRate = DecimalCalculate.div(
+                            NumberUtils.createDouble(successNum+""),
+                            NumberUtils.createDouble(totalUv+""), 4);
                 } else { //环比数据
                     successNumRelative = orderDto.getSuccessNum() != null ? orderDto.getSuccessNum() : NumberUtils.INTEGER_ZERO;
                     OrderDto unPaiedDto = undaiedList.get(1);
@@ -484,15 +514,21 @@ public class DataToolsServiceImpl implements DataToolsService {
                     successRateRelative = DecimalCalculate.div(
                             NumberUtils.createDouble(successNumRelative+""),
                             NumberUtils.createDouble(createNumRelative+""), 4);
+                    conversionRateRelative = DecimalCalculate.div(
+                            NumberUtils.createDouble(successNumRelative+""),
+                            NumberUtils.createDouble(totalUvRelative+""), 4);
                 }
             }
         }
         model.setOrderCreated(createNum);
         model.setOrderSuccess(successNum);
         model.setOrderSuccessRate(successRate);
+        model.setConversionRate(conversionRate);
+
         model.setOrderCreatedRelative(createNumRelative);
         model.setOrderSuccessRelative(successNumRelative);
         model.setOrderSuccessRateRelative(successRateRelative);
+        model.setConversionRateRelative(conversionRateRelative);
 
         model.setOrderCreatedRelativeRatio(calculateRelativeRatio(
                 NumberUtils.createDouble(createNum+""),
@@ -503,6 +539,9 @@ public class DataToolsServiceImpl implements DataToolsService {
         model.setOrderSuccessRateRelativeRatio(calculateRelativeRatio(
                 NumberUtils.createDouble(successRate+""),
                 NumberUtils.createDouble(successRateRelative+""), 4));
+        model.setConversionRateRelativeRatio(calculateRelativeRatio(
+                NumberUtils.createDouble(conversionRate+""),
+                NumberUtils.createDouble(conversionRateRelative+""), 4));
         return model;
     }
 

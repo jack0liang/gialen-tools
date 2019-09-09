@@ -18,6 +18,8 @@ public class DataToolsConstant {
 
     public static final String LABEL_ORDER_SUCCESS_RATE = "支付成功率";
 
+    public static final String CONVERSION_RATE = "转化率";
+
     public static final String LABEL_SALES_TOTAL = "销售额（含大礼包）";
 
     public static final String LABEL_SALES_GIFT_PACKAGE = "大礼包";
