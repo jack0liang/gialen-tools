@@ -70,9 +70,6 @@ public class StoreManagerServiceImpl implements StoreManagerService {
     @Autowired
     private RomaStoreMapper romaStoreMapper;
 
-    @Autowired
-    private BlcCustomerRelationMapper blcCustomerRelationMapper;
-
     @Resource(name = "storeDirectorCommunityBiz")
     private CommunityBusiness storeDirectorCommunityBiz;
 
@@ -281,48 +278,30 @@ public class StoreManagerServiceImpl implements StoreManagerService {
             month = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyyMM"));
         }
 
-        //获取待收益
-        Future<BigDecimal> toBeIncomeFuture = executeGetUserToBeIncome(userId, userType.getType());
-
-        //获取月可用收益
-        Future<BigDecimal> monthAvailableIncomeFuture = executeGetUserAvailableIncomeByMonth(userId, userType.getType(), month);
-
-        //获取月总收益和月总销售额
-        Future<UserIncomeDto> monthTotalIncomeFuture = executeGetUserTotalIncomeByMonth(userId, userType.getType(), month) ;
-
-        //获取今日销售额
-        Future<BigDecimal> todaySalesFuture = executeGetUserSalesByToday(userId, userType.getType(),today);
-
-        Future<UserIncomeDto> monthSalesFuture = executeGetUserSalesByMonth(userId, userType.getType(), month);
-
         UserIncomeModel userIncomeModel = new UserIncomeModel();
         UserSalesModel userSalesModel = new UserSalesModel();
         try {
-            if(toBeIncomeFuture != null) {
-                userIncomeModel.setToBeIncome(toBeIncomeFuture.get() != null ? toBeIncomeFuture.get() : BigDecimal.ZERO);
-            }
-            if(monthAvailableIncomeFuture != null) {
-                userIncomeModel.setMonthAvailableIncome(monthAvailableIncomeFuture.get() != null ? monthAvailableIncomeFuture.get() : BigDecimal.ZERO);
-            }
-            if(monthTotalIncomeFuture != null && monthTotalIncomeFuture.get() != null) {
-                userIncomeModel.setMonthTotalIncome(monthTotalIncomeFuture.get().getMonthTotalIncome() != null ?
-                        monthTotalIncomeFuture.get().getMonthTotalIncome() : BigDecimal.ZERO);
-                userSalesModel.setMonthSales(monthTotalIncomeFuture.get().getMonthTotalSales() != null ?
-                        monthTotalIncomeFuture.get().getMonthTotalSales() : BigDecimal.ZERO);
-            }
-            if(todaySalesFuture != null) {
-                userSalesModel.setTodaySales(todaySalesFuture.get() != null ? todaySalesFuture.get() : BigDecimal.ZERO);
-            }
-            if(monthSalesFuture != null) {
-                userSalesModel.setMonthRefundSales(monthSalesFuture.get().getMonthRefundSales() != null ?
-                        monthSalesFuture.get().getMonthRefundSales() : BigDecimal.ZERO);
-                BigDecimal monthSalesRate = monthSalesFuture.get().getMonthSalesRate() != null ?
-                        monthSalesFuture.get().getMonthSalesRate() : BigDecimal.ZERO;
-                userSalesModel.setMonthSalseRate(BigDecimal.valueOf(DecimalCalculate.round(monthSalesRate.doubleValue(),4)));
-                BigDecimal monthRefundRate = monthSalesFuture.get().getMonthRefundRate() != null ?
-                        monthSalesFuture.get().getMonthRefundRate() : BigDecimal.ZERO;
-                userSalesModel.setMonthRefundRate(BigDecimal.valueOf(DecimalCalculate.round(monthRefundRate.doubleValue(),4)));
-            }
+            //获取待收益
+            BigDecimal toBeIncome = executeGetUserToBeIncome(userId, userType.getType());
+            //获取月可用收益
+            BigDecimal monthAvailableIncome = executeGetUserAvailableIncomeByMonth(userId, userType.getType(), month);
+            //获取月总收益和月总销售额
+            UserIncomeDto monthTotalIncome = executeGetUserTotalIncomeByMonth(userId, userType.getType(), month) ;
+            //获取今日销售额
+            BigDecimal todaySales = executeGetUserSalesByToday(userId, userType.getType(),today);
+            //获取月销售额
+            UserIncomeDto monthSales = executeGetUserSalesByMonth(userId, userType.getType(), month);
+
+            userIncomeModel.setToBeIncome(toBeIncome != null ? toBeIncome : BigDecimal.ZERO);
+            userIncomeModel.setMonthAvailableIncome(monthAvailableIncome != null ? monthAvailableIncome : BigDecimal.ZERO);
+            userIncomeModel.setMonthTotalIncome(monthTotalIncome.getMonthTotalIncome() != null ? monthTotalIncome.getMonthTotalIncome() : BigDecimal.ZERO);
+            userSalesModel.setMonthSales(monthTotalIncome.getMonthTotalSales() != null ? monthTotalIncome.getMonthTotalSales() : BigDecimal.ZERO);
+            userSalesModel.setTodaySales(todaySales != null ? todaySales : BigDecimal.ZERO);
+            userSalesModel.setMonthRefundSales(monthSales.getMonthRefundSales() != null ? monthSales.getMonthRefundSales() : BigDecimal.ZERO);
+            BigDecimal monthSalesRate = monthSales.getMonthSalesRate() != null ? monthSales.getMonthSalesRate() : BigDecimal.ZERO;
+            userSalesModel.setMonthSalseRate(BigDecimal.valueOf(DecimalCalculate.round(monthSalesRate.doubleValue(),4)));
+            BigDecimal monthRefundRate = monthSales.getMonthRefundRate() != null ? monthSales.getMonthRefundRate() : BigDecimal.ZERO;
+            userSalesModel.setMonthRefundRate(BigDecimal.valueOf(DecimalCalculate.round(monthRefundRate.doubleValue(),4)));
         } catch (Exception e) {
             log.error("getUserAchievement exception : {} \nuserId = {}, userType = {}, month = {}",
                     e.getMessage(), userId, userType.getType(), month);
@@ -335,38 +314,38 @@ public class StoreManagerServiceImpl implements StoreManagerService {
     }
 
     /**
-     * 开启线程查询用户待收益
+     * 查询用户待收益
      */
-    private Future<BigDecimal> executeGetUserToBeIncome(final long userId, final byte userType) {
-        return ThreadPoolManager.getsInstance().submit(() -> commissionSettlementMapper.getUserToBeIncome(userId, userType));
+    private BigDecimal executeGetUserToBeIncome(final long userId, final byte userType) {
+        return commissionSettlementMapper.getUserToBeIncome(userId, userType);
     }
 
     /**
-     * 开启线程查询用户月总收益和月总销售额
+     * 查询用户月总收益和月总销售额
      */
-    private Future<UserIncomeDto> executeGetUserTotalIncomeByMonth(final long userId, final byte userType, final int month) {
-        return ThreadPoolManager.getsInstance().submit(() -> commissionSettlementMapper.getUserTotalIncomeByMonth(userId, userType, month));
+    private UserIncomeDto executeGetUserTotalIncomeByMonth(final long userId, final byte userType, final int month) {
+        return commissionSettlementMapper.getUserTotalIncomeByMonth(userId, userType, month);
     }
 
     /**
-     * 开启线程查询用户月销售数据
+     * 查询用户月销售数据
      */
-    private Future<UserIncomeDto> executeGetUserSalesByMonth(final long userId, final byte userType, final int month) {
-        return ThreadPoolManager.getsInstance().submit(() -> commissionSettlementMapper.getUserSalesByMonth(userId, userType, month));
+    private UserIncomeDto executeGetUserSalesByMonth(final long userId, final byte userType, final int month) {
+        return commissionSettlementMapper.getUserSalesByMonth(userId, userType, month);
     }
 
     /**
-     * 开启线程查询用户月可用收益
+     * 查询用户月可用收益
      */
-    private Future<BigDecimal> executeGetUserAvailableIncomeByMonth(final long userId, final byte userType, final int month) {
-        return ThreadPoolManager.getsInstance().submit(() -> commissionSettlementMapper.getUserAvailableIncomeByMonth(userId, userType, month));
+    private BigDecimal executeGetUserAvailableIncomeByMonth(final long userId, final byte userType, final int month) {
+        return commissionSettlementMapper.getUserAvailableIncomeByMonth(userId, userType, month);
     }
 
     /**
-     * 开启线程查询用户今日销售额
+     * 查询用户今日销售额
      */
-    private Future<BigDecimal> executeGetUserSalesByToday(final long userId, final byte userType, final int day) {
-        return ThreadPoolManager.getsInstance().submit(() -> commissionSettlementMapper.getUserTodaySales(userId, userType, day));
+    private BigDecimal executeGetUserSalesByToday(final long userId, final byte userType, final int day) {
+        return commissionSettlementMapper.getUserTodaySales(userId, userType, day);
     }
 
     /**

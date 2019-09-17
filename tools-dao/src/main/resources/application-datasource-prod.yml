@@ -19,9 +19,9 @@ point:
 
 settlement:
   datasource:
-    password: gialen_shopping
-    username: APP_REPORT
-    url: jdbc:mysql://10.255.2.17:3306/gialen_settlement?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true
+    password: reportREPORT1!
+    username: report
+    url: jdbc:mysql://10.255.2.21:3306/gialen_settlement?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true
 
 tools:
   datasource:

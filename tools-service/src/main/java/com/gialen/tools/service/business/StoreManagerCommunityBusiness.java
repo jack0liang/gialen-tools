@@ -169,16 +169,7 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
     public StoreActivityModel countMonthActivityStore(Long userId) {
         StoreActivityModel model = new StoreActivityModel();
         int curMonth = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMM"));
-//        int preMonth = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyyMM"));
         model = countActivityOrSilenceStoreTotal(userId, UserTypeEnum.STORE_MANAGER.getType(), curMonth, model);
-
-//        Integer curMonthDirectStoreNum = blcCustomerMapper.countMonthDirectStoreAndManagerNumForManager(userId, ChildTypeEnum.DIRECT_STORE.getCode(), curMonth);
-//        CommunityDto curMonthInDirectStoreDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, curMonth, null, null);
-//        model.setCurMonthNewStoreNum(curMonthDirectStoreNum + (curMonthInDirectStoreDto != null ? curMonthInDirectStoreDto.getMonthNewIndirectStoreNum() : 0));
-//
-//        Integer preMonthDirectStoreNum = blcCustomerMapper.countMonthDirectStoreAndManagerNumForManager(userId, ChildTypeEnum.DIRECT_STORE.getCode(), preMonth);
-//        CommunityDto preMonthInDirectStoreDto = blcCustomerRelationMapper.countIndirectStoreAndVipNumForManager(userId, preMonth, null, null);
-//        model.setPreMonthNewStoreNum(preMonthDirectStoreNum + (preMonthInDirectStoreDto != null ? preMonthInDirectStoreDto.getMonthNewIndirectStoreNum(): 0));
         return model;
     }
 
