@@ -18,31 +18,29 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
-/**
- * 工具数据源配置
- */
 @Configuration
 @Slf4j
-@MapperScan(basePackages = {"com.gialen.tools.dao.repository.tools"}, sqlSessionTemplateRef = "toolsSqlSessionTemplate")
-public class ToolsDataSourceConfig {
-    @Bean(name = "toolsDataSource")
-    @ConfigurationProperties(prefix = "tools.datasource")
-    public DataSource toolsDataSource() {
+@MapperScan(basePackages = {"com.gialen.tools.dao.repository.customer"}, sqlSessionTemplateRef = "customerSqlSessionTemplate")
+public class CustomerDataSourceConfig {
+
+    @Bean(name = "customerDataSource")
+    @ConfigurationProperties(prefix = "customer.datasource")
+    public DataSource appDataSource() {
         log.info("=============");
-        DataSource dataSource = new DruidDataSource();
-        return dataSource;
+        DataSource customerDataSource = new DruidDataSource();
+        return customerDataSource;
     }
 
 
     @Bean
-    public SqlSessionFactory toolsSqlSessionFactory(@Qualifier("toolsDataSource") DataSource dataSource) throws Exception {
+    public SqlSessionFactory customerSqlSessionFactory(@Qualifier("customerDataSource") DataSource dataSource) throws Exception {
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
         bean.setDataSource(dataSource);
         //添加XML目录
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         try {
-            Resource[] resources = resolver.getResources("classpath*:mapper/tools/tools/*.xml");
-            Resource[] resourcesExtent = resolver.getResources("classpath*:mapper/tools/tools/extend/*.xml");
+            Resource[] resources = resolver.getResources("classpath*:mapper/tools/customer/*.xml");
+            Resource[] resourcesExtent = resolver.getResources("classpath*:mapper/tools/customer/extend/*.xml");
             Resource[] resourceTarget = new Resource[resources.length+resourcesExtent.length];
             System.arraycopy(resources,0,resourceTarget,0,resources.length);
             System.arraycopy(resourcesExtent,0,resourceTarget,resources.length,resourcesExtent.length);
@@ -56,7 +54,7 @@ public class ToolsDataSourceConfig {
 
 
     @Bean
-    public SqlSessionTemplate toolsSqlSessionTemplate(@Qualifier("toolsSqlSessionFactory") SqlSessionFactory sqlSessionFactory) throws Exception {
+    public SqlSessionTemplate customerSqlSessionTemplate(@Qualifier("customerSqlSessionFactory") SqlSessionFactory sqlSessionFactory) throws Exception {
         SqlSessionTemplate template = new SqlSessionTemplate(sqlSessionFactory);
         return template;
     }
@@ -64,7 +62,7 @@ public class ToolsDataSourceConfig {
     /******配置事务管理********/
 
     @Bean
-    public PlatformTransactionManager toolsTransactionManager(@Qualifier("toolsDataSource") DataSource prodDataSource) {
+    public PlatformTransactionManager customerTransactionManager(@Qualifier("customerDataSource") DataSource prodDataSource) {
         return new DataSourceTransactionManager(prodDataSource);
     }
 }

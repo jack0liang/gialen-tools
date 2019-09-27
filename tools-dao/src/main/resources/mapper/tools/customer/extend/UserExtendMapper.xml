@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gialen.tools.dao.repository.customer.extend.UserExtendMapper">
+
+	<!--	统计vip,店主用户新增数量-->
+    <select id="countUserType" resultType="com.gialen.tools.dao.dto.UserDataDto">
+	SELECT
+		date_format(u.create_time, '%Y%m%d') AS countTime,
+		count(
+			CASE
+			WHEN l.level_type = '2' THEN
+				2
+			ELSE
+				NULL
+			END
+		) AS storeNum,
+		count(
+			CASE
+			WHEN l.level_type = '1' THEN
+				1
+			ELSE
+				NULL
+			END
+		) AS vipNum
+	FROM
+		user as u
+	left join user_level as l on u.id = l.user_id
+	WHERE
+		(	u.create_time BETWEEN #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+			OR u.create_time BETWEEN #{relativeStartTime,jdbcType=VARCHAR} and #{relativeEndTime,jdbcType=VARCHAR}
+		)
+	AND u.is_delete = 0
+	GROUP BY
+		date_format(u.create_time, '%Y%m%d')
+	ORDER BY
+		date_format(u.create_time, '%Y%m%d') DESC;
+  </select>
+</mapper>

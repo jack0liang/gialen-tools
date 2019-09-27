@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gialen.tools.dao.repository.order.extend.OrdersExtendMapper">
+
+    <select id="countOrderPayNum" resultType="com.gialen.tools.dao.dto.OrderDto">
+      SELECT
+          o.platform as platForm,
+          COUNT(1) as successNum
+      FROM
+          orders o
+      WHERE
+          o.pay_status = 1
+      AND o.create_time BETWEEN #{startTime,jdbcType=VARCHAR}
+      AND #{endTime,jdbcType=VARCHAR}
+      GROUP BY
+          o.platform
+  </select>
+    <select id="countSales" resultType="com.gialen.tools.dao.dto.SalesDto">
+        SELECT
+        DATE_FORMAT(o.create_time, '%Y%m%d') AS countTime,
+        SUM(o.money) AS salesNum
+        FROM orders o
+        WHERE
+        o.pay_status = 1
+        and o.is_parent = 1
+        AND ((
+        o.create_time BETWEEN #{dateTimeDto.startTime,jdbcType=VARCHAR} and #{dateTimeDto.endTime,jdbcType=VARCHAR}
+        )
+        OR (
+        o.create_time BETWEEN #{dateTimeDto.relativeStartTime,jdbcType=VARCHAR} and
+        #{dateTimeDto.relativeEndTime,jdbcType=VARCHAR}
+        ))
+        <if test="orderType != null">
+            and o.order_type = #{orderType,jdbcType=INTEGER}
+        </if>
+        GROUP BY
+        DATE_FORMAT(o.create_time,'%Y%m%d')
+        ORDER BY
+        DATE_FORMAT(o.create_time, '%Y%m%d');
+    </select>
+
+    <select id="countOrderNum" resultType="com.gialen.tools.dao.dto.OrderDto">
+        SELECT
+            DATE_FORMAT(o.create_time, '%Y%m%d') AS countTime,
+            count(
+                CASE pay_status
+                WHEN '1' THEN
+                    1
+                ELSE
+                    NULL
+                END
+            ) AS successNum,
+            count(1) AS createNum,
+            count(
+                CASE o.pay_status
+                WHEN '1' THEN
+                    1
+                ELSE
+                    NULL
+                END
+            ) / count(1) AS successRate
+        FROM
+            orders o
+        WHERE
+            ((
+                o.create_time BETWEEN #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+            )
+            OR (
+                o.create_time BETWEEN #{relativeStartTime,jdbcType=VARCHAR} and #{relativeEndTime,jdbcType=VARCHAR}
+            ))
+        and o.is_parent = 1
+        GROUP BY
+            DATE_FORMAT(o.create_time, '%Y%m%d')
+        ORDER BY
+            DATE_FORMAT(o.create_time, '%Y%m%d');
+    </select>
+    <select id="countUnPaiedOrderNum" resultType="com.gialen.tools.dao.dto.OrderDto">
+        SELECT
+	    DATE_FORMAT(o.create_time, '%Y%m%d') AS countTime,
+	    count(
+	    	CASE pay_status
+	    	WHEN '0' THEN
+	    		1
+	    	ELSE
+	    		NULL
+	    	END
+	    ) AS unpaiedNum
+        FROM
+        	orders o
+        WHERE
+            ((
+                o.create_time BETWEEN #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+            )
+            OR (
+                o.create_time BETWEEN #{relativeStartTime,jdbcType=VARCHAR} and #{relativeEndTime,jdbcType=VARCHAR}
+            ))
+        and o.is_parent = 1
+        GROUP BY
+	    DATE_FORMAT(o.create_time, '%Y%m%d')
+        ORDER BY
+        DATE_FORMAT(o.create_time, '%Y%m%d');
+    </select>
+    <select id="countOrderPayStatusNum" resultType="com.gialen.tools.dao.dto.OrderDto">
+        SELECT
+            DATE_FORMAT(o.create_time, '%Y%m%d') AS countTime,
+            count(
+                CASE pay_status
+                WHEN '1' THEN
+                    1
+                ELSE
+                    NULL
+                END
+            ) AS successNum,
+            count(
+                CASE o.pay_status
+                WHEN '0' THEN
+                    1
+                ELSE
+                    NULL
+                END
+            ) as unpaiedNum,
+            count(1) AS createNum
+        FROM
+            orders o
+        WHERE
+            ((
+                o.create_time BETWEEN #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+            )
+            OR (
+                o.create_time BETWEEN #{relativeStartTime,jdbcType=VARCHAR} and #{relativeEndTime,jdbcType=VARCHAR}
+            ))
+        and o.is_parent = 1
+        GROUP BY
+            DATE_FORMAT(o.create_time, '%Y%m%d')
+        ORDER BY
+            DATE_FORMAT(o.create_time, '%Y%m%d');
+    </select>
+</mapper>
