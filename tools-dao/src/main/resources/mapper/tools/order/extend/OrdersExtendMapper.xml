@@ -9,7 +9,7 @@
       FROM
           orders o
       WHERE
-          o.pay_status = 1
+          o.pay_status = 1 and o.is_parent = 1
       AND o.create_time BETWEEN #{startTime,jdbcType=VARCHAR}
       AND #{endTime,jdbcType=VARCHAR}
       GROUP BY
@@ -18,7 +18,7 @@
     <select id="countSales" resultType="com.gialen.tools.dao.dto.SalesDto">
         SELECT
         DATE_FORMAT(o.create_time, '%Y%m%d') AS countTime,
-        SUM(o.money) AS salesNum
+        SUM(o.money + o.fav_money) AS salesNum
         FROM orders o
         WHERE
         o.pay_status = 1

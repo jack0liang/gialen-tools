@@ -355,15 +355,15 @@ public class DataToolsServiceImpl implements DataToolsService {
 
         Integer newUserOrderNum = 0;
         Integer oldUserOrderNum = 0;
+        Date start = DateTools.string2Date(RelativeDataTypeEnum.DATA.equals(dataTypeEnum) ? dateTimeDto.getStartTime() : dateTimeDto.getRelativeStartTime(), DateTools.LONG_DATE_FORMAT);
+        Date end = DateTools.string2Date(RelativeDataTypeEnum.DATA.equals(dataTypeEnum) ? dateTimeDto.getEndTime() : dateTimeDto.getRelativeEndTime(), DateTools.LONG_DATE_FORMAT);
         OrdersExample ordersExample = new OrdersExample();
-        ordersExample.createCriteria().andPayStatusEqualTo((short) 1).andIsParentEqualTo(true)
-                .andCreateTimeBetween(DateTools.string2Date(RelativeDataTypeEnum.DATA.equals(dataTypeEnum) ? dateTimeDto.getStartTime() : dateTimeDto.getRelativeStartTime(), DateTools.LONG_DATE_FORMAT),
-                        DateTools.string2Date(RelativeDataTypeEnum.DATA.equals(dataTypeEnum) ? dateTimeDto.getEndTime() : dateTimeDto.getRelativeEndTime(), DateTools.LONG_DATE_FORMAT));
+        ordersExample.createCriteria().andPayStatusEqualTo((short) 1).andIsParentEqualTo(true).andCreateTimeBetween(start,end);
         List<Orders> orders = ordersMapper.selectByExample(ordersExample);
         List<Long> userIds = orders.stream().map(Orders::getUserId).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(userIds)) {
             UserExample userExample = new UserExample();
-            userExample.createCriteria().andIdIn(userIds).andCreateTimeBetween(DateTools.string2Date(dateTimeDto.getTodayStartTime(), DateTools.LONG_DATE_FORMAT), DateTools.string2Date(dateTimeDto.getTodayEndTime(), DateTools.LONG_DATE_FORMAT));
+            userExample.createCriteria().andIdIn(userIds).andCreateTimeBetween(start,end);
             newUserOrderNum = (int) userMapper.countByExample(userExample);
             oldUserOrderNum = userIds.size() - newUserOrderNum;
         }
