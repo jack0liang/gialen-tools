@@ -422,7 +422,7 @@
 	from user_relation r
     left join user_level l on r.user_id = l.user_id
 	LEFT JOIN user_level_change_log cl on l.user_id = cl.user_id
-	where r.store_super_mgr_id = #{managerId} and l.level_type in (3,5) and cl.new_level_type in (3,5)
+	where r.invitor_id = #{managerId} and l.level_type in (3,5) and cl.new_level_type in (3,5)
 	and DATE_FORMAT(cl.valid_start_time,'%Y%m') = #{month}
   </select>
 
@@ -449,15 +449,15 @@
 
   <select id="countTotalNumForManager" resultType="com.gialen.tools.dao.dto.CommunityDto">
     select
-    count(1) as totalNum,
-    count(case when l.level_type in (3,5) then 1 else null end) as totalStoreManagerNum,
-    count(case when l.level_type in (2,4) and r.invitor_id != #{managerId} then 1 else null end) as totalIndirectStoreNum,
-    count(case when l.level_type in (2,4) and r.invitor_id = #{managerId} then 1 else null end) as totalDirectStoreNum,
-    count(case when l.level_type = 1 then 1 else null end) as totalVipNum
+--     count(1) as totalNum,
+    count(case when l.level_type in (3,5) and r.invitor_id = #{managerId} then 1 else null end) as totalStoreManagerNum,
+    count(case when l.level_type in (2,4) and r.invitor_id != #{managerId} and r.store_super_mgr_id = #{managerId} then 1 else null end) as totalIndirectStoreNum,
+    count(case when l.level_type in (2,4) and r.invitor_id = #{managerId} and r.store_super_mgr_id = #{managerId} then 1 else null end) as totalDirectStoreNum,
+    count(case when l.level_type = 1 and r.store_super_mgr_id = #{managerId} then 1 else null end) as totalVipNum
     from user_relation r
     LEFT JOIN user_level l on r.user_id = l.user_id
     LEFT JOIN user u on r.user_id = u.id
-    where r.store_super_mgr_id = #{managerId}
+    where r.store_super_mgr_id = #{managerId} or r.invitor_id = #{managerId}
     <if test="userName != null and userName != ''">
       and u.username like concat(#{userName},"%")
     </if>
@@ -496,6 +496,7 @@
     </if>
     <if test="childType==2 or childType ==3">
       and l.level_type in (2,4)
+    </if>
     <if test="childType==1">
       and l.level_type = 1
     </if>

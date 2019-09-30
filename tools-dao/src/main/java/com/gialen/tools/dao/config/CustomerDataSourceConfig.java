@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -32,7 +33,6 @@ public class CustomerDataSourceConfig {
         return dataSource;
     }
 
-
     @Bean
     public SqlSessionFactory customerSqlSessionFactory(@Qualifier("customerDataSource") DataSource dataSource) throws Exception {
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
@@ -40,7 +40,12 @@ public class CustomerDataSourceConfig {
         //添加XML目录
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         try {
-            bean.setMapperLocations(resolver.getResources("classpath*:mapper/tools/customer/*.xml"));
+            Resource[] resources = resolver.getResources("classpath*:mapper/tools/customer/*.xml");
+            Resource[] resourcesExtent = resolver.getResources("classpath*:mapper/tools/customer/extend/*.xml");
+            Resource[] resourceTarget = new Resource[resources.length+resourcesExtent.length];
+            System.arraycopy(resources,0,resourceTarget,0,resources.length);
+            System.arraycopy(resourcesExtent,0,resourceTarget,resources.length,resourcesExtent.length);
+            bean.setMapperLocations(resourceTarget);
             return bean.getObject();
         } catch (Exception e) {
             e.printStackTrace();
