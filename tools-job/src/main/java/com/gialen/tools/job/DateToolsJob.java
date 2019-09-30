@@ -106,26 +106,30 @@ public class DateToolsJob {
                 insertForm(countTime, null, null, DataCountTypeEnum.ITEM_GIT_SALE.getType());
             }
 
-            insertSaleOrderForm(curSale, false, DataCountTypeEnum.ITEM_SALE);
-            insertSaleOrderForm(relativeSale, true, DataCountTypeEnum.ITEM_SALE);
-            insertSaleOrderForm(curGifSale, false, DataCountTypeEnum.ITEM_GIT_SALE);
-            insertSaleOrderForm(relativeGifSale, true, DataCountTypeEnum.ITEM_GIT_SALE);
+            insertSaleOrderForm(curSale,relativeSale,DataCountTypeEnum.ITEM_SALE);
+            insertSaleOrderForm(curGifSale,relativeGifSale,DataCountTypeEnum.ITEM_GIT_SALE);
         } catch (Exception e) {
             log.error("定时统计销售额异常", e);
         }
     }
 
-    private void insertSaleOrderForm(List<SalesDto> salesDtos, boolean isRelative, DataCountTypeEnum countTypeEnum) {
+    private void insertSaleOrderForm(List<SalesDto> salesDtos,List<SalesDto> salesRelativeDtos , DataCountTypeEnum countTypeEnum) {
+        Map<String,SalesDto> orderDtoRelativeMap = salesRelativeDtos.stream().collect(Collectors.toMap(SalesDto::getCountTime, Function.identity()));
         for (int i = 0; i < salesDtos.size(); i++) {
             SalesDto salesDto = salesDtos.get(i);
-            insertForm(salesDto.getCountTime(), isRelative ? null : salesDto.getSalesNum(), isRelative ? salesDto.getSalesNum() : null, countTypeEnum.getType());
+            SalesDto relativeDto = orderDtoRelativeMap.get(String.valueOf(Integer.parseInt(salesDto.getCountTime()) - 100));
+            insertForm(salesDto.getCountTime(), (salesDto.getSalesNum() == null ? 0 : salesDto.getSalesNum()),
+                     (relativeDto == null || relativeDto.getSalesNum() == null ? 0 : relativeDto.getSalesNum()), countTypeEnum.getType());
         }
     }
 
-    private void insertOrderPlatformForm(List<OrderDto> orderDtos, boolean isRelative, DataCountTypeEnum countTypeEnum) {
+    private void insertOrderPlatformForm(List<OrderDto> orderDtos, List<OrderDto> orderRelativeDtos, DataCountTypeEnum countTypeEnum) {
+        Map<String,OrderDto> orderDtoRelativeMap = orderRelativeDtos.stream().collect(Collectors.toMap(OrderDto::getCountTime, Function.identity()));
         for (int i = 0; i < orderDtos.size(); i++) {
             OrderDto orderDto = orderDtos.get(i);
-            insertForm(orderDto.getCountTime(), isRelative ? null : (double) (orderDto.getSuccessNum() == null ? 0 : orderDto.getSuccessNum()), isRelative ? (double) (orderDto.getSuccessNum() == null ? 0 : orderDto.getSuccessNum()) : null, DataCountTypeEnum.ITEM_ORDER_APP.getType());
+            OrderDto relativeDto = orderDtoRelativeMap.get(String.valueOf(Integer.parseInt(orderDto.getCountTime()) - 100));
+            insertForm(orderDto.getCountTime(), (double) (orderDto.getSuccessNum() == null ? 0 : orderDto.getSuccessNum()),
+                    (double) (relativeDto == null || relativeDto.getSuccessNum() == null ? 0 : relativeDto.getSuccessNum()), countTypeEnum.getType());
         }
     }
 
@@ -151,18 +155,16 @@ public class DateToolsJob {
 
             List<OrderDto> appOrderSales = orderDtoMap.get(PlatFormTypeEnum.APP.getCode());
             List<OrderDto> appOrderSaleRelatives = relativeOrderDtoMap.get(PlatFormTypeEnum.APP.getCode());
-            insertOrderPlatformForm(appOrderSales,false,DataCountTypeEnum.ITEM_ORDER_APP);
-            insertOrderPlatformForm(appOrderSaleRelatives,true,DataCountTypeEnum.ITEM_ORDER_APP);
+            insertOrderPlatformForm(appOrderSales,appOrderSaleRelatives,DataCountTypeEnum.ITEM_ORDER_APP);
 
             List<OrderDto> h5OrderSales = orderDtoMap.get(PlatFormTypeEnum.H5.getCode());
             List<OrderDto> h5OrderSaleRelatives = relativeOrderDtoMap.get(PlatFormTypeEnum.H5.getCode());
-            insertOrderPlatformForm(h5OrderSales,false,DataCountTypeEnum.ITEM_ORDER_H5);
-            insertOrderPlatformForm(h5OrderSaleRelatives,true,DataCountTypeEnum.ITEM_ORDER_H5);
+            insertOrderPlatformForm(h5OrderSales,h5OrderSaleRelatives,DataCountTypeEnum.ITEM_ORDER_H5);
 
             List<OrderDto> miniOrderSales = orderDtoMap.get(PlatFormTypeEnum.WX_MINI_PROGRAM.getCode());
             List<OrderDto> miniOrderSaleRelatives = relativeOrderDtoMap.get(PlatFormTypeEnum.WX_MINI_PROGRAM.getCode());
-            insertOrderPlatformForm(miniOrderSales,false,DataCountTypeEnum.ITEM_ORDER_WXMINI);
-            insertOrderPlatformForm(miniOrderSaleRelatives,true,DataCountTypeEnum.ITEM_ORDER_WXMINI);
+            insertOrderPlatformForm(miniOrderSales,miniOrderSaleRelatives,DataCountTypeEnum.ITEM_ORDER_WXMINI);
+
         } catch (Exception e) {
             log.error("定时统计下单平台异常", e);
         }
