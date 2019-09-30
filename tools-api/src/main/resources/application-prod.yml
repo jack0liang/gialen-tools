@@ -7,6 +7,10 @@ logging:
   path: /home/app/tools/logs
   level:
     root: info
+    mybaties: info
+
 
 swagger:
   enabled: true
+
+

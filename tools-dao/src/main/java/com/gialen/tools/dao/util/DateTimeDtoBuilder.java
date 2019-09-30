@@ -14,8 +14,8 @@ public class DateTimeDtoBuilder {
 
     public static DateTimeDto createDateTimeDto(String startTime, String endTime,
                                                 String relativeStartTime, String relativeEndTime,
-                                                String todayStartTime, String todayEndTime) {
-        DateTimeDto dateTimeDto = new DateTimeDto(startTime, endTime, relativeStartTime, relativeEndTime, todayStartTime, todayEndTime);
+                                                String todayStartTime, String todayEndTime,String formatTime,String formatRelativeTime,String formatStartDay) {
+        DateTimeDto dateTimeDto = new DateTimeDto(startTime, endTime, relativeStartTime, relativeEndTime, todayStartTime, todayEndTime,formatTime,formatRelativeTime,formatStartDay);
         return dateTimeDto;
     }
 
@@ -32,6 +32,11 @@ public class DateTimeDtoBuilder {
         String todayStartTimeStr = DateFormatUtils.format(startTime,"yyyy-MM-dd") + " 00:00:00";
         String todayEndTimeStr = DateFormatUtils.format(endTime, "yyyy-MM-dd") + " 23:59:59";
 
-        return createDateTimeDto(startTimeStr, endTimeStr, preStartTimeStr, preEndTimeStr,todayStartTimeStr,todayEndTimeStr);
+        String countFormatTime = DateFormatUtils.format(startTime,"yyyyMMddHH");
+        String countFormatRelativeTime = DateFormatUtils.format(preStartTime.getTime(),"yyyyMMddHH");
+
+        String formatStartDay = DateFormatUtils.format(preStartTime.getTime(),"yyyyMMdd");
+
+        return createDateTimeDto(startTimeStr, endTimeStr, preStartTimeStr, preEndTimeStr,todayStartTimeStr,todayEndTimeStr,countFormatTime,countFormatRelativeTime, formatStartDay);
     }
 }

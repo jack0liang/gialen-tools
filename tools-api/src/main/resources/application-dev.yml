@@ -1,12 +1,13 @@
 ---
 spring:
   profiles:
-    include: datasource-dev
+    include: datasource-prod
 
 logging:
   path: ../../logs/tools
   level:
     root: info
+    mybaties: DEBUG
 
 
 swagger:

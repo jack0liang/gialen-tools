@@ -4,6 +4,7 @@
     <!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径-->
     <springProperty scop="context" name="logging_path" source="logging.path" defaultValue="./"/>
     <springProperty scop="context" name="logging_level_root" source="logging.level.root" defaultValue="INFO"/>
+    <springProperty scop="context" name="logging_level_mybaties" source="logging.level.mybaties" defaultValue="DEBUG"/>
 
     <!-- 控制台输出 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
@@ -29,10 +30,15 @@
 
 
     <!-- 日志输出级别 -->
-    <root level="info">
-        <appender-ref ref="STDOUT"/>
-        <appender-ref ref="FILE"/>
-    </root>
+    <springProfile name="dev,test">
+        <root level="info">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="FILE"/>
+        </root>
+        <logger name="com.gialen.tools.dao.repository" level="${logging_level_mybaties}" additivity="false">
+            <appender-ref ref="STDOUT"/>
+        </logger>
+    </springProfile>
 
 
 </configuration>

@@ -15,6 +15,22 @@
       GROUP BY
           o.platform
   </select>
+
+    <select id="countOrderPayNumV1" resultType="com.gialen.tools.dao.dto.OrderDto">
+      SELECT
+          o.platform as platForm,
+          COUNT(1) as successNum,
+           DATE_FORMAT(o.create_time, '%Y%m%d%H') AS countTime
+      FROM
+          orders o
+      WHERE
+          o.pay_status = 1 and o.is_parent = 1
+      AND o.create_time BETWEEN #{startTime,jdbcType=VARCHAR}
+      AND #{endTime,jdbcType=VARCHAR}
+      GROUP BY
+          o.platform, DATE_FORMAT(o.create_time, '%Y%m%d%H')
+  </select>
+
     <select id="countSales" resultType="com.gialen.tools.dao.dto.SalesDto">
         SELECT
         DATE_FORMAT(o.create_time, '%Y%m%d') AS countTime,
@@ -37,6 +53,31 @@
         DATE_FORMAT(o.create_time,'%Y%m%d')
         ORDER BY
         DATE_FORMAT(o.create_time, '%Y%m%d');
+    </select>
+
+
+    <select id="countSalesV1" resultType="com.gialen.tools.dao.dto.SalesDto">
+        SELECT
+        DATE_FORMAT(o.create_time, '%Y%m%d%H') AS countTime,
+        SUM(o.money + o.fav_money) AS salesNum
+        FROM orders o
+        WHERE
+        o.pay_status = 1
+        and o.is_parent = 1
+        AND ((
+        o.create_time BETWEEN #{dateTimeDto.startTime,jdbcType=VARCHAR} and #{dateTimeDto.endTime,jdbcType=VARCHAR}
+        )
+        OR (
+        o.create_time BETWEEN #{dateTimeDto.relativeStartTime,jdbcType=VARCHAR} and
+        #{dateTimeDto.relativeEndTime,jdbcType=VARCHAR}
+        ))
+        <if test="orderType != null">
+            and o.order_type = #{orderType,jdbcType=INTEGER}
+        </if>
+        GROUP BY
+        DATE_FORMAT(o.create_time,'%Y%m%d%H')
+        ORDER BY
+        DATE_FORMAT(o.create_time, '%Y%m%d%H');
     </select>
 
     <select id="countOrderNum" resultType="com.gialen.tools.dao.dto.OrderDto">

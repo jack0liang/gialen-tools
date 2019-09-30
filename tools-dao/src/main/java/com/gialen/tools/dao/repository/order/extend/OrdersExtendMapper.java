@@ -16,7 +16,11 @@ import java.util.List;
 public interface OrdersExtendMapper extends OrdersMapper {
     List<OrderDto> countOrderPayNum(String startTime, String endTime);
 
+    List<OrderDto> countOrderPayNumV1(String startTime, String endTime);
+
     List<SalesDto> countSales(DateTimeDto dateTimeDto, Integer orderType);
+
+    List<SalesDto> countSalesV1(DateTimeDto dateTimeDto, Integer orderType);
 
     List<OrderDto> countOrderNum(DateTimeDto t);
 
