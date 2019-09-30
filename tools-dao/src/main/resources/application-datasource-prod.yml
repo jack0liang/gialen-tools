@@ -28,3 +28,9 @@ tools:
     password: 123456
     username: root
     url: jdbc:mysql://10.255.1.54:3306/gialen_tools?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true
+
+customer:
+  datasource:
+    password: reportREPORT1!
+    username: report
+    url: jdbc:mysql://10.255.2.21:3306/gialen_customer?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true
