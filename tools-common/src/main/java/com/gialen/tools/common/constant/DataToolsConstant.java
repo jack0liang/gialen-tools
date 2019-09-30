@@ -40,6 +40,6 @@ public class DataToolsConstant {
 
     public static final String LABEL_STORE_NUM = "新增店主";
 
-    public static final int GIFT_PACKAGE_GROUP_ID = 1901;
+    public static final int GIFT_PACKAGE_TYPE = 3;
 
 }
