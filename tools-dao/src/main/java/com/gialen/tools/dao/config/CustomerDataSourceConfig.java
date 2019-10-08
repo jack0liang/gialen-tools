@@ -18,19 +18,20 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
+/**
+ * 用户中心数据源配置
+ */
 @Configuration
 @Slf4j
 @MapperScan(basePackages = {"com.gialen.tools.dao.repository.customer"}, sqlSessionTemplateRef = "customerSqlSessionTemplate")
 public class CustomerDataSourceConfig {
-
     @Bean(name = "customerDataSource")
     @ConfigurationProperties(prefix = "customer.datasource")
-    public DataSource appDataSource() {
+    public DataSource customerDataSource() {
         log.info("=============");
-        DataSource customerDataSource = new DruidDataSource();
-        return customerDataSource;
+        DataSource dataSource = new DruidDataSource();
+        return dataSource;
     }
-
 
     @Bean
     public SqlSessionFactory customerSqlSessionFactory(@Qualifier("customerDataSource") DataSource dataSource) throws Exception {

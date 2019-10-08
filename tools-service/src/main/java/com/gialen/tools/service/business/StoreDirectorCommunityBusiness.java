@@ -8,6 +8,7 @@ import com.gialen.tools.common.enums.UserTypeEnum;
 import com.gialen.tools.dao.dto.CommunityDto;
 import com.gialen.tools.dao.entity.gialen.BlcCustomer;
 import com.gialen.tools.dao.entity.gialen.BlcCustomerExample;
+import com.gialen.tools.dao.repository.customer.UserRelationMapper;
 import com.gialen.tools.dao.repository.gialen.BlcCustomerMapper;
 import com.gialen.tools.service.convertor.CustomerConvertor;
 import com.gialen.tools.service.model.CommunityModel;
@@ -33,9 +34,12 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
     @Autowired
     private BlcCustomerMapper blcCustomerMapper;
 
+    @Autowired
+    private UserRelationMapper userRelationMapper;
+
     @Override
     public CommunityModel countTotalCommunityData(Long userId, String userName) {
-        CommunityDto dto = blcCustomerMapper.countTotalNumForDirector(userId, userName);
+        CommunityDto dto = userRelationMapper.countTotalNumForDirector(userId, userName);
         if(dto == null) {
             return null;
         }
@@ -47,22 +51,26 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
         CommunityModel model = new CommunityModel();
 
         //统计月新增店经数
-        Integer monthNewStoreManagerNum = blcCustomerMapper.countMonthManagerNumForDirector(userId, month);
+        Integer monthNewStoreManagerNum = userRelationMapper.countMonthManagerNumForDirector(userId, month);
         model.setMonthNewStoreManagerNum(monthNewStoreManagerNum);
 
-        //统计月新增店主和vip数
-        CommunityDto monthDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, month, null);
-        model.setMonthNewStoreNum(monthDto != null ? monthDto.getMonthNewStoreNum() : 0);
-        model.setMonthNewVipNum(monthDto != null ? monthDto.getMonthNewVipNum() : 0);
+        //统计月新增店主数
+        Integer monthNewStoreNum = userRelationMapper.countStoreNumForDirector(userId, month, null);
+        model.setMonthNewStoreNum(monthNewStoreNum);
+
+        //统计月新增vip数
+        Integer monthNewVipNum = userRelationMapper.countVipNumForDirector(userId, month, null);
+        model.setMonthNewVipNum(monthNewVipNum);
 
         //统计今日新增店主和vip数
         Integer today = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMMdd"));
-        CommunityDto dayDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, null, today);
-        model.setTodayNewStoreNum(dayDto != null ? dayDto.getDayNewStoreNum() : 0);
-        model.setTodayNewVipNum(dayDto != null ? dayDto.getDayNewVipNum() : 0);
+        Integer todayNewStoreNum = userRelationMapper.countStoreNumForDirector(userId, null, today);
+        model.setTodayNewStoreNum(todayNewStoreNum);
+        Integer todayNewVipNum = userRelationMapper.countVipNumForDirector(userId, null, today);
+        model.setTodayNewVipNum(todayNewVipNum);
 
         //统计所有下级人数
-        CommunityDto totalDto = blcCustomerMapper.countTotalNumForDirector(userId, null);
+        CommunityDto totalDto = userRelationMapper.countTotalNumForDirector(userId, null);
         model.setTotalNum((totalDto != null ? totalDto.getTotalVipNum() : 0)
                 + (totalDto != null ? totalDto.getTotalStoreNum() : 0)
                 + (totalDto != null ? totalDto.getTotalStoreManagerNum() : 0));
@@ -92,14 +100,14 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
     public PageResponse<CustomerModel> getMonthChildList(Long userId, Byte childType, PageRequest pageRequest, Integer month) {
         long totalCount = 0L;
         if(ChildTypeEnum.STORE_MANAGER.getCode() == childType) {
-            Integer monthNewStoreManagerNum = blcCustomerMapper.countMonthManagerNumForDirector(userId, month);
+            Integer monthNewStoreManagerNum = userRelationMapper.countMonthManagerNumForDirector(userId, month);
             totalCount = monthNewStoreManagerNum != null ?  monthNewStoreManagerNum.longValue() : 0L;
         } else if (ChildTypeEnum.DIRECT_STORE.getCode() == childType || ChildTypeEnum.INDIRECT_STORE.getCode() == childType) {
-            CommunityDto monthDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, month, null);
-            totalCount = monthDto != null ? monthDto.getMonthNewStoreNum().longValue() : 0L;
+            Integer monthNewStoreNum = userRelationMapper.countStoreNumForDirector(userId, month, null);
+            totalCount = monthNewStoreNum != null ? monthNewStoreNum.longValue() : 0L;
         } else if (ChildTypeEnum.VIP.getCode() == childType) {
-            CommunityDto monthDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, month, null);
-            totalCount = monthDto != null ? monthDto.getMonthNewVipNum().longValue() : 0L;
+            Integer monthNewVipNum = userRelationMapper.countVipNumForDirector(userId, month, null);
+            totalCount = monthNewVipNum != null ? monthNewVipNum.longValue() : 0L;
         }
         if(totalCount <= 0L) {
             return PageResponse.empty(pageRequest.getPage(), pageRequest.getLimit());
@@ -112,27 +120,27 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
     @Override
     public CommunityModel countMonthVipData(Long userId, Integer month) {
         CommunityModel model = new CommunityModel();
-        CommunityDto monthDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, month, null);
-        model.setMonthNewVipNum(monthDto != null ? monthDto.getMonthNewVipNum() : 0);
+        Integer monthNewVipNum = userRelationMapper.countVipNumForDirector(userId, month, null);
+        model.setMonthNewVipNum(monthNewVipNum != null ? monthNewVipNum : 0);
         return model;
     }
 
     @Override
     public CommunityModel countDayVipData(Long userId, Integer day) {
         CommunityModel model = new CommunityModel();
-        CommunityDto dayDto = blcCustomerMapper.countStoreAndVipNumForDirector(userId, null, day);
-        model.setTodayNewVipNum(null != dayDto ? dayDto.getDayNewVipNum() : 0);
+        Integer dayNewVipNum = userRelationMapper.countVipNumForDirector(userId, null, day);
+        model.setTodayNewVipNum(null != dayNewVipNum ? dayNewVipNum : 0);
         return model;
     }
 
     @Override
     public PageResponse<VipCommunityModel> getMonthNewVipList(Long userId, PageRequest pageRequest, Integer month, String storeName) {
-        Long totalCount = blcCustomerMapper.countMonthHasNewVipStoreNumForDirector(userId, month, storeName);
+        Long totalCount = userRelationMapper.countMonthHasNewVipStoreNumForDirector(userId, month, storeName);
         if(totalCount == null || totalCount <= 0L) {
             return PageResponse.empty(pageRequest.getPage(), pageRequest.getLimit());
         }
         int today = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMMdd"));
-        List<CommunityDto> communityDtoList = blcCustomerMapper.getMonthNewVipListForDirector(userId, today, month, pageRequest, storeName);
+        List<CommunityDto> communityDtoList = userRelationMapper.getMonthNewVipListForDirector(userId, today, month, pageRequest, storeName);
 
         return PageResponse.success(convertCommunityDtoToVipCommunityModel(communityDtoList), pageRequest.getPage(), pageRequest.getLimit(), totalCount);
     }
@@ -159,25 +167,7 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
      * @return
      */
     private List<CustomerModel> getChildListForStoreDirector(Long storeDirectorId, PageRequest page, Byte childType, String userName) {
-        BlcCustomerExample example = new BlcCustomerExample();
-        BlcCustomerExample.Criteria criteria = example.createCriteria();
-        criteria.andShopStoreIdEqualTo(storeDirectorId);
-
-        if(ChildTypeEnum.STORE_MANAGER.getCode() == childType) { //店经
-            criteria.andUserLevelNewIdEqualTo("4").andUserTypeEqualTo(UserTypeEnum.STORE.getCode());
-        } else if (ChildTypeEnum.DIRECT_STORE.getCode() == childType || ChildTypeEnum.INDIRECT_STORE.getCode() == childType) { //店主
-            criteria.andUserLevelNewIdEqualTo("1").andUserTypeEqualTo(UserTypeEnum.STORE.getCode());
-        } else if (ChildTypeEnum.VIP.getCode() == childType) { //vip
-            criteria.andUserTypeEqualTo(UserTypeEnum.VIP.getCode());
-        }
-        if(StringUtils.isNotBlank(userName) && ChildTypeEnum.VIP.getCode() != childType) {
-            criteria.andRealNameLike(userName+"%");
-        }
-
-        example.setOrderByClause("DATE_CREATED desc");
-        example.setLimit(page.getLimit());
-        example.setOffset(page.getOffset());
-        List<BlcCustomer> customerList = blcCustomerMapper.selectByExample(example);
+        List<BlcCustomer> customerList = userRelationMapper.getUserChildListForDirector(storeDirectorId, childType, page, userName);
         return CustomerConvertor.convertCustomerListToModelList(customerList);
     }
 
@@ -190,7 +180,7 @@ public class StoreDirectorCommunityBusiness extends BaseCommunityBusiness {
      * @return
      */
     private List<CustomerModel> getMonthChildListForStoreDirector(Long storeDirectorId, PageRequest page, Byte childType, Integer month) {
-        List<BlcCustomer> customerList = blcCustomerMapper.getMonthUserChildListForDirector(storeDirectorId, childType, month, page);
+        List<BlcCustomer> customerList = userRelationMapper.getMonthUserChildListForDirector(storeDirectorId, childType, month, page);
         return CustomerConvertor.convertCustomerListToModelList(customerList);
     }
 

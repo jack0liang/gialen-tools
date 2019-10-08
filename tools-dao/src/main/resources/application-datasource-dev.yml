@@ -29,7 +29,6 @@ tools:
     username: dev
     url: jdbc:mysql://172.30.2.183:3306/gialen_tools?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true
 
-
 customer:
   datasource:
     password: devtest
