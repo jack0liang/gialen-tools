@@ -613,11 +613,7 @@ public class DataToolsServiceImpl implements DataToolsService {
         DataToolsModel dataToolsModel = new DataToolsModel();
         DateTimeDto dateTimeDto = DateTimeDtoBuilder.createDateTimeDto(startTime, endTime);
 
-        List<OrderDto> orderDtoList = ordersMapper.countOrderNum(dateTimeDto);
-        List<OrderDto> unpaiedOrderDtoList = ordersMapper.countUnPaiedOrderNum(dateTimeDto);
-
-        ConversionDataModel conversionDataModel = calculateOrderConversion(orderDtoList, unpaiedOrderDtoList, startTime, endTime);
-
+        ConversionDataModel conversionDataModel = calculateOrderConversion(ordersMapper.countOrderNum(dateTimeDto), startTime, endTime);
         dataToolsModel.setTitle(DataToolsConstant.TITLE_ORDER_CONVERSION);
         List<ItemModel> itemList = Lists.newArrayList();
         ItemModel createNumItem = createItem(DataToolsConstant.LABEL_ORDER_CREATE_NUM,
@@ -689,7 +685,7 @@ public class DataToolsServiceImpl implements DataToolsService {
      * @param orderDtoList
      * @return
      */
-    private ConversionDataModel calculateOrderConversion(List<OrderDto> orderDtoList, List<OrderDto> undaiedList, Long startTime, Long endTime) {
+    private ConversionDataModel calculateOrderConversion(List<OrderDto> orderDtoList, Long startTime, Long endTime) {
         ConversionDataModel model = new ConversionDataModel();
         Integer createNum = NumberUtils.INTEGER_ZERO;
         Integer successNum = NumberUtils.INTEGER_ZERO;
@@ -708,12 +704,11 @@ public class DataToolsServiceImpl implements DataToolsService {
             totalUvRelative = totalUvRelative <= 0 ? 1 : totalUvRelative;
         }
         log.info("totalUv : {}, totalUvRelative : {}", totalUv, totalUvRelative);
-        if (CollectionUtils.isNotEmpty(orderDtoList) && CollectionUtils.isNotEmpty(undaiedList)) {
+        if (CollectionUtils.isNotEmpty(orderDtoList)) {
             for (OrderDto orderDto : orderDtoList) {
                 if (startTimeStr.equals(orderDto.getCountTime())) { //当前数据
                     successNum = orderDto.getSuccessNum() != null ? orderDto.getSuccessNum() : NumberUtils.INTEGER_ZERO;
-                    OrderDto unPaiedDto = undaiedList.get(0);
-                    createNum = unPaiedDto.getUnpaiedNum() + successNum;
+                    createNum = orderDto.getCreateNum();
                     successRate = DecimalCalculate.div(
                             NumberUtils.createDouble(successNum + ""),
                             NumberUtils.createDouble(createNum + ""), 4);
@@ -722,8 +717,7 @@ public class DataToolsServiceImpl implements DataToolsService {
                             NumberUtils.createDouble(totalUv + ""), 4);
                 } else { //环比数据
                     successNumRelative = orderDto.getSuccessNum() != null ? orderDto.getSuccessNum() : NumberUtils.INTEGER_ZERO;
-                    OrderDto unPaiedDto = undaiedList.get(1);
-                    createNumRelative = unPaiedDto.getUnpaiedNum() + successNumRelative;
+                    createNumRelative =orderDto.getCreateNum();
                     successRateRelative = DecimalCalculate.div(
                             NumberUtils.createDouble(successNumRelative + ""),
                             NumberUtils.createDouble(createNumRelative + ""), 4);
