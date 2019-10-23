@@ -1,5 +1,6 @@
 package com.gialen.tools.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.gialen.common.model.GLResponse;
 import com.gialen.common.utils.DateTools;
 import com.gialen.common.utils.DecimalCalculate;
@@ -11,16 +12,17 @@ import com.gialen.tools.dao.dto.*;
 import com.gialen.tools.dao.entity.customer.UserExample;
 import com.gialen.tools.dao.entity.order.Orders;
 import com.gialen.tools.dao.entity.order.OrdersExample;
-import com.gialen.tools.dao.entity.tools.DataTimerReportForm;
 import com.gialen.tools.dao.entity.point.UvStatDay;
 import com.gialen.tools.dao.entity.point.UvStatDayExample;
+import com.gialen.tools.dao.entity.tools.DataTimerReportForm;
 import com.gialen.tools.dao.repository.customer.extend.UserExtendMapper;
 import com.gialen.tools.dao.repository.order.extend.OrdersExtendMapper;
 import com.gialen.tools.dao.repository.point.GdataPointMapper;
-import com.gialen.tools.dao.repository.tools.extend.DataTimerReportFormExtendMapper;
 import com.gialen.tools.dao.repository.point.UvStatDayMapper;
+import com.gialen.tools.dao.repository.tools.extend.DataTimerReportFormExtendMapper;
 import com.gialen.tools.dao.util.DateTimeDtoBuilder;
 import com.gialen.tools.service.DataToolsService;
+import com.gialen.tools.service.contant.RedisContant;
 import com.gialen.tools.service.model.*;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -29,10 +31,12 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -60,12 +64,27 @@ public class DataToolsServiceImpl implements DataToolsService {
     @Autowired
     private DataTimerReportFormExtendMapper countMapper;
 
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
     public static int totalUv = 0;
 
     public static int totalUvRelative = 0;
 
     @Override
-    public GLResponse getDataList(Long startTime, Long endTime, Byte dataType) {
+    public GLResponse getDataList(Long startTime, Long endTime, byte dataType) {
+        String key = String.format("%s:%s:%s", RedisContant.HASH_KEY_DATAS_PERFIX, startTime, endTime);
+        String hashKey = DataTypeEnum.getTypeByCode(dataType).name();
+
+        Boolean isCache = stringRedisTemplate.hasKey(key);
+        if (isCache != null && isCache) {
+            Object object = stringRedisTemplate.opsForHash().get(key, hashKey);
+            if (object != null) {
+                log.info("数坊数据缓存命中... hashKey={}", dataType);
+                return GLResponse.succ(JSONArray.parseArray(object.toString(), DataToolsModel.class));
+            }
+        }
+
         List<DataToolsModel> dataList = Lists.newArrayList();
         if (DataTypeEnum.SALES_DATA.getType() == dataType) {
             dataList.add(getSalesCountData(startTime, endTime));
@@ -79,6 +98,12 @@ public class DataToolsServiceImpl implements DataToolsService {
             dataList.add(getUserData(startTime, endTime));
         }
 
+        //加入缓存
+        stringRedisTemplate.opsForHash().put(key, hashKey, JSONArray.toJSONString(dataList));
+        Long expireTime = stringRedisTemplate.getExpire(key);
+        if ( expireTime == null || expireTime == -1) {
+            stringRedisTemplate.expire(key, 3, TimeUnit.MINUTES);
+        }
         return GLResponse.succ(dataList);
     }
 
@@ -358,12 +383,12 @@ public class DataToolsServiceImpl implements DataToolsService {
         Date start = DateTools.string2Date(RelativeDataTypeEnum.DATA.equals(dataTypeEnum) ? dateTimeDto.getStartTime() : dateTimeDto.getRelativeStartTime(), DateTools.LONG_DATE_FORMAT);
         Date end = DateTools.string2Date(RelativeDataTypeEnum.DATA.equals(dataTypeEnum) ? dateTimeDto.getEndTime() : dateTimeDto.getRelativeEndTime(), DateTools.LONG_DATE_FORMAT);
         OrdersExample ordersExample = new OrdersExample();
-        ordersExample.createCriteria().andPayStatusEqualTo((short) 1).andIsParentEqualTo(true).andCreateTimeBetween(start,end);
+        ordersExample.createCriteria().andPayStatusEqualTo((short) 1).andIsParentEqualTo(true).andCreateTimeBetween(start, end);
         List<Orders> orders = ordersMapper.selectByExample(ordersExample);
         List<Long> userIds = orders.stream().map(Orders::getUserId).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(userIds)) {
             UserExample userExample = new UserExample();
-            userExample.createCriteria().andIdIn(userIds).andCreateTimeBetween(start,end);
+            userExample.createCriteria().andIdIn(userIds).andCreateTimeBetween(start, end);
             newUserOrderNum = (int) userMapper.countByExample(userExample);
             oldUserOrderNum = userIds.size() - newUserOrderNum;
         }

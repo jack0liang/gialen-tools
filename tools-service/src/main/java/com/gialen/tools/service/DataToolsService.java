@@ -6,7 +6,7 @@ import com.gialen.tools.service.model.UserDataModel;
 
 public interface DataToolsService {
 
-    GLResponse getDataList(Long startTime, Long endTime, Byte dataType);
+    GLResponse getDataList(Long startTime, Long endTime, byte dataType);
 
     UserDataModel countUserOrderData(Long startTime, Long endTime);
 

@@ -2,6 +2,7 @@ package com.gialen.tools.api.controller;
 
 import com.gialen.tools.service.DataToolsService;
 import com.gialen.common.model.GLResponse;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,12 @@ public class DataToolsController {
         String startTimeStr = DateFormatUtils.format(startTime, "yyyy-MM-dd HH:mm:ss");
         String endTimeStr = DateFormatUtils.format(endTime, "yyyy-MM-dd HH:mm:ss");
         //log.info("数据看板接口: startTime=" + startTimeStr + ", endTime=" + endTimeStr + ",dataType=" + dataType);
-        return dataToolsService.getDataList(startTime, endTime, dataType);
+        try {
+            return dataToolsService.getDataList(startTime, endTime, dataType);
+        } catch (Exception e) {
+            log.error("小娇数坊数据查询异常！",e);
+            return GLResponse.fail("小娇数坊数据查询异常!");
+        }
     }
 
     @RequestMapping("/test")

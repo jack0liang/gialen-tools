@@ -21,6 +21,15 @@ public enum DataTypeEnum {
         this.name = name;
     }
 
+    public static DataTypeEnum getTypeByCode(byte code){
+        for (DataTypeEnum value : values()) {
+            if (value.type == code){
+                return value;
+            }
+        }
+        return null;
+    }
+
     public byte getType() {
         return type;
     }
