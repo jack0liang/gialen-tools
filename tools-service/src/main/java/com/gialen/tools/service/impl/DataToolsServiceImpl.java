@@ -15,14 +15,9 @@ import com.gialen.tools.dao.entity.order.Orders;
 import com.gialen.tools.dao.entity.order.OrdersExample;
 import com.gialen.tools.dao.entity.point.UvStatDay;
 import com.gialen.tools.dao.entity.point.UvStatDayExample;
-import com.gialen.tools.dao.entity.tools.TbDatacountRelative;
-import com.gialen.tools.dao.entity.tools.TbDatacountRelativeExample;
-import com.gialen.tools.dao.entity.tools.DataTimerReportForm;
 import com.gialen.tools.dao.repository.customer.extend.UserExtendMapper;
 import com.gialen.tools.dao.repository.order.extend.OrdersExtendMapper;
 import com.gialen.tools.dao.repository.point.GdataPointMapper;
-import com.gialen.tools.dao.repository.point.UvStatDayMapper;
-import com.gialen.tools.dao.repository.tools.extend.DataTimerReportFormExtendMapper;
 import com.gialen.tools.dao.repository.point.UvStatDayMapper;
 import com.gialen.tools.dao.repository.tools.extend.TbDatacountRelativeExtendMapper;
 import com.gialen.tools.dao.util.DateTimeDtoBuilder;
@@ -114,11 +109,6 @@ public class DataToolsServiceImpl implements DataToolsService {
         return GLResponse.succ(dataList);
     }
 
-
-    public void getCountData(Long startTime, Long endTime) {
-        DateTimeDto dateTimeDto = DateTimeDtoBuilder.createDateTimeDto(startTime, endTime);
-        List<DataTimerReportForm> dataTimerReportForms = countMapper.countDataByTime(dateTimeDto);
-    }
 
 
     @Override
