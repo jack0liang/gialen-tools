@@ -1,5 +1,6 @@
 package com.gialen.tools.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.gialen.common.model.GLResponse;
 import com.gialen.common.utils.DateTools;
 import com.gialen.common.utils.DecimalCalculate;
@@ -16,13 +17,17 @@ import com.gialen.tools.dao.entity.point.UvStatDay;
 import com.gialen.tools.dao.entity.point.UvStatDayExample;
 import com.gialen.tools.dao.entity.tools.TbDatacountRelative;
 import com.gialen.tools.dao.entity.tools.TbDatacountRelativeExample;
+import com.gialen.tools.dao.entity.tools.DataTimerReportForm;
 import com.gialen.tools.dao.repository.customer.extend.UserExtendMapper;
 import com.gialen.tools.dao.repository.order.extend.OrdersExtendMapper;
 import com.gialen.tools.dao.repository.point.GdataPointMapper;
 import com.gialen.tools.dao.repository.point.UvStatDayMapper;
+import com.gialen.tools.dao.repository.tools.extend.DataTimerReportFormExtendMapper;
+import com.gialen.tools.dao.repository.point.UvStatDayMapper;
 import com.gialen.tools.dao.repository.tools.extend.TbDatacountRelativeExtendMapper;
 import com.gialen.tools.dao.util.DateTimeDtoBuilder;
 import com.gialen.tools.service.DataToolsService;
+import com.gialen.tools.service.contant.RedisContant;
 import com.gialen.tools.service.model.*;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +36,13 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -64,81 +71,54 @@ public class DataToolsServiceImpl implements DataToolsService {
     @Autowired
     private TbDatacountRelativeExtendMapper countMapper;
 
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
     public static int totalUv = 0;
 
     public static int totalUvRelative = 0;
 
     @Override
-    public GLResponse getDataList(Long startTime, Long endTime, Byte dataType) {
-        List<DataToolsModel> dataList = Lists.newArrayList();
-        Map<Integer, List<TbDatacountRelative>> map = getCountData(startTime, endTime);
+    public GLResponse getDataList(Long startTime, Long endTime, byte dataType) {
+        String key = String.format("%s:%s:%s", RedisContant.HASH_KEY_DATAS_PERFIX, startTime, endTime);
+        String hashKey = DataTypeEnum.getTypeByCode(dataType).name();
 
-        if (DataTypeEnum.SALES_DATA.getType() == dataType) {
-
-            if (map == null) {
-                dataList.add(getSalesCountData(startTime, endTime));
-            } else {
-                dataList.add(getSalesCountDataByCache(map));
+        Boolean isCache = stringRedisTemplate.hasKey(key);
+        if (isCache != null && isCache) {
+            Object object = stringRedisTemplate.opsForHash().get(key, hashKey);
+            if (object != null) {
+                log.info("数坊数据缓存命中... hashKey={}", dataType);
+                return GLResponse.succ(JSONArray.parseArray(object.toString(), DataToolsModel.class));
             }
+        }
 
+        List<DataToolsModel> dataList = Lists.newArrayList();
+        if (DataTypeEnum.SALES_DATA.getType() == dataType) {
+            dataList.add(getSalesCountData(startTime, endTime));
         } else if (DataTypeEnum.UV_DATA.getType() == dataType) {
             dataList.add(getUv(startTime, endTime));
         } else if (DataTypeEnum.ORDER_DATA.getType() == dataType) {
-
-            if (map == null) {
-                dataList.add(getOrderPayData(startTime, endTime));
-            } else {
-                dataList.add(getOrderPayDataByCache(map));
-            }
-
+            dataList.add(getOrderPayData(startTime, endTime));
         } else if (DataTypeEnum.CONVERSION_DATA.getType() == dataType) {
-
-            if (map == null) {
-                dataList.add(getOrderConversionData(startTime, endTime));
-            } else {
-                dataList.add(getOrderConversionDataByCache(map,startTime,endTime));
-            }
-
+            dataList.add(getOrderConversionData(startTime, endTime));
         } else if (DataTypeEnum.USER_DATA.getType() == dataType) {
             dataList.add(getUserData(startTime, endTime));
         }
 
+        //加入缓存
+        stringRedisTemplate.opsForHash().put(key, hashKey, JSONArray.toJSONString(dataList));
+        Long expireTime = stringRedisTemplate.getExpire(key);
+        if ( expireTime == null || expireTime == -1) {
+            stringRedisTemplate.expire(key, 3, TimeUnit.MINUTES);
+        }
         return GLResponse.succ(dataList);
     }
 
 
-    public Map<Integer, List<TbDatacountRelative>> getCountData(Long startTime, Long endTime) {
-        List<String> timerPoint = new ArrayList<>(12);
-        int dexHour = (int) ((endTime - startTime) / 1000 / 60 / 60);
-        Date s = new Date(startTime);
-        for (int i = 0; i < dexHour; i++) {
-            timerPoint.add(DateTools.date2String(DateUtils.addHours(s, i), "yyyyMMddHH"));
-        }
-
-        TbDatacountRelativeExample example = new TbDatacountRelativeExample();
-        example.createCriteria().andCountTimeIn(timerPoint);
-        List<TbDatacountRelative> datacountRelatives = countMapper.selectByExample(example);
-        Map<Integer, List<TbDatacountRelative>> listMap = datacountRelatives.stream().collect(Collectors.groupingBy(TbDatacountRelative::getType));
-        if (listMap.size() != DataCountTypeEnum.values().length
-                || !listMap.values().stream().allMatch(tbDatacountRelatives -> tbDatacountRelatives.size() == dexHour)) {
-            return null;
-        }
-        return listMap;
+    public void getCountData(Long startTime, Long endTime) {
+        DateTimeDto dateTimeDto = DateTimeDtoBuilder.createDateTimeDto(startTime, endTime);
+        List<DataTimerReportForm> dataTimerReportForms = countMapper.countDataByTime(dateTimeDto);
     }
-
-//    public static void main(String[] args) {
-//        Date s1 = DateTools.string2Date("2019-09-29 01:30:00", DateTools.LONG_DATE_FORMAT);
-//        Date e1 = DateTools.string2Date("2019-09-29 02:40:00", DateTools.LONG_DATE_FORMAT);
-//
-//        List<String> timepoint = new ArrayList<>(12);
-//
-//        // 拆成小时
-//        int dexHour = (int) ((e1.getTime() - s1.getTime()) / 1000 / 60 / 60);
-//        for (int i = 0; i < dexHour; i++) {
-//            timepoint.add(DateTools.date2String(DateUtils.addHours(s1, i), "yyyyMMddHH"));
-//        }
-//        System.out.println(timepoint);
-//    }
 
 
     @Override
@@ -249,34 +229,6 @@ public class DataToolsServiceImpl implements DataToolsService {
         return calculateUv(uv, relativeUv);
     }
 
-    private DataToolsModel getOrderPayDataByCache(Map<Integer, List<TbDatacountRelative>> map) {
-        DataToolsModel dataToolsModel = new DataToolsModel();
-        List<TbDatacountRelative> wxminiOrders = map.get(DataCountTypeEnum.ITEM_ORDER_WXMINI.getType());
-        int wxnimiNumber = wxminiOrders.stream().mapToInt(value -> value.getNumber().intValue()).sum();
-        int wxnimiNumberRelative = wxminiOrders.stream().mapToInt(value -> value.getRelativeNumber().intValue()).sum();
-        List<TbDatacountRelative> h5Orders = map.get(DataCountTypeEnum.ITEM_ORDER_H5.getType());
-        int h5Number = h5Orders.stream().mapToInt(value -> value.getNumber().intValue()).sum();
-        int h5NumberRelative = h5Orders.stream().mapToInt(value -> value.getRelativeNumber().intValue()).sum();
-        List<TbDatacountRelative> appOrders = map.get(DataCountTypeEnum.ITEM_ORDER_APP.getType());
-        int appNumber = appOrders.stream().mapToInt(value -> value.getNumber().intValue()).sum();
-        int appNumberRelative = appOrders.stream().mapToInt(value -> value.getRelativeNumber().intValue()).sum();
-
-        dataToolsModel.setTitle(DataToolsConstant.TITLE_ORDER_PLATFORM_PAY);
-        List<ItemModel> itemList = Lists.newArrayList();
-        ItemModel miniProgramItem = createItem(DataToolsConstant.LABEL_MINI_PROGRAM,
-                String.valueOf(wxnimiNumber), calculateRelativeRatio(NumberUtils.createDouble(wxnimiNumber + ""), NumberUtils.createDouble(wxnimiNumberRelative + ""), 4));
-        ItemModel appItem = createItem(DataToolsConstant.LABEL_APP,
-                String.valueOf(appNumber), calculateRelativeRatio(NumberUtils.createDouble(appNumber + ""), NumberUtils.createDouble(appNumberRelative + ""), 4));
-        ItemModel h5Item = createItem(DataToolsConstant.LABEL_H5,
-                String.valueOf(h5Number), calculateRelativeRatio(NumberUtils.createDouble(h5Number + ""), NumberUtils.createDouble(h5NumberRelative + ""), 4));
-
-        itemList.add(miniProgramItem);
-        itemList.add(appItem);
-        itemList.add(h5Item);
-        dataToolsModel.setItems(itemList);
-        return dataToolsModel;
-    }
-
     /**
      * 按平台来源统计订单成功数
      *
@@ -340,49 +292,6 @@ public class DataToolsServiceImpl implements DataToolsService {
         dataToolsModel.setItems(itemList);
         return dataToolsModel;
     }
-
-    /**
-     * 从统计表中计算销售数据
-     *
-     * @param cacheMap
-     * @return
-     */
-    public DataToolsModel getSalesCountDataByCache(Map<Integer, List<TbDatacountRelative>> cacheMap) {
-        /*
-         * 清算总销售额
-         */
-        List<TbDatacountRelative> sales = cacheMap.get(DataCountTypeEnum.ITEM_SALE.getType());
-        double totalSale = sales.stream().mapToDouble(TbDatacountRelative::getNumber).sum();
-        double totalSaleRelative = sales.stream().mapToDouble(TbDatacountRelative::getRelativeNumber).sum();
-        /*
-         * 大礼包销售额
-         */
-        List<TbDatacountRelative> giftSales = cacheMap.get(DataCountTypeEnum.ITEM_GIT_SALE.getType());
-        double gitSale = giftSales.stream().mapToDouble(TbDatacountRelative::getNumber).sum();
-        double gitSaleRelative = giftSales.stream().mapToDouble(TbDatacountRelative::getRelativeNumber).sum();
-        /*
-         * 平销
-         */
-        double usualSales = totalSale - totalSaleRelative;
-        double usualSalesRelative = gitSale - gitSaleRelative;
-
-        DataToolsModel dataToolsModel = new DataToolsModel();
-        dataToolsModel.setTitle(DataToolsConstant.TITLE_SALES_COUNT);
-        List<ItemModel> itemList = Lists.newArrayList();
-        ItemModel totalSalesItem = createItem(DataToolsConstant.LABEL_SALES_TOTAL,
-                String.valueOf(DecimalCalculate.round(totalSale, 2)), calculateRelativeRatio(totalSale, totalSaleRelative, 4));
-        ItemModel giftPackageSalesItem = createItem(DataToolsConstant.LABEL_SALES_GIFT_PACKAGE,
-                String.valueOf(DecimalCalculate.round(gitSale, 2)), calculateRelativeRatio(gitSale, gitSaleRelative, 4));
-        ItemModel usualSalesItem = createItem(DataToolsConstant.LABEL_SALES_USUAL,
-                String.valueOf(DecimalCalculate.round(usualSales, 2)), calculateRelativeRatio(usualSales, usualSalesRelative, 4));
-
-        itemList.add(totalSalesItem);
-        itemList.add(giftPackageSalesItem);
-        itemList.add(usualSalesItem);
-        dataToolsModel.setItems(itemList);
-        return dataToolsModel;
-    }
-
 
     /**
      * 计算销售看板数据
@@ -630,51 +539,6 @@ public class DataToolsServiceImpl implements DataToolsService {
         itemList.add(successRateItem);
         itemList.add(conversionRateItem);
 
-        dataToolsModel.setItems(itemList);
-        return dataToolsModel;
-    }
-
-    private DataToolsModel getOrderConversionDataByCache(Map<Integer, List<TbDatacountRelative>> map,Long startTime, Long endTime) {
-        DataToolsModel dataToolsModel = new DataToolsModel();
-
-        List<TbDatacountRelative> orderCreates = map.get(DataCountTypeEnum.ITEM_ORDER_CREATE.getType());
-        double orderCreaterNum = orderCreates.stream().mapToDouble(TbDatacountRelative::getNumber).sum();
-        double orderCreaterRelativeNum = orderCreates.stream().mapToDouble(TbDatacountRelative::getRelativeNumber).sum();
-
-        List<TbDatacountRelative> orderPaieds = map.get(DataCountTypeEnum.ITEM_ORDER_PAIED.getType());
-        double orderPaiedNum = orderPaieds.stream().mapToDouble(TbDatacountRelative::getNumber).sum();
-        double orderPaiedRelativeNum = orderPaieds.stream().mapToDouble(TbDatacountRelative::getRelativeNumber).sum();
-
-        double successRate = DecimalCalculate.div(orderPaiedNum, orderCreaterNum, 4);
-        double successRateRelative = DecimalCalculate.div(orderPaiedNum, orderCreaterRelativeNum, 4);
-
-        if (totalUv <= 0 && totalUvRelative <= 0) {
-            getUvData(startTime, endTime);
-            totalUv = totalUv <= 0 ? 1 : totalUv;
-            totalUvRelative = totalUvRelative <= 0 ? 1 : totalUvRelative;
-        }
-
-        double  conversionRate = DecimalCalculate.div(orderPaiedNum, totalUv , 4);
-        double  conversionRateRelative = DecimalCalculate.div(orderPaiedRelativeNum, totalUvRelative, 4);;
-
-        dataToolsModel.setTitle(DataToolsConstant.TITLE_ORDER_CONVERSION);
-        List<ItemModel> itemList = Lists.newArrayList();
-        ItemModel createNumItem = createItem(DataToolsConstant.LABEL_ORDER_CREATE_NUM,
-                orderCreaterNum + "", calculateRelativeRatio(orderCreaterNum, orderCreaterRelativeNum, 4));
-
-        ItemModel successNumItem = createItem(DataToolsConstant.LABEL_ORDER_SUCCESS_NUM,
-                orderPaiedNum + "", calculateRelativeRatio(orderPaiedNum, orderPaiedRelativeNum, 4));
-
-        ItemModel successRateItem = createItem(DataToolsConstant.LABEL_ORDER_SUCCESS_RATE, successRate + "",
-                calculateRelativeRatio(successRate, successRateRelative, 4));
-
-        ItemModel conversionRateItem = createItem(DataToolsConstant.CONVERSION_RATE,
-                conversionRate + "", calculateRelativeRatio(conversionRate, conversionRateRelative, 4));
-
-        itemList.add(createNumItem);
-        itemList.add(successNumItem);
-        itemList.add(successRateItem);
-        itemList.add(conversionRateItem);
         dataToolsModel.setItems(itemList);
         return dataToolsModel;
     }

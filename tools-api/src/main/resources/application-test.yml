@@ -1,7 +1,7 @@
 ---
 spring:
   profiles:
-    include: datasource-dev
+    include: datasource-dev,redis-test
 
 logging:
   path: /home/app/tools/logs
