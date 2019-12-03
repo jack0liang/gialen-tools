@@ -1,6 +1,5 @@
 package com.gialen.tools.service.impl;
 
-import com.alibaba.fastjson.JSONArray;
 import com.gialen.common.model.GLResponse;
 import com.gialen.common.utils.DateTools;
 import com.gialen.common.utils.DecimalCalculate;
@@ -21,7 +20,6 @@ import com.gialen.tools.dao.repository.point.UvStatDayMapper;
 import com.gialen.tools.dao.repository.tools.extend.TbDatacountRelativeExtendMapper;
 import com.gialen.tools.dao.util.DateTimeDtoBuilder;
 import com.gialen.tools.service.DataToolsService;
-import com.gialen.tools.service.contant.RedisContant;
 import com.gialen.tools.service.model.*;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -30,12 +28,10 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -55,16 +51,7 @@ public class DataToolsServiceImpl implements DataToolsService {
     private OrdersExtendMapper ordersMapper;
 
     @Autowired
-    private GdataPointMapper gdataPointMapper;
-
-    @Autowired
     private UvStatDayMapper uvStatDayMapper;
-
-    @Autowired
-    private TbDatacountRelativeExtendMapper countMapper;
-
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
 
     public static int totalUv = 0;
 
@@ -72,18 +59,6 @@ public class DataToolsServiceImpl implements DataToolsService {
 
     @Override
     public GLResponse getDataList(Long startTime, Long endTime, byte dataType) {
-        String key = String.format("%s:%s:%s", RedisContant.HASH_KEY_DATAS_PERFIX, startTime, endTime);
-        String hashKey = DataTypeEnum.getTypeByCode(dataType).name();
-
-        Boolean isCache = stringRedisTemplate.hasKey(key);
-        if (isCache != null && isCache) {
-            Object object = stringRedisTemplate.opsForHash().get(key, hashKey);
-            if (object != null) {
-                log.info("数坊数据缓存命中... hashKey={}", dataType);
-                return GLResponse.succ(JSONArray.parseArray(object.toString(), DataToolsModel.class));
-            }
-        }
-
         List<DataToolsModel> dataList = Lists.newArrayList();
         if (DataTypeEnum.SALES_DATA.getType() == dataType) {
             dataList.add(getSalesCountData(startTime, endTime));
@@ -96,29 +71,9 @@ public class DataToolsServiceImpl implements DataToolsService {
         } else if (DataTypeEnum.USER_DATA.getType() == dataType) {
             dataList.add(getUserData(startTime, endTime));
         }
-
-        //加入缓存
-        stringRedisTemplate.opsForHash().put(key, hashKey, JSONArray.toJSONString(dataList));
-        Long expireTime = stringRedisTemplate.getExpire(key);
-        if ( expireTime == null || expireTime == -1) {
-            stringRedisTemplate.expire(key, 3, TimeUnit.MINUTES);
-        }
         return GLResponse.succ(dataList);
     }
 
-
-
-    @Override
-    public UserDataModel countUserOrderData(Long startTime, Long endTime) {
-        DateTimeDto dateTimeDto = DateTimeDtoBuilder.createDateTimeDto(startTime, endTime);
-        //统计vip,store数量、环比
-        UserDataModel userDataModel = calculateUserType(userMapper.countUserType(dateTimeDto), startTime);
-        //统计当前新老客订单量
-        calculateUserOrder(dateTimeDto, userDataModel, RelativeDataTypeEnum.DATA);
-        //统计环比新老客订单量
-        calculateUserOrder(dateTimeDto, userDataModel, RelativeDataTypeEnum.RELATIVE_DATA);
-        return userDataModel;
-    }
 
     /**
      * 获取用户统计数据
@@ -127,7 +82,6 @@ public class DataToolsServiceImpl implements DataToolsService {
      * @param endTime
      * @return
      */
-    @Override
     public DataToolsModel getUserData(Long startTime, Long endTime) {
         DataToolsModel dataToolsModel = new DataToolsModel();
         DateTimeDto dateTimeDto = DateTimeDtoBuilder.createDateTimeDto(startTime, endTime);
