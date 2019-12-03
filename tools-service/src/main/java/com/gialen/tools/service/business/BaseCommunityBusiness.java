@@ -5,12 +5,12 @@ import com.gialen.common.model.PageRequest;
 import com.gialen.common.model.PageResponse;
 import com.gialen.common.utils.DecimalCalculate;
 import com.gialen.tools.common.enums.PurchasedTypeEnum;
-import com.gialen.tools.common.enums.UserTypeEnum;
 import com.gialen.tools.dao.dto.ActivityUserDetailDto;
 import com.gialen.tools.dao.dto.CommunityDto;
 import com.gialen.tools.dao.entity.gialen.BlcCustomer;
 import com.gialen.tools.dao.entity.gialen.RomaImportSuperCustomerRecord;
 import com.gialen.tools.dao.entity.gialen.RomaImportSuperCustomerRecordExample;
+import com.gialen.tools.dao.repository.customer.UserRelationMapper;
 import com.gialen.tools.dao.repository.gialen.BlcCustomerMapper;
 import com.gialen.tools.dao.repository.gialen.BlcCustomerRelationMapper;
 import com.gialen.tools.dao.repository.gialen.RomaImportSuperCustomerRecordMapper;
@@ -20,11 +20,9 @@ import com.gialen.tools.service.model.VipCommunityModel;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -45,23 +43,16 @@ public abstract class BaseCommunityBusiness implements CommunityBusiness {
     @Autowired
     private RomaImportSuperCustomerRecordMapper romaImportSuperCustomerRecordMapper;
 
+    @Autowired
+    private UserRelationMapper userRelationMapper;
+
     @Override
     public PageResponse<StoreActivityDetailModel> getMonthActivityStoreList(Long userId, Byte userType, Integer month, Byte purchasedType, PageRequest pageRequest, String storeName) {
-        Long countTotal;
-        if(UserTypeEnum.STORE_DIRECTOR.getType() == userType) {
-            countTotal = blcCustomerMapper.countActivityOrSilenceStoreTotalForDirector(userId, month, purchasedType, storeName);
-        } else {
-            countTotal= blcCustomerRelationMapper.countActivityOrSilenceStoreTotalForManager(userId, month, purchasedType, storeName);
-        }
+        Long countTotal = userRelationMapper.countActivityOrSilenceStoreTotal(userId, month, userType, purchasedType, storeName);
         if(countTotal == null || countTotal <= 0L) {
             return PageResponse.empty(pageRequest.getPage(), pageRequest.getLimit());
         }
-        List<ActivityUserDetailDto> dtoList;
-        if(UserTypeEnum.STORE_DIRECTOR.getType() == userType) {
-            dtoList = blcCustomerMapper.getActivityOrSilenceStoreListForDirector(userId, month, purchasedType, pageRequest, storeName);
-        } else {
-            dtoList = blcCustomerRelationMapper.getActivityOrSilenceStoreListForManager(userId, month, purchasedType, pageRequest, storeName);
-        }
+        List<ActivityUserDetailDto> dtoList = userRelationMapper.getActivityOrSilenceStoreList(userId, month, userType, purchasedType, pageRequest, storeName);
 
         List<StoreActivityDetailModel> modelList = Lists.newArrayListWithCapacity(dtoList.size());
         dtoList.forEach(dto -> modelList.add(Copier.copy(dto, new StoreActivityDetailModel())));
@@ -71,21 +62,12 @@ public abstract class BaseCommunityBusiness implements CommunityBusiness {
 
     /**
      * 统计活跃和静默店主数量
-     * @param userId
-     * @param month
-     * @param model
-     * @return
      */
-    protected StoreActivityModel countActivityOrSilenceStoreTotal(Long userId, Byte userType, Integer month, StoreActivityModel model) {
-        Long activityStoreNum, silenceStoreNum;
+    protected StoreActivityModel countActivityOrSilenceStoreTotal(Long userId, Byte userType, Integer month) {
+        StoreActivityModel model = new StoreActivityModel();
+        Long activityStoreNum = userRelationMapper.countActivityOrSilenceStoreTotal(userId, month, userType, PurchasedTypeEnum.PURCHASED.getCode(), null);
+        Long silenceStoreNum =  userRelationMapper.countActivityOrSilenceStoreTotal(userId, month, userType, PurchasedTypeEnum.NOT_PURCHASED.getCode(), null);
 
-        if(UserTypeEnum.STORE_DIRECTOR.getType() == userType) {
-            activityStoreNum = blcCustomerMapper.countActivityOrSilenceStoreTotalForDirector(userId, month, PurchasedTypeEnum.PURCHASED.getCode(), null);
-            silenceStoreNum = blcCustomerMapper.countActivityOrSilenceStoreTotalForDirector(userId, month, PurchasedTypeEnum.NOT_PURCHASED.getCode(), null);
-        } else {
-            activityStoreNum = blcCustomerRelationMapper.countActivityOrSilenceStoreTotalForManager(userId, month, PurchasedTypeEnum.PURCHASED.getCode(), null);
-            silenceStoreNum = blcCustomerRelationMapper.countActivityOrSilenceStoreTotalForManager(userId, month, PurchasedTypeEnum.NOT_PURCHASED.getCode(), null);
-        }
         model.setPurchasedStoreNum(activityStoreNum != null ? activityStoreNum.intValue() : 0);
         model.setNotPurchasedStoreNum(silenceStoreNum != null ? silenceStoreNum.intValue() : 0);
 

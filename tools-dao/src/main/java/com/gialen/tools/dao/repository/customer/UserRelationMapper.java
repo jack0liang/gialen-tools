@@ -1,6 +1,7 @@
 package com.gialen.tools.dao.repository.customer;
 
 import com.gialen.common.model.PageRequest;
+import com.gialen.tools.dao.dto.ActivityUserDetailDto;
 import com.gialen.tools.dao.dto.CommunityDto;
 import com.gialen.tools.dao.entity.customer.UserRelation;
 import com.gialen.tools.dao.entity.customer.UserRelationExample;
@@ -11,6 +12,19 @@ import org.apache.ibatis.annotations.Param;
 
 @org.springframework.stereotype.Repository
 public interface UserRelationMapper {
+
+    /**
+     * 统计活跃或静默店主数量
+     */
+    Long countActivityOrSilenceStoreTotal(@Param("userId") Long userId, @Param("month") Integer month,
+                                          @Param("userType") Byte userType, @Param("dataType") Byte dataType, @Param("storeName") String storeName);
+
+    /**
+     * 查询活跃或静默店主列表
+     */
+    List<ActivityUserDetailDto> getActivityOrSilenceStoreList(@Param("userId") Long userId, @Param("month") Integer month,
+                                                              @Param("userType") Byte userType, @Param("dataType") Byte dataType, @Param("page") PageRequest pageRequest,
+                                                              @Param("storeName") String storeName);
 
     /**
      * 统计店董的月新增店经数量

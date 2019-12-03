@@ -8,8 +8,6 @@ import com.gialen.tools.dao.dto.CommunityDto;
 import com.gialen.tools.dao.entity.gialen.BlcCustomer;
 import com.gialen.tools.dao.entity.gialen.RomaImportSuperCustomerRecord;
 import com.gialen.tools.dao.repository.customer.UserRelationMapper;
-import com.gialen.tools.dao.repository.gialen.BlcCustomerMapper;
-import com.gialen.tools.dao.repository.gialen.BlcCustomerRelationMapper;
 import com.gialen.tools.service.convertor.CustomerConvertor;
 import com.gialen.tools.service.model.CommunityModel;
 import com.gialen.tools.service.model.CustomerModel;
@@ -29,12 +27,6 @@ import java.util.List;
  */
 @Service("storeManagerCommunityBiz")
 public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
-
-    @Autowired
-    private BlcCustomerMapper blcCustomerMapper;
-
-    @Autowired
-    private BlcCustomerRelationMapper blcCustomerRelationMapper;
 
     @Autowired
     private UserRelationMapper userRelationMapper;
@@ -160,11 +152,9 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
     }
 
     @Override
-    public StoreActivityModel countMonthActivityStore(Long userId) {
-        StoreActivityModel model = new StoreActivityModel();
+    public StoreActivityModel countMonthActivityStore(Long managerId) {
         int curMonth = Integer.parseInt(DateFormatUtils.format(new Date(), "yyyyMM"));
-        model = countActivityOrSilenceStoreTotal(userId, UserTypeEnum.STORE_MANAGER.getType(), curMonth, model);
-        return model;
+        return countActivityOrSilenceStoreTotal(managerId, UserTypeEnum.STORE_MANAGER.getType(), curMonth);
     }
 
     /**
