@@ -9,19 +9,17 @@ import com.gialen.common.utils.DecimalCalculate;
 import com.gialen.tools.common.enums.ChildTypeEnum;
 import com.gialen.tools.common.enums.DateTypeEnum;
 import com.gialen.tools.common.enums.UserTypeEnum;
-import com.gialen.tools.common.util.ThreadPoolManager;
 import com.gialen.tools.dao.dto.OrderDetailDto;
 import com.gialen.tools.dao.dto.OrderQueryDto;
 import com.gialen.tools.dao.dto.UserIncomeDto;
-import com.gialen.tools.dao.entity.gialen.BlcCustomer;
-import com.gialen.tools.dao.entity.gialen.BlcCustomerExample;
-import com.gialen.tools.dao.entity.gialen.RomaStore;
-import com.gialen.tools.dao.entity.gialen.RomaStoreExample;
+import com.gialen.tools.dao.entity.customer.Store;
+import com.gialen.tools.dao.entity.customer.StoreExample;
+import com.gialen.tools.dao.entity.customer.User;
+import com.gialen.tools.dao.entity.customer.UserExample;
 import com.gialen.tools.dao.entity.tools.ManagerAndDirector;
 import com.gialen.tools.dao.entity.tools.ManagerAndDirectorExample;
-import com.gialen.tools.dao.repository.gialen.BlcCustomerMapper;
-import com.gialen.tools.dao.repository.gialen.BlcCustomerRelationMapper;
-import com.gialen.tools.dao.repository.gialen.RomaStoreMapper;
+import com.gialen.tools.dao.repository.customer.StoreMapper;
+import com.gialen.tools.dao.repository.customer.UserMapper;
 import com.gialen.tools.dao.repository.settlement.CommissionSettlementDetailMapper;
 import com.gialen.tools.dao.repository.settlement.CommissionSettlementMapper;
 import com.gialen.tools.dao.repository.tools.ManagerAndDirectorMapper;
@@ -44,7 +42,6 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Future;
 
 /**
  * 店经店董服务实现类
@@ -64,17 +61,17 @@ public class StoreManagerServiceImpl implements StoreManagerService {
     @Autowired
     private ManagerAndDirectorMapper managerAndDirectorMapper;
 
-    @Autowired
-    private BlcCustomerMapper blcCustomerMapper;
-
-    @Autowired
-    private RomaStoreMapper romaStoreMapper;
-
     @Resource(name = "storeDirectorCommunityBiz")
     private CommunityBusiness storeDirectorCommunityBiz;
 
     @Resource(name = "storeManagerCommunityBiz")
     private CommunityBusiness storeManagerCommunityBiz;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private StoreMapper storeMapper;
 
     @Override
     public GLResponse<Long> login(String logigId, String password, UserTypeEnum userType) {
@@ -405,35 +402,28 @@ public class StoreManagerServiceImpl implements StoreManagerService {
     }
 
     /**
-     * 旧库查询用户id
+     * 查询用户id
      * @param phone
      * @return
      */
     private Long getUserIdByPhoneFromCustomer(String phone) {
-        BlcCustomerExample example = new BlcCustomerExample();
-        BlcCustomerExample.Criteria criteria = example.createCriteria();
-        criteria.andPhoneEqualTo(phone).andUserTypeEqualTo(UserTypeEnum.STORE.getCode());
-        List<BlcCustomer> customerList = blcCustomerMapper.selectByExample(example);
-        if(CollectionUtils.isEmpty(customerList)) {
-            return null;
-        }
-        return customerList.get(0).getCustomerId();
+        UserExample example = new UserExample();
+        example.createCriteria().andPhoneEqualTo(phone);
+        example.setLimit(1);
+        List<User> userList = userMapper.selectByExample(example);
+        return CollectionUtils.isEmpty(userList) ? null : userList.get(0).getId();
     }
 
     /**
-     * 旧库查询门店id
+     * 查询门店id
      * @param storeCode
      * @return
      */
     private Long getUserIdByStoreCode(String storeCode) {
-        RomaStoreExample example = new RomaStoreExample();
-        RomaStoreExample.Criteria criteria = example.createCriteria();
-        criteria.andStoreCodeEqualTo(storeCode);
-        List<RomaStore> storeList = romaStoreMapper.selectByExample(example);
-        if(CollectionUtils.isEmpty(storeList)) {
-            return null;
-        }
-        return storeList.get(0).getStoreId().longValue();
+        StoreExample example = new StoreExample();
+        example.createCriteria().andStoreCodeEqualTo(storeCode);
+        List<Store> storeList = storeMapper.selectByExample(example);
+        return CollectionUtils.isEmpty(storeList) ? null : storeList.get(0).getStoreId();
     }
 
     /**

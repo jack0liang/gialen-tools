@@ -2,9 +2,9 @@ package com.gialen.tools.service.impl;
 
 import com.gialen.common.model.GLResponse;
 import com.gialen.tools.common.util.CsvUtil;
-import com.gialen.tools.dao.entity.gialen.RomaStore;
-import com.gialen.tools.dao.entity.gialen.RomaStoreExample;
-import com.gialen.tools.dao.repository.gialenMain.RomaStoreMapper;
+import com.gialen.tools.dao.entity.customer.Store;
+import com.gialen.tools.dao.entity.customer.StoreExample;
+import com.gialen.tools.dao.repository.customer.StoreMapper;
 import com.gialen.tools.service.StoreService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -27,10 +27,7 @@ import java.util.Map;
 public class StoreServiceImpl implements StoreService {
 
     @Autowired
-    private RomaStoreMapper mainRomaStoreMapper;
-
-    @Autowired
-    private com.gialen.tools.dao.repository.gialen.RomaStoreMapper romaStoreMapper;
+    private StoreMapper storeMapper;
 
     @Override
     public GLResponse batchChangeStoreCode(String filePath) {
@@ -51,14 +48,14 @@ public class StoreServiceImpl implements StoreService {
         }
         log.info("更新门店编码数量：{}", oldStoreCodes.size());
 
-        List<RomaStore> storeList = getStoreListByCodes(oldStoreCodes);
+        List<Store> storeList = getStoreListByCodes(oldStoreCodes);
         if(CollectionUtils.isEmpty(storeList)) {
             return GLResponse.succ(null);
         }
-        for(RomaStore store : storeList) {
+        for(Store store : storeList) {
             store.setStoreCode(oldNewCodeMap.get(store.getStoreCode()));
         }
-        mainRomaStoreMapper.batchUpdateStore(storeList);
+        //todo：批量更新门店编码 mainRomaStoreMapper.batchUpdateStore(storeList);
         return GLResponse.succ(null);
     }
 
@@ -67,12 +64,12 @@ public class StoreServiceImpl implements StoreService {
      * @param storeCodeList
      * @return
      */
-    private List<RomaStore> getStoreListByCodes(List<String> storeCodeList) {
+    private List<Store> getStoreListByCodes(List<String> storeCodeList) {
         if(CollectionUtils.isEmpty(storeCodeList)) {
             return Collections.emptyList();
         }
-        RomaStoreExample example = new RomaStoreExample();
+        StoreExample example = new StoreExample();
         example.createCriteria().andStoreCodeIn(storeCodeList);
-        return romaStoreMapper.selectByExample(example);
+        return storeMapper.selectByExample(example);
     }
 }
