@@ -30,15 +30,10 @@
 
 
     <!-- 日志输出级别 -->
-    <springProfile name="dev,test">
-        <root level="info">
-            <appender-ref ref="STDOUT"/>
-            <appender-ref ref="FILE"/>
-        </root>
-        <logger name="com.gialen.tools.dao.repository" level="${logging_level_mybaties}" additivity="false">
-            <appender-ref ref="STDOUT"/>
-        </logger>
-    </springProfile>
+    <root level="info">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+    </root>
 
 
 </configuration>
