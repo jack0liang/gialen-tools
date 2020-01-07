@@ -5,8 +5,9 @@ import com.gialen.common.model.PageResponse;
 import com.gialen.tools.common.enums.ChildTypeEnum;
 import com.gialen.tools.common.enums.UserTypeEnum;
 import com.gialen.tools.dao.dto.CommunityDto;
+import com.gialen.tools.dao.entity.customer.UserLevel;
+import com.gialen.tools.dao.entity.customer.UserLevelChangeLog;
 import com.gialen.tools.dao.entity.gialen.BlcCustomer;
-import com.gialen.tools.dao.entity.gialen.RomaImportSuperCustomerRecord;
 import com.gialen.tools.dao.repository.customer.UserRelationMapper;
 import com.gialen.tools.service.convertor.CustomerConvertor;
 import com.gialen.tools.service.model.CommunityModel;
@@ -69,11 +70,11 @@ public class StoreManagerCommunityBusiness extends BaseCommunityBusiness {
 
         CommunityModel totalModel = countTotalCommunityData(userId, null);
         model.setTotalNum(totalModel.getTotalNum());
-        BlcCustomer customer = getCustomer(userId);
-        if(customer != null && customer.getIsTempSuperCustomer() == (byte)1) {
+        UserLevel userLevel = getUserLevel(userId);
+        if(userLevel != null && userLevel.getLevelType() == (byte)5) {
             //实习店经查询到期时间
-            RomaImportSuperCustomerRecord record = getTempSuperCustomerRecord(userId);
-            model.setCountDown(record == null ? null : calCountDown(record.getExpireDate()));
+            UserLevelChangeLog log = getTempSuperCustomerRecord(userId);
+            model.setCountDown(log == null ? null : calCountDown(log.getValidEndTime()));
         }
         return model;
     }

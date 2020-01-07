@@ -7,13 +7,11 @@ import com.gialen.common.utils.DecimalCalculate;
 import com.gialen.tools.common.enums.PurchasedTypeEnum;
 import com.gialen.tools.dao.dto.ActivityUserDetailDto;
 import com.gialen.tools.dao.dto.CommunityDto;
-import com.gialen.tools.dao.entity.gialen.BlcCustomer;
-import com.gialen.tools.dao.entity.gialen.RomaImportSuperCustomerRecord;
-import com.gialen.tools.dao.entity.gialen.RomaImportSuperCustomerRecordExample;
+import com.gialen.tools.dao.entity.customer.*;
+import com.gialen.tools.dao.repository.customer.UserLevelChangeLogMapper;
+import com.gialen.tools.dao.repository.customer.UserLevelMapper;
+import com.gialen.tools.dao.repository.customer.UserMapper;
 import com.gialen.tools.dao.repository.customer.UserRelationMapper;
-import com.gialen.tools.dao.repository.gialen.BlcCustomerMapper;
-import com.gialen.tools.dao.repository.gialen.BlcCustomerRelationMapper;
-import com.gialen.tools.dao.repository.gialen.RomaImportSuperCustomerRecordMapper;
 import com.gialen.tools.service.model.StoreActivityDetailModel;
 import com.gialen.tools.service.model.StoreActivityModel;
 import com.gialen.tools.service.model.VipCommunityModel;
@@ -35,16 +33,16 @@ import java.util.List;
 public abstract class BaseCommunityBusiness implements CommunityBusiness {
 
     @Autowired
-    private BlcCustomerRelationMapper blcCustomerRelationMapper;
-
-    @Autowired
-    private BlcCustomerMapper blcCustomerMapper;
-
-    @Autowired
-    private RomaImportSuperCustomerRecordMapper romaImportSuperCustomerRecordMapper;
-
-    @Autowired
     private UserRelationMapper userRelationMapper;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private UserLevelMapper userLevelMapper;
+
+    @Autowired
+    private UserLevelChangeLogMapper userLevelChangeLogMapper;
 
     @Override
     public PageResponse<StoreActivityDetailModel> getMonthActivityStoreList(Long userId, Byte userType, Integer month, Byte purchasedType, PageRequest pageRequest, String storeName) {
@@ -99,27 +97,37 @@ public abstract class BaseCommunityBusiness implements CommunityBusiness {
 
     /**
      * 获取用户
-     * @param customerId
+     * @param userId
      * @return
      */
-    protected BlcCustomer getCustomer(Long customerId) {
-        return blcCustomerMapper.selectByPrimaryKey(customerId);
+    protected User getUser(Long userId) {
+        return userMapper.selectByPrimaryKey(userId);
     }
 
     /**
-     * 获取实习店经
-     * @param customerId
+     * 获取用户等级
+     * @param userId
      * @return
      */
-    protected RomaImportSuperCustomerRecord getTempSuperCustomerRecord(Long customerId) {
-        RomaImportSuperCustomerRecordExample example = new RomaImportSuperCustomerRecordExample();
-        example.createCriteria().andCustomerIdEqualTo(customerId);
-        example.setOrderByClause("expire_date desc");
-        List<RomaImportSuperCustomerRecord> list = romaImportSuperCustomerRecordMapper.selectByExample(example);
-        if(CollectionUtils.isEmpty(list)) {
-            return null;
-        }
-        return list.get(0);
+    protected UserLevel getUserLevel(Long userId) {
+        UserLevelExample example = new UserLevelExample();
+        example.createCriteria().andUserIdEqualTo(userId);
+        List<UserLevel> userLevels = userLevelMapper.selectByExample(example);
+        return CollectionUtils.isNotEmpty(userLevels) ? userLevels.get(0) : null;
+    }
+
+    /**
+     * 获取实习店经有效期
+     * @param userId
+     * @return
+     */
+    protected UserLevelChangeLog getTempSuperCustomerRecord(Long userId) {
+        UserLevelChangeLogExample example = new UserLevelChangeLogExample();
+        example.createCriteria().andUserIdEqualTo(userId).andNewLevelTypeEqualTo((byte)5);
+        example.setOrderByClause("valid_end_time desc");
+        example.setLimit(1);
+        List<UserLevelChangeLog> list = userLevelChangeLogMapper.selectByExample(example);
+        return CollectionUtils.isNotEmpty(list) ? list.get(0) : null;
     }
 
     /**
