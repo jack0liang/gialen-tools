@@ -3,8 +3,6 @@ package com.gialen.tools.service.impl;
 import com.gialen.common.beantools.Copier;
 import com.gialen.tools.dao.dto.BigSuperMgrDto;
 import com.gialen.tools.dao.entity.customer.UserLevelExample;
-import com.gialen.tools.dao.entity.customer.UserRelation;
-import com.gialen.tools.dao.entity.customer.UserRelationExample;
 import com.gialen.tools.dao.entity.tools.BigSuperMgrSales;
 import com.gialen.tools.dao.repository.customer.UserLevelMapper;
 import com.gialen.tools.dao.repository.customer.UserRelationMapper;
@@ -18,9 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author lupeibo
@@ -49,7 +45,7 @@ public class FinanceServiceImpl implements FinanceService {
 
         //2.统计大店经累积店主个数
         for(BigSuperMgrDto bigSuperMgrDto : bigSuperMgrDtoList) {
-            List<Long> childUserIdList = getAllChildUserIds(bigSuperMgrDto.getSuperMgrId());
+            List<Long> childUserIdList = getAllChildUserIds(bigSuperMgrDto.getSuperMgrId(), month);
             Long storeManagerNum = countStoreMangerNum(childUserIdList);
 
             childUserIdList.add(bigSuperMgrDto.getSuperMgrId());//添加自己
@@ -70,18 +66,18 @@ public class FinanceServiceImpl implements FinanceService {
      * @param parentId
      * @return
      */
-    private List<Long> getAllChildUserIds(Long parentId) {
+    private List<Long> getAllChildUserIds(Long parentId, Integer month) {
         List<Long> childUserIdList = Lists.newArrayList();
 
-        List<Long> directUserIdList = getChildUserList(parentId);
+        List<Long> directUserIdList = getChildUserList(parentId, month);
         if(CollectionUtils.isEmpty(directUserIdList)) {
             return childUserIdList;
         }
         childUserIdList.addAll(directUserIdList);
-        List<Long> userIds = getChildUserList(directUserIdList);
+        List<Long> userIds = getChildUserList(directUserIdList, month);
         childUserIdList.addAll(userIds);
         while(CollectionUtils.isNotEmpty(userIds)) {
-            userIds = getChildUserList(userIds);
+            userIds = getChildUserList(userIds, month);
             childUserIdList.addAll(userIds);
         }
         return childUserIdList;
@@ -105,12 +101,8 @@ public class FinanceServiceImpl implements FinanceService {
      * @param invitorIds
      * @return
      */
-    private List<Long> getChildUserList(List<Long> invitorIds) {
-        UserRelationExample example = new UserRelationExample();
-        example.createCriteria().andInvitorIdIn(invitorIds);
-        List<UserRelation> relationList = userRelationMapper.selectByExample(example);
-        return CollectionUtils.isNotEmpty(relationList) ?
-                relationList.stream().map(UserRelation::getUserId).collect(Collectors.toList()) : Collections.emptyList();
+    private List<Long> getChildUserList(List<Long> invitorIds, Integer month) {
+        return userRelationMapper.getChildUserListByIds(invitorIds, month);
     }
 
     /**
@@ -118,13 +110,8 @@ public class FinanceServiceImpl implements FinanceService {
      * @param invitorId
      * @return
      */
-    private List<Long> getChildUserList(Long invitorId) {
-        UserRelationExample example = new UserRelationExample();
-        example.createCriteria().andInvitorIdEqualTo(invitorId);
-        List<UserRelation> relationList = userRelationMapper.selectByExample(example);
-
-        return CollectionUtils.isNotEmpty(relationList) ?
-                relationList.stream().map(UserRelation::getUserId).collect(Collectors.toList()) : Collections.emptyList();
+    private List<Long> getChildUserList(Long invitorId, Integer month) {
+        return userRelationMapper.getChildUserList(invitorId, month);
     }
 
     /**

@@ -14,6 +14,10 @@ import org.apache.ibatis.annotations.Param;
 @org.springframework.stereotype.Repository
 public interface UserRelationMapper {
 
+    List<Long> getChildUserListByIds(@Param("invitorIds") List<Long> invitorIds, @Param("month") Integer month);
+
+    List<Long> getChildUserList(@Param("invitorId") Long invitorId, @Param("month") Integer month);
+
     /**
      * 查询大店经列表
      * @return

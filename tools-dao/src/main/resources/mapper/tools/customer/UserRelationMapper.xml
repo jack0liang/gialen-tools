@@ -689,4 +689,20 @@
 
     where ul.level_type in (3,5) and u.id not in (1000,2000)
   </select>
+
+  <select id="getChildUserList" resultType="java.lang.Long">
+    select user_id
+    from gialen_customer.user_relation
+    where invitor_id = #{invitorId} and date_format(create_time, '%Y%m') &lt;= #{month}
+  </select>
+
+  <select id="getChildUserListByIds" resultType="java.lang.Long">
+    select user_id
+    from gialen_customer.user_relation
+    where invitor_id in
+    <foreach collection="invitorIds" item="invitorId" open="(" close=")" separator=",">
+      #{invitorId}
+    </foreach>
+    and date_format(create_time, '%Y%m') &lt;= #{month}
+  </select>
 </mapper>
