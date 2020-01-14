@@ -692,6 +692,66 @@ public class BigSuperMgrSalesExample {
             return (Criteria) this;
         }
 
+        public Criteria andTotalCommissionIsNull() {
+            addCriterion("total_commission is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalCommissionIsNotNull() {
+            addCriterion("total_commission is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalCommissionEqualTo(BigDecimal value) {
+            addCriterion("total_commission =", value, "totalCommission");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalCommissionNotEqualTo(BigDecimal value) {
+            addCriterion("total_commission <>", value, "totalCommission");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalCommissionGreaterThan(BigDecimal value) {
+            addCriterion("total_commission >", value, "totalCommission");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalCommissionGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("total_commission >=", value, "totalCommission");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalCommissionLessThan(BigDecimal value) {
+            addCriterion("total_commission <", value, "totalCommission");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalCommissionLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("total_commission <=", value, "totalCommission");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalCommissionIn(List<BigDecimal> values) {
+            addCriterion("total_commission in", values, "totalCommission");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalCommissionNotIn(List<BigDecimal> values) {
+            addCriterion("total_commission not in", values, "totalCommission");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalCommissionBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("total_commission between", value1, value2, "totalCommission");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalCommissionNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("total_commission not between", value1, value2, "totalCommission");
+            return (Criteria) this;
+        }
+
         public Criteria andMonthIsNull() {
             addCriterion("month is null");
             return (Criteria) this;

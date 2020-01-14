@@ -653,4 +653,24 @@
     <if test="userType == 3"> and s.store_manage_id = #{userId}</if>
     <if test="userType == 4"> and s.store_id = #{userId}</if>
   </select>
+
+  <select id="calStoreMasterCommission" resultType="java.math.BigDecimal">
+    select ifnull(sum(store_master_commission),0)
+    from commission_settlement
+    where date_format(order_create_time, '%Y%m') = #{month}
+    and store_master_id in
+    <foreach collection="masterIds" item="masterId" open="(" close=")" separator=",">
+      #{masterId}
+    </foreach>
+  </select>
+
+  <select id="calStoreManagerCommission" resultType="java.math.BigDecimal">
+    select ifnull(sum(store_manage_commission),0)
+    from commission_settlement
+    where date_format(order_create_time, '%Y%m') = #{month}
+    and store_manage_id in
+    <foreach collection="managerIds" item="managerId" open="(" close=")" separator=",">
+      #{managerId}
+    </foreach>
+  </select>
 </mapper>

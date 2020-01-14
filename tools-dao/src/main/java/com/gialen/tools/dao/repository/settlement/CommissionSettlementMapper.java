@@ -12,6 +12,22 @@ import java.util.List;
 public interface CommissionSettlementMapper {
 
     /**
+     * 统计店主佣金
+     * @param masterIds
+     * @param month
+     * @return
+     */
+    BigDecimal calStoreMasterCommission(@Param("masterIds") List<Long> masterIds, @Param("month") Integer month);
+
+    /**
+     * 统计店经佣金
+     * @param managerIds
+     * @param month
+     * @return
+     */
+    BigDecimal calStoreManagerCommission(@Param("managerIds") List<Long> managerIds, @Param("month") Integer month);
+
+    /**
      * 获取用户的月度销售数据（包含退款数据）
      * @param userId
      * @param userType

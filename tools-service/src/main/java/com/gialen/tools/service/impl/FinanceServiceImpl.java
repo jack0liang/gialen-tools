@@ -3,10 +3,12 @@ package com.gialen.tools.service.impl;
 import com.gialen.common.beantools.Copier;
 import com.gialen.tools.dao.dto.BigSuperMgrDto;
 import com.gialen.tools.dao.entity.customer.UserLevelExample;
+import com.gialen.tools.dao.entity.settlement.CommissionSettlement;
 import com.gialen.tools.dao.entity.tools.BigSuperMgrSales;
 import com.gialen.tools.dao.repository.customer.UserLevelMapper;
 import com.gialen.tools.dao.repository.customer.UserRelationMapper;
 import com.gialen.tools.dao.repository.order.extend.OrdersExtendMapper;
+import com.gialen.tools.dao.repository.settlement.CommissionSettlementMapper;
 import com.gialen.tools.dao.repository.tools.BigSuperMgrSalesMapper;
 import com.gialen.tools.service.FinanceService;
 import com.google.common.collect.Lists;
@@ -38,12 +40,14 @@ public class FinanceServiceImpl implements FinanceService {
     @Autowired
     private BigSuperMgrSalesMapper bigSuperMgrSalesMapper;
 
+    @Autowired
+    private CommissionSettlementMapper commissionSettlementMapper;
+
     @Override
     public void genBigSuperMgrCommission(Integer month) {
-        //1.查询大店经列表
+        //查询大店经列表
         List<BigSuperMgrDto> bigSuperMgrDtoList = userRelationMapper.getBigSuperMgrList();
 
-        //2.统计大店经累积店主个数
         for(BigSuperMgrDto bigSuperMgrDto : bigSuperMgrDtoList) {
             List<Long> childUserIdList = getAllChildUserIds(bigSuperMgrDto.getSuperMgrId(), month);
             Long storeManagerNum = countStoreMangerNum(childUserIdList);
@@ -52,9 +56,13 @@ public class FinanceServiceImpl implements FinanceService {
             BigDecimal bigGiftBagSales = ordersExtendMapper.calBigSuperMgrSales(month, childUserIdList, (byte) 3); //大礼包销量
             BigDecimal totalSales = ordersExtendMapper.calBigSuperMgrSales(month, childUserIdList, null); //总销量
 
+            BigDecimal totalMasterCommission = commissionSettlementMapper.calStoreMasterCommission(childUserIdList, month); //店主佣金
+            BigDecimal totalManagerCommission = commissionSettlementMapper.calStoreManagerCommission(childUserIdList, month); //店经佣金
+
             bigSuperMgrDto.setStoreMangerNum(storeManagerNum.intValue());
             bigSuperMgrDto.setBigGiftBagSales(bigGiftBagSales);
             bigSuperMgrDto.setTotalSales(totalSales);
+            bigSuperMgrDto.setTotalCommission(totalMasterCommission.add(totalManagerCommission));
             bigSuperMgrDto.setMonth(month);
             log.info("店经：{}", bigSuperMgrDto);
         }

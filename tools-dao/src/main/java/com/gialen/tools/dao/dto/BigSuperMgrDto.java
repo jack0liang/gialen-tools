@@ -47,6 +47,11 @@ public class BigSuperMgrDto {
     private BigDecimal totalSales;
 
     /**
+     * 佣金合计
+     */
+    private BigDecimal totalCommission;
+
+    /**
      * 月份
      */
     private Integer month;
