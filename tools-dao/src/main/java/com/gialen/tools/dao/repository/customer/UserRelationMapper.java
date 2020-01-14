@@ -3,6 +3,7 @@ package com.gialen.tools.dao.repository.customer;
 import com.gialen.common.model.PageRequest;
 import com.gialen.tools.dao.dto.ActivityUserDetailDto;
 import com.gialen.tools.dao.dto.CommunityDto;
+import com.gialen.tools.dao.dto.BigSuperMgrDto;
 import com.gialen.tools.dao.entity.customer.UserRelation;
 import com.gialen.tools.dao.entity.customer.UserRelationExample;
 import java.util.List;
@@ -12,6 +13,12 @@ import org.apache.ibatis.annotations.Param;
 
 @org.springframework.stereotype.Repository
 public interface UserRelationMapper {
+
+    /**
+     * 查询大店经列表
+     * @return
+     */
+    List<BigSuperMgrDto> getBigSuperMgrList();
 
     /**
      * 统计活跃或静默店主数量

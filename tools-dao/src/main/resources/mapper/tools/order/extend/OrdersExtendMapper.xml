@@ -176,4 +176,17 @@
         ORDER BY
             DATE_FORMAT(o.create_time, '%Y%m%d');
     </select>
+
+    <select id="calBigSuperMgrSales" resultType="java.math.BigDecimal">
+        select IFNULL(sum(fav_money + money),0)
+        from gialen_order.orders
+        where user_id in
+        <foreach collection="userIds" item="userId" open="(" close=")" separator=",">
+            #{userId}
+        </foreach>
+        and DATE_FORMAT(create_time,'%Y%m') = #{month}
+        <if test="orderType != null">
+            and order_type = #{orderType}
+        </if>
+    </select>
 </mapper>

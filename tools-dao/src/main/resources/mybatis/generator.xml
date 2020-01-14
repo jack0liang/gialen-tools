@@ -30,24 +30,24 @@
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
         <!-- 生成模型的包名和位置 -->
-        <javaModelGenerator targetPackage="com.gialen.tools.dao.entity.gialen"
+        <javaModelGenerator targetPackage="com.gialen.tools.dao.entity.tools"
                             targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
         <!-- 生成映射文件的包名和位置 -->
-        <sqlMapGenerator targetPackage="mapper/tools/gialen"
+        <sqlMapGenerator targetPackage="mapper/tools/tools"
                          targetProject="src/main/resources">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
         <!-- 生成DAO的包名和位置 -->
         <javaClientGenerator type="XMLMAPPER"
-                             targetPackage="com.gialen.tools.dao.repository.gialen"
+                             targetPackage="com.gialen.tools.dao.repository.tools"
                              targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-       <table tableName="roma_import_super_customer_record" enableCountByExample="true"
+       <table tableName="big_super_mgr_sales" enableCountByExample="true"
                enableDeleteByExample="true" enableSelectByExample="true"
                enableUpdateByExample="true"/>
     </context>

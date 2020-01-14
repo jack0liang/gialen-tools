@@ -1,10 +1,13 @@
 package com.gialen.tools.dao.repository.order.extend;
 
+import com.gialen.tools.dao.dto.BigSuperMgrSalesDto;
 import com.gialen.tools.dao.dto.DateTimeDto;
 import com.gialen.tools.dao.dto.OrderDto;
 import com.gialen.tools.dao.dto.SalesDto;
 import com.gialen.tools.dao.repository.order.OrdersMapper;
+import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -27,4 +30,6 @@ public interface OrdersExtendMapper extends OrdersMapper {
     List<OrderDto> countUnPaiedOrderNum(DateTimeDto dateTimeDto);
 
     List<OrderDto> countOrderPayStatusNum(DateTimeDto dateTimeDto);
+
+    BigDecimal calBigSuperMgrSales(@Param("month") Integer month, @Param("userIds") List<Long> userIds, @Param("orderType") Byte orderType);
 }

@@ -679,4 +679,14 @@
     </if>
     ) t
   </select>
+
+  <select id="getBigSuperMgrList" resultType="com.gialen.tools.dao.dto.BigSuperMgrDto">
+    select u.id as superMgrId, u.phone, u.username
+
+    from gialen_customer.user_relation ur
+    left join gialen_customer.user u on ur.user_id = u.id
+    LEFT JOIN gialen_customer.user_level ul on ur.user_id = ul.user_id
+
+    where ul.level_type in (3,5) and u.id not in (1000,2000)
+  </select>
 </mapper>
