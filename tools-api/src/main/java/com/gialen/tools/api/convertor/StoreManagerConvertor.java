@@ -40,6 +40,11 @@ public class StoreManagerConvertor {
             userAchievementVo.setMonthAvailableIncome(model.getIncomeModel().getMonthAvailableIncome());
             userAchievementVo.setToBeIncome(model.getIncomeModel().getToBeIncome());
         }
+        if(model.getStoreIncomeModel() != null) {
+            userAchievementVo.setStoreToBeIncome(model.getStoreIncomeModel().getToBeIncome());
+            userAchievementVo.setStoreMonthAvailableIncome(model.getStoreIncomeModel().getMonthAvailableIncome());
+            userAchievementVo.setStoreMonthTotalIncome(model.getStoreIncomeModel().getMonthTotalIncome());
+        }
         PieChartDataVo pieChartDataVo = new PieChartDataVo();
         List<PieSeriesNodeVo> seriesNodeVoList = Lists.newArrayListWithCapacity(2);
         seriesNodeVoList.add(new PieSeriesNodeVo("净销售额", model.getSalesModel().getMonthSales(),
@@ -93,7 +98,7 @@ public class StoreManagerConvertor {
             vo.setUserName(StringUtils.isNotBlank(model.getRealName()) ? model.getRealName() : "");
             if(ChildTypeEnum.VIP.getCode() == childType) {
                 String phone = StringUtils.isNotBlank(model.getPhone()) ?
-                        model.getPhone().substring(0, 3) + "****" + model.getPhone().substring(7, model.getPhone().length()) : "";
+                        model.getPhone().substring(0, 3) + "****" + model.getPhone().substring(7) : "";
                 vo.setUserName(phone);
             }
             vo.setRegistTime(model.getDateCreated());

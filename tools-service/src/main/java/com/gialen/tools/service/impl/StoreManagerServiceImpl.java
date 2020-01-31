@@ -269,6 +269,7 @@ public class StoreManagerServiceImpl implements StoreManagerService {
 
         UserIncomeModel userIncomeModel = new UserIncomeModel();
         UserSalesModel userSalesModel = new UserSalesModel();
+        StoreIncomeModel storeIncomeModel = new StoreIncomeModel();
         try {
             //获取待收益
             BigDecimal toBeIncome = executeGetUserToBeIncome(userId, userType.getType());
@@ -280,6 +281,18 @@ public class StoreManagerServiceImpl implements StoreManagerService {
             BigDecimal todaySales = executeGetUserSalesByToday(userId, userType.getType(),today);
             //获取月销售额
             UserIncomeDto monthSales = executeGetUserSalesByMonth(userId, userType.getType(), month);
+            if(UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
+                //获取门店待收益
+                BigDecimal storeToBeIncome = getStoreToBeIncome(userId);
+                //获取门店月可用收益
+                BigDecimal monthStoreAvailableIncome = getStoreAvailableIncomeByMonth(userId, month);
+                //获取门店月总收益
+                BigDecimal monthStoreTotalIncome = getStoreTotalIncomeByMonth(userId, month);
+
+                storeIncomeModel.setToBeIncome(storeToBeIncome != null ? storeToBeIncome : BigDecimal.ZERO);
+                storeIncomeModel.setMonthAvailableIncome(monthStoreAvailableIncome != null ? monthStoreAvailableIncome : BigDecimal.ZERO);
+                storeIncomeModel.setMonthTotalIncome(monthStoreTotalIncome != null ? monthStoreTotalIncome : BigDecimal.ZERO);
+            }
 
             userIncomeModel.setToBeIncome(toBeIncome != null ? toBeIncome : BigDecimal.ZERO);
             userIncomeModel.setMonthAvailableIncome(monthAvailableIncome != null ? monthAvailableIncome : BigDecimal.ZERO);
@@ -299,6 +312,7 @@ public class StoreManagerServiceImpl implements StoreManagerService {
         UserAchievementModel userAchievementModel = new UserAchievementModel();
         userAchievementModel.setIncomeModel(userIncomeModel);
         userAchievementModel.setSalesModel(userSalesModel);
+        userAchievementModel.setStoreIncomeModel(storeIncomeModel);
         return GLResponse.succ(userAchievementModel);
     }
 
@@ -335,6 +349,27 @@ public class StoreManagerServiceImpl implements StoreManagerService {
      */
     private BigDecimal executeGetUserSalesByToday(final long userId, final byte userType, final int day) {
         return commissionSettlementMapper.getUserTodaySales(userId, userType, day);
+    }
+
+    /**
+     * 查询门店待收益
+     */
+    private BigDecimal getStoreToBeIncome(final long userId) {
+        return commissionSettlementMapper.getStoreToBeIncome(userId);
+    }
+
+    /**
+     * 查询门店月可用收益
+     */
+    private BigDecimal getStoreAvailableIncomeByMonth(final long userId, final int month) {
+        return commissionSettlementMapper.getStoreAvailableIncomeByMonth(userId, month);
+    }
+
+    /**
+     * 查询门店月可用收益
+     */
+    private BigDecimal getStoreTotalIncomeByMonth(final long userId, final int month) {
+        return commissionSettlementMapper.getStoreTotalIncomeByMonth(userId, month);
     }
 
     /**

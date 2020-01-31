@@ -14,8 +14,19 @@ public class UserAchievementModel implements Serializable {
 
     private static final long serialVersionUID = -7340916043760803438L;
 
+    /**
+     * 店董/店经收益
+     */
     private UserIncomeModel incomeModel;
 
+    /**
+     * 销售数据
+     */
     private UserSalesModel salesModel;
+
+    /**
+     * 门店收益
+     */
+    private StoreIncomeModel storeIncomeModel;
 
 }

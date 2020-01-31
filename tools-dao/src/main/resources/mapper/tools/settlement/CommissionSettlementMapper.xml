@@ -673,4 +673,26 @@
       #{managerId}
     </foreach>
   </select>
+
+  <select id="getStoreToBeIncome" resultType="java.math.BigDecimal">
+    select ifnull(sum(d.store_master_commission + store_manage_commission + store_commission),0) as storeToBeIncome
+    from commission_settlement s, commission_settlement_detail d
+    where s.order_sn = d.order_sn and d.`status`=1 and s.store_id = #{userId}
+  </select>
+
+  <select id="getStoreAvailableIncomeByMonth" resultType="java.math.BigDecimal">
+    select ifnull(sum(d.store_master_commission + d.store_manage_commission + d.store_commission),0) as storeAvailableIncome
+    from commission_settlement s, commission_settlement_detail d
+    where s.order_sn = d.order_sn and d.`status`=2
+    and DATE_FORMAT(s.settlement_end_time,'%Y%m') = #{month}
+    and s.store_id = #{userId}
+  </select>
+
+  <select id="getStoreTotalIncomeByMonth" resultType="java.math.BigDecimal">
+    select ifnull(sum(d.store_master_commission + d.store_manage_commission + d.store_commission),0) as monthTotalIncome
+    from commission_settlement s, commission_settlement_detail d
+    where s.order_sn = d.order_sn and d.`status` in (1,2)
+    and DATE_FORMAT(s.order_create_time,'%Y%m') = #{month}
+    and s.store_id = #{userId}
+  </select>
 </mapper>

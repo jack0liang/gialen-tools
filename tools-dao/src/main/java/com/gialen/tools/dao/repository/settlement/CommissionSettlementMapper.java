@@ -12,6 +12,28 @@ import java.util.List;
 public interface CommissionSettlementMapper {
 
     /**
+     * 查询门店月总收益
+     * @param userId
+     * @param month
+     * @return
+     */
+    BigDecimal getStoreTotalIncomeByMonth(@Param("userId") Long userId, @Param("month") Integer month);
+
+    /**
+     * 查询门店月可用收益
+     * @param userId
+     * @return
+     */
+    BigDecimal getStoreAvailableIncomeByMonth(@Param("userId") Long userId, @Param("month") Integer month);
+
+    /**
+     * 查询门店待收益
+     * @param userId
+     * @return
+     */
+    BigDecimal getStoreToBeIncome(@Param("userId") Long userId);
+
+    /**
      * 统计店主佣金
      * @param masterIds
      * @param month

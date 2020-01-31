@@ -32,6 +32,21 @@ public class UserAchievementVo implements Serializable {
     private BigDecimal monthAvailableIncome;
 
     /**
+     * 门店待收益（待完成）
+     */
+    private BigDecimal storeToBeIncome;
+
+    /**
+     * 门店月累积收益（本月）
+     */
+    private BigDecimal storeMonthTotalIncome;
+
+    /**
+     * 门店月可用收益（已完成）
+     */
+    private BigDecimal storeMonthAvailableIncome;
+
+    /**
      * 月度销售
      */
     private BigDecimal monthSales;
