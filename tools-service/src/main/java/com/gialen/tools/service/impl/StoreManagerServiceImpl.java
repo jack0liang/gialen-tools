@@ -11,6 +11,7 @@ import com.gialen.tools.common.enums.DateTypeEnum;
 import com.gialen.tools.common.enums.UserTypeEnum;
 import com.gialen.tools.dao.dto.OrderDetailDto;
 import com.gialen.tools.dao.dto.OrderQueryDto;
+import com.gialen.tools.dao.dto.StoreIncomeDto;
 import com.gialen.tools.dao.dto.UserIncomeDto;
 import com.gialen.tools.dao.entity.customer.Store;
 import com.gialen.tools.dao.entity.customer.StoreExample;
@@ -134,6 +135,26 @@ public class StoreManagerServiceImpl implements StoreManagerService {
     @Override
     public GLResponse<UserAchievementModel> getPreMonthUserAchievement(Long userId, UserTypeEnum userType) {
         return getUserAchievement(userId, userType, DateTypeEnum.PRE_MONTH);
+    }
+
+    @Override
+    public GLResponse<UserAchievementModel> getHistoryMonthUserAchievement(Long userId, Integer month) {
+        return getHistoryAchievement(userId, month);
+    }
+
+    @Override
+    public GLResponse<List<MonthModel>> getAchievementMonthList() {
+        List<MonthModel> monthModelList = Lists.newArrayListWithExpectedSize(6);
+        Date now = new Date();
+        for(int i = 2; i < 8; i++) {
+            int month = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(now, -i), "yyyyMM"));
+            String monthStr = DateFormatUtils.format(DateUtils.addMonths(now, -i), "yyyy年M月");
+            MonthModel monthModel = new MonthModel();
+            monthModel.setMonth(month);
+            monthModel.setMonthStr(monthStr);
+            monthModelList.add(monthModel);
+        }
+        return GLResponse.succ(monthModelList);
     }
 
     @Override
@@ -270,6 +291,10 @@ public class StoreManagerServiceImpl implements StoreManagerService {
         UserIncomeModel userIncomeModel = new UserIncomeModel();
         UserSalesModel userSalesModel = new UserSalesModel();
         StoreIncomeModel storeIncomeModel = new StoreIncomeModel();
+        UserIncomeModel managerIncomeModel = new UserIncomeModel();
+        UserIncomeModel keeperIncomeModel = new UserIncomeModel();
+        BaseBrandModel ownerBrandModel = new BaseBrandModel();
+        BaseBrandModel circulatedBrandModel = new BaseBrandModel();
         try {
             //获取待收益
             BigDecimal toBeIncome = executeGetUserToBeIncome(userId, userType.getType());
@@ -278,20 +303,39 @@ public class StoreManagerServiceImpl implements StoreManagerService {
             //获取月总收益和月总销售额
             UserIncomeDto monthTotalIncome = executeGetUserTotalIncomeByMonth(userId, userType.getType(), month) ;
             //获取今日销售额
-            BigDecimal todaySales = executeGetUserSalesByToday(userId, userType.getType(),today);
+            BigDecimal todaySales = executeGetUserSalesByToday(userId, userType.getType(),today, (byte)0);
             //获取月销售额
-            UserIncomeDto monthSales = executeGetUserSalesByMonth(userId, userType.getType(), month);
+            UserIncomeDto monthSales = executeGetUserSalesByMonth(userId, userType.getType(), month, (byte)0);
             if(UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
-                //获取门店待收益
-                BigDecimal storeToBeIncome = getStoreToBeIncome(userId);
-                //获取门店月可用收益
-                BigDecimal monthStoreAvailableIncome = getStoreAvailableIncomeByMonth(userId, month);
-                //获取门店月总收益
-                BigDecimal monthStoreTotalIncome = getStoreTotalIncomeByMonth(userId, month);
+                //获取门店名称
+                storeIncomeModel.setStoreName(getStoreNameById(userId));
 
-                storeIncomeModel.setToBeIncome(storeToBeIncome != null ? storeToBeIncome : BigDecimal.ZERO);
-                storeIncomeModel.setMonthAvailableIncome(monthStoreAvailableIncome != null ? monthStoreAvailableIncome : BigDecimal.ZERO);
-                storeIncomeModel.setMonthTotalIncome(monthStoreTotalIncome != null ? monthStoreTotalIncome : BigDecimal.ZERO);
+                StoreIncomeDto monthStoreAvailableIncome = getStoreAvailableIncomeByMonth(userId, month, (byte)0);
+                StoreIncomeDto storeToBeIncome = getToBeIncome(userId, (byte)0);
+                StoreIncomeDto monthStoreTotalIncome = getTotalIncomeByMonth(userId, month, (byte)0);
+
+                //门店收益数据
+                storeIncomeModel.setToBeIncome(storeToBeIncome.getStoreToBeIncome() != null ? storeToBeIncome.getStoreToBeIncome() : BigDecimal.ZERO);
+                storeIncomeModel.setMonthAvailableIncome(monthStoreAvailableIncome.getStoreAvailableIncome() != null ? monthStoreAvailableIncome.getStoreAvailableIncome() : BigDecimal.ZERO);
+                storeIncomeModel.setMonthTotalIncome(monthStoreTotalIncome.getStoreTotalIncome() != null ? monthStoreTotalIncome.getStoreTotalIncome() : BigDecimal.ZERO);
+
+                //获取店经收益数据
+                managerIncomeModel.setToBeIncome(storeToBeIncome.getManagerToBeIncome() != null ? storeToBeIncome.getManagerToBeIncome() : BigDecimal.ZERO);
+                managerIncomeModel.setMonthAvailableIncome(monthStoreAvailableIncome.getManagerAvailableIncome() != null ? monthStoreAvailableIncome.getManagerAvailableIncome() : BigDecimal.ZERO);
+                managerIncomeModel.setMonthTotalIncome(monthStoreTotalIncome.getManagerTotalIncome() != null ? monthStoreTotalIncome.getManagerTotalIncome() : BigDecimal.ZERO);
+
+                //获取店主收益数据
+                keeperIncomeModel.setToBeIncome(storeToBeIncome.getKeeperToBeIncome() != null ? storeToBeIncome.getKeeperToBeIncome() : BigDecimal.ZERO);
+                keeperIncomeModel.setMonthAvailableIncome(monthStoreAvailableIncome.getKeeperAvailableIncome() != null ? monthStoreAvailableIncome.getKeeperAvailableIncome() : BigDecimal.ZERO);
+                keeperIncomeModel.setMonthTotalIncome(monthStoreTotalIncome.getKeeperTotalIncome() != null ? monthStoreTotalIncome.getKeeperTotalIncome() : BigDecimal.ZERO);
+
+                if(DateTypeEnum.CUR_MONTH.equals(dateTypeEnum)) {
+                    ownerBrandModel = getBrandDataForCurMonth(userId, month, today, (byte)2);
+                    circulatedBrandModel = getBrandDataForCurMonth(userId, month, today, (byte)1);
+                } else if(DateTypeEnum.PRE_MONTH.equals(dateTypeEnum)) {
+                    ownerBrandModel = getBrandHistoryData(userId, month, (byte)2);
+                    circulatedBrandModel = getBrandHistoryData(userId, month, (byte)1);
+                }
             }
 
             userIncomeModel.setToBeIncome(toBeIncome != null ? toBeIncome : BigDecimal.ZERO);
@@ -313,14 +357,106 @@ public class StoreManagerServiceImpl implements StoreManagerService {
         userAchievementModel.setIncomeModel(userIncomeModel);
         userAchievementModel.setSalesModel(userSalesModel);
         userAchievementModel.setStoreIncomeModel(storeIncomeModel);
+        userAchievementModel.setManagerIncomeModel(managerIncomeModel);
+        userAchievementModel.setKeeperIncomeModel(keeperIncomeModel);
+        userAchievementModel.setOwnerBrandModel(ownerBrandModel);
+        userAchievementModel.setCirculatedBrandModel(circulatedBrandModel);
         return GLResponse.succ(userAchievementModel);
+    }
+
+    /**
+     * 获取历史战绩数据
+     */
+    private GLResponse<UserAchievementModel> getHistoryAchievement(Long userId, Integer month) {
+        UserIncomeModel directorIncomeModel = new UserIncomeModel();
+        UserSalesModel userSalesModel = new UserSalesModel();
+        StoreIncomeModel storeIncomeModel = new StoreIncomeModel();
+        UserIncomeModel managerIncomeModel = new UserIncomeModel();
+        UserIncomeModel keeperIncomeModel = new UserIncomeModel();
+        BaseBrandModel ownerBrandModel = new BaseBrandModel();
+        BaseBrandModel circulatedBrandModel = new BaseBrandModel();
+        try {
+            //获取销售额
+            UserIncomeDto monthTotalIncome = executeGetUserTotalIncomeByMonth(userId, UserTypeEnum.STORE_DIRECTOR.getType(), month) ;
+            userSalesModel.setMonthSales(monthTotalIncome.getMonthTotalSales() != null ? monthTotalIncome.getMonthTotalSales() : BigDecimal.ZERO);
+
+            //获取门店名称
+            storeIncomeModel.setStoreName(getStoreNameById(userId));
+
+            //获取收益数据
+            StoreIncomeDto storeIncomeDto = getStoreAvailableIncomeByMonth(userId, month, (byte)0);
+            storeIncomeModel.setMonthAvailableIncome(storeIncomeDto.getStoreAvailableIncome() != null ? storeIncomeDto.getStoreAvailableIncome() : BigDecimal.ZERO);
+            directorIncomeModel.setMonthAvailableIncome(storeIncomeDto.getDirectorAvailableIncome() != null ? storeIncomeDto.getDirectorAvailableIncome() : BigDecimal.ZERO);
+            managerIncomeModel.setMonthAvailableIncome(storeIncomeDto.getManagerAvailableIncome() != null ? storeIncomeDto.getManagerAvailableIncome() : BigDecimal.ZERO);
+            keeperIncomeModel.setMonthAvailableIncome(storeIncomeDto.getKeeperAvailableIncome() != null ? storeIncomeDto.getKeeperAvailableIncome() : BigDecimal.ZERO);
+
+            //获取自有商品销售和收益数据
+            ownerBrandModel = getBrandHistoryData(userId, month, (byte)2);
+
+            //获取流通商品销售和收益数据
+            circulatedBrandModel = getBrandHistoryData(userId, month, (byte)1);
+
+        } catch (Exception e) {
+            log.error("getHistoryAchievement exception : {} \nuserId = {}, month = {}", e.getMessage(), userId, month);
+        }
+
+        UserAchievementModel userAchievementModel = new UserAchievementModel();
+        userAchievementModel.setIncomeModel(directorIncomeModel);
+        userAchievementModel.setSalesModel(userSalesModel);
+        userAchievementModel.setStoreIncomeModel(storeIncomeModel);
+        userAchievementModel.setManagerIncomeModel(managerIncomeModel);
+        userAchievementModel.setKeeperIncomeModel(keeperIncomeModel);
+        userAchievementModel.setOwnerBrandModel(ownerBrandModel);
+        userAchievementModel.setCirculatedBrandModel(circulatedBrandModel);
+        return GLResponse.succ(userAchievementModel);
+    }
+
+    /**
+     * 获取分类商品的历史销售和收益数据
+     */
+    private BaseBrandModel getBrandHistoryData(Long userId, int month, byte brandType) {
+        BaseBrandModel baseBrandModel = new BaseBrandModel();
+        UserIncomeDto monthSales = executeGetUserSalesByMonth(userId, UserTypeEnum.STORE_DIRECTOR.getType(), month, brandType);
+        baseBrandModel.setMonthSales(monthSales.getMonthTotalSales() != null ? monthSales.getMonthTotalSales() : BigDecimal.ZERO);
+        StoreIncomeDto storeIncomeDto = getStoreAvailableIncomeByMonth(userId, month, brandType);
+        baseBrandModel.setStoreMonthTotalIncome(storeIncomeDto.getStoreAvailableIncome() != null ? storeIncomeDto.getStoreAvailableIncome() : BigDecimal.ZERO);
+        baseBrandModel.setDirectorMonthTotalIncome(storeIncomeDto.getDirectorAvailableIncome() != null ? storeIncomeDto.getDirectorAvailableIncome() : BigDecimal.ZERO);
+        baseBrandModel.setManagerMonthTotalIncome(storeIncomeDto.getManagerAvailableIncome() != null ? storeIncomeDto.getManagerAvailableIncome() : BigDecimal.ZERO);
+        baseBrandModel.setKeeperMonthTotalIncome(storeIncomeDto.getKeeperAvailableIncome() != null ? storeIncomeDto.getKeeperAvailableIncome() : BigDecimal.ZERO);
+        return baseBrandModel;
+    }
+
+    /**
+     * 获取当前月份分类商品销售和收益数据
+     * @return
+     */
+    private BaseBrandModel getBrandDataForCurMonth(Long userId, int month, int today, byte brandType) {
+        BaseBrandModel baseBrandModel = new BaseBrandModel();
+        BigDecimal todaySales = executeGetUserSalesByToday(userId, UserTypeEnum.STORE_DIRECTOR.getType(),today, brandType);
+        UserIncomeDto monthSales = executeGetUserSalesByMonth(userId, UserTypeEnum.STORE_DIRECTOR.getType(), month, brandType);
+        baseBrandModel.setMonthSales(monthSales.getMonthTotalSales() != null ? monthSales.getMonthTotalSales() : BigDecimal.ZERO);
+        baseBrandModel.setTodaySales(todaySales != null ? todaySales : BigDecimal.ZERO);
+
+        StoreIncomeDto storeMonthTotalIncome = getTotalIncomeByMonth(userId, month, brandType);
+        baseBrandModel.setStoreMonthTotalIncome(storeMonthTotalIncome.getStoreTotalIncome() != null ? storeMonthTotalIncome.getStoreTotalIncome() : BigDecimal.ZERO);
+        baseBrandModel.setDirectorMonthTotalIncome(storeMonthTotalIncome.getDirectorTotalIncome() != null ? storeMonthTotalIncome.getDirectorTotalIncome() : BigDecimal.ZERO);
+        baseBrandModel.setManagerMonthTotalIncome(storeMonthTotalIncome.getManagerTotalIncome() != null ? storeMonthTotalIncome.getManagerTotalIncome() : BigDecimal.ZERO);
+        baseBrandModel.setKeeperMonthTotalIncome(storeMonthTotalIncome.getKeeperTotalIncome() != null ? storeMonthTotalIncome.getKeeperTotalIncome() : BigDecimal.ZERO);
+
+        StoreIncomeDto storeTodayIncome = getTotalIncomeByDay(userId, today, brandType);
+        baseBrandModel.setStoreTodayTotalIncome(storeTodayIncome.getStoreTotalIncome() != null ? storeTodayIncome.getStoreTotalIncome() : BigDecimal.ZERO);
+        baseBrandModel.setDirectorTodayTotalIncome(storeTodayIncome.getDirectorTotalIncome() != null ? storeTodayIncome.getDirectorTotalIncome() : BigDecimal.ZERO);
+        baseBrandModel.setManagerTodayTotalIncome(storeTodayIncome.getManagerTotalIncome() != null ? storeTodayIncome.getManagerTotalIncome() : BigDecimal.ZERO);
+        baseBrandModel.setKeeperTodayTotalIncome(storeTodayIncome.getKeeperTotalIncome() != null ? storeTodayIncome.getKeeperTotalIncome() : BigDecimal.ZERO);
+        return baseBrandModel;
     }
 
     /**
      * 查询用户待收益
      */
     private BigDecimal executeGetUserToBeIncome(final long userId, final byte userType) {
-        return commissionSettlementMapper.getUserToBeIncome(userId, userType);
+        BigDecimal result = commissionSettlementMapper.getUserToBeIncome(userId, userType);
+        return result != null ? result : BigDecimal.ZERO;
     }
 
     /**
@@ -333,43 +469,52 @@ public class StoreManagerServiceImpl implements StoreManagerService {
     /**
      * 查询用户月销售数据
      */
-    private UserIncomeDto executeGetUserSalesByMonth(final long userId, final byte userType, final int month) {
-        return commissionSettlementMapper.getUserSalesByMonth(userId, userType, month);
+    private UserIncomeDto executeGetUserSalesByMonth(final long userId, final byte userType, final int month, final byte brandType) {
+        return commissionSettlementMapper.getUserSalesByMonth(userId, userType, month, brandType);
     }
 
     /**
      * 查询用户月可用收益
      */
     private BigDecimal executeGetUserAvailableIncomeByMonth(final long userId, final byte userType, final int month) {
-        return commissionSettlementMapper.getUserAvailableIncomeByMonth(userId, userType, month);
+        BigDecimal result = commissionSettlementMapper.getUserAvailableIncomeByMonth(userId, userType, month);
+        return result != null ? result : BigDecimal.ZERO;
     }
 
     /**
      * 查询用户今日销售额
      */
-    private BigDecimal executeGetUserSalesByToday(final long userId, final byte userType, final int day) {
-        return commissionSettlementMapper.getUserTodaySales(userId, userType, day);
+    private BigDecimal executeGetUserSalesByToday(final long userId, final byte userType, final int day, final byte brandType) {
+        BigDecimal result = commissionSettlementMapper.getUserTodaySales(userId, userType, day, brandType);
+        return result != null ? result : BigDecimal.ZERO;
     }
 
     /**
      * 查询门店待收益
      */
-    private BigDecimal getStoreToBeIncome(final long userId) {
-        return commissionSettlementMapper.getStoreToBeIncome(userId);
+    private StoreIncomeDto getToBeIncome(final long userId, final byte brandType) {
+        return commissionSettlementMapper.getStoreToBeIncome(userId, brandType);
     }
 
     /**
      * 查询门店月可用收益
      */
-    private BigDecimal getStoreAvailableIncomeByMonth(final long userId, final int month) {
-        return commissionSettlementMapper.getStoreAvailableIncomeByMonth(userId, month);
+    private StoreIncomeDto getStoreAvailableIncomeByMonth(final long userId, final int month, final byte brandType) {
+        return commissionSettlementMapper.getStoreAvailableIncomeByMonth(userId, month, brandType);
     }
 
     /**
-     * 查询门店月可用收益
+     * 查询门店月总收益
      */
-    private BigDecimal getStoreTotalIncomeByMonth(final long userId, final int month) {
-        return commissionSettlementMapper.getStoreTotalIncomeByMonth(userId, month);
+    private StoreIncomeDto getTotalIncomeByMonth(final long userId, final int month, final byte brandType) {
+        return commissionSettlementMapper.getStoreTotalIncomeByMonth(userId, month, brandType);
+    }
+
+    /**
+     * 查询门店日总收益
+     */
+    private StoreIncomeDto getTotalIncomeByDay(final long userId, final int day, final byte brandType) {
+        return commissionSettlementMapper.getStoreTotalIncomeByDay(userId, day, brandType);
     }
 
     /**
@@ -491,6 +636,19 @@ public class StoreManagerServiceImpl implements StoreManagerService {
         user.setUserType(userTypeEnum.getType());
         long id = (long) managerAndDirectorMapper.insertSelective(user);
         return id;
+    }
+
+    /**
+     * 查询门店名称
+     * @param storeId
+     * @return
+     */
+    private String getStoreNameById(Long storeId) {
+        StoreExample example = new StoreExample();
+        example.createCriteria().andStoreIdEqualTo(storeId);
+        example.setLimit(1);
+        List<Store> storeList = storeMapper.selectByExample(example);
+        return CollectionUtils.isEmpty(storeList) ? "" : storeList.get(0).getStoreName();
     }
 
 }

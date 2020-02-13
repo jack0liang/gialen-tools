@@ -28,4 +28,9 @@ public class StoreIncomeModel implements Serializable {
      * 可用收益
      */
     private BigDecimal monthAvailableIncome = BigDecimal.ZERO;
+
+    /**
+     * 门店名称
+     */
+    private String storeName = "";
 }

@@ -29,4 +29,24 @@ public class UserAchievementModel implements Serializable {
      */
     private StoreIncomeModel storeIncomeModel;
 
+    /**
+     * 店经收益
+     */
+    private UserIncomeModel managerIncomeModel;
+
+    /**
+     * 店主收益
+     */
+    private UserIncomeModel keeperIncomeModel;
+
+    /**
+     * 自有品牌收益数据
+     */
+    private BaseBrandModel ownerBrandModel;
+
+    /**
+     * 流通品牌收益数据
+     */
+    private BaseBrandModel circulatedBrandModel;
+
 }

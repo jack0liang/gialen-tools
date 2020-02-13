@@ -639,6 +639,8 @@
     from commission_settlement s, commission_settlement_detail d
     where s.order_sn = d.order_sn
     and DATE_FORMAT(s.order_create_time,'%Y%m') = #{month}
+    <if test="brandType > 0"> and d.brand_type = #{brandType}</if>
+
     <if test="userType == 2"> and s.store_master_id = #{userId}</if>
     <if test="userType == 3"> and s.store_manage_id = #{userId}</if>
     <if test="userType == 4"> and s.store_id = #{userId}</if>
@@ -649,6 +651,8 @@
     from commission_settlement s, commission_settlement_detail d
     where s.order_sn = d.order_sn and d.`status` in (1,2)
     and DATE_FORMAT(s.order_create_time,'%Y%m%d') = #{day}
+    <if test="brandType > 0"> and d.brand_type = #{brandType}</if>
+
     <if test="userType == 2"> and s.store_master_id = #{userId}</if>
     <if test="userType == 3"> and s.store_manage_id = #{userId}</if>
     <if test="userType == 4"> and s.store_id = #{userId}</if>
@@ -674,30 +678,51 @@
     </foreach>
   </select>
 
-  <select id="getStoreToBeIncome" resultType="java.math.BigDecimal">
-    select
-    sum(ifnull(d.store_master_commission,0) + ifnull(d.store_manage_commission,0) + ifnull(d.store_commission,0))    as storeToBeIncome
+  <select id="getStoreToBeIncome" resultType="com.gialen.tools.dao.dto.StoreIncomeDto">
+    select ifnull(sum(ifnull(d.store_master_commission,0)),0) as keeperToBeIncome,
+    ifnull(sum(ifnull(d.store_manage_commission,0)),0) as managerToBeIncome,
+    ifnull(sum(ifnull(d.store_commission,0)),0) as directorToBeIncome,
+    ifnull(sum(ifnull(d.store_master_commission,0) + ifnull(d.store_manage_commission,0) + ifnull(d.store_commission,0)),0) as storeToBeIncome
     from commission_settlement s, commission_settlement_detail d
     where s.order_sn = d.order_sn and d.`status`=1 and s.store_id = #{userId}
+    <if test="brandType > 0"> and d.brand_type = #{brandType}</if>
   </select>
 
-  <select id="getStoreAvailableIncomeByMonth" resultType="java.math.BigDecimal">
-    select
-    sum(ifnull(d.store_master_commission,0) + ifnull(d.store_manage_commission,0) + ifnull(d.store_commission,0))
-    as storeAvailableIncome
+  <select id="getStoreAvailableIncomeByMonth" resultType="com.gialen.tools.dao.dto.StoreIncomeDto">
+    select ifnull(sum(ifnull(d.store_master_commission,0)),0) as keeperAvailableIncome,
+    ifnull(sum(ifnull(d.store_manage_commission,0)),0) as managerAvailableIncome,
+    ifnull(sum(ifnull(d.store_commission,0)),0) as directorAvailableIncome,
+    ifnull(sum(ifnull(d.store_master_commission,0) + ifnull(d.store_manage_commission,0) + ifnull(d.store_commission,0)),0) as storeAvailableIncome
     from commission_settlement s, commission_settlement_detail d
     where s.order_sn = d.order_sn and d.`status`=2
     and DATE_FORMAT(s.settlement_end_time,'%Y%m') = #{month}
     and s.store_id = #{userId}
+    <if test="brandType > 0"> and d.brand_type = #{brandType}</if>
   </select>
 
-  <select id="getStoreTotalIncomeByMonth" resultType="java.math.BigDecimal">
+  <select id="getStoreTotalIncomeByMonth" resultType="com.gialen.tools.dao.dto.StoreIncomeDto">
     select
-    sum(ifnull(d.store_master_commission,0) + ifnull(d.store_manage_commission,0) + ifnull(d.store_commission,0))
-     as monthTotalIncome
+    ifnull(sum(ifnull(d.store_master_commission,0)),0) as keeperTotalIncome,
+    ifnull(sum(ifnull(d.store_manage_commission,0)),0) as managerTotalIncome,
+    ifnull(sum(ifnull(d.store_commission,0)),0) as directorTotalIncome,
+    ifnull(sum(ifnull(d.store_master_commission,0) + ifnull(d.store_manage_commission,0) + ifnull(d.store_commission,0)),0) as storeTotalIncome
     from commission_settlement s, commission_settlement_detail d
     where s.order_sn = d.order_sn and d.`status` in (1,2)
     and DATE_FORMAT(s.order_create_time,'%Y%m') = #{month}
     and s.store_id = #{userId}
+    <if test="brandType > 0"> and d.brand_type = #{brandType}</if>
+  </select>
+
+  <select id="getStoreTotalIncomeByDay" resultType="com.gialen.tools.dao.dto.StoreIncomeDto">
+    select
+    ifnull(sum(ifnull(d.store_master_commission,0)),0) as keeperTotalIncome,
+    ifnull(sum(ifnull(d.store_manage_commission,0)),0) as managerTotalIncome,
+    ifnull(sum(ifnull(d.store_commission,0)),0) as directorTotalIncome,
+    ifnull(sum(ifnull(d.store_master_commission,0) + ifnull(d.store_manage_commission,0) + ifnull(d.store_commission,0)),0) as storeTotalIncome
+    from commission_settlement s, commission_settlement_detail d
+    where s.order_sn = d.order_sn and d.`status` in (1,2)
+    and DATE_FORMAT(s.order_create_time,'%Y%m%d') = #{day}
+    and s.store_id = #{userId}
+    <if test="brandType > 0"> and d.brand_type = #{brandType}</if>
   </select>
 </mapper>

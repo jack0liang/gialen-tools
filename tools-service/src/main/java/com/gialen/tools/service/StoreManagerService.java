@@ -49,6 +49,19 @@ public interface StoreManagerService {
     GLResponse<UserAchievementModel> getPreMonthUserAchievement(Long userId, UserTypeEnum userType);
 
     /**
+     * 查询门店历史战绩
+     * @param userId
+     * @return
+     */
+    GLResponse<UserAchievementModel> getHistoryMonthUserAchievement(Long userId, Integer month);
+
+    /**
+     * 查询历史战绩月份列表
+     * @return
+     */
+    GLResponse<List<MonthModel>> getAchievementMonthList();
+
+    /**
      * 查询用户当月订单明细列表
      * @param userId
      * @param userType

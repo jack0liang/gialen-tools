@@ -41,10 +41,20 @@ public class StoreManagerConvertor {
             userAchievementVo.setToBeIncome(model.getIncomeModel().getToBeIncome());
         }
         if(model.getStoreIncomeModel() != null) {
+            userAchievementVo.setStoreName(model.getStoreIncomeModel().getStoreName());
             userAchievementVo.setStoreToBeIncome(model.getStoreIncomeModel().getToBeIncome());
             userAchievementVo.setStoreMonthAvailableIncome(model.getStoreIncomeModel().getMonthAvailableIncome());
             userAchievementVo.setStoreMonthTotalIncome(model.getStoreIncomeModel().getMonthTotalIncome());
+            userAchievementVo.setManagerToBeIncome(model.getManagerIncomeModel().getToBeIncome());
+            userAchievementVo.setManagerMonthAvailableIncome(model.getManagerIncomeModel().getMonthAvailableIncome());
+            userAchievementVo.setManagerMonthTotalIncome(model.getManagerIncomeModel().getMonthTotalIncome());
+            userAchievementVo.setKeeperToBeIncome(model.getKeeperIncomeModel().getToBeIncome());
+            userAchievementVo.setKeeperMonthAvailableIncome(model.getKeeperIncomeModel().getMonthAvailableIncome());
+            userAchievementVo.setKeeperMonthTotalIncome(model.getKeeperIncomeModel().getMonthTotalIncome());
+            userAchievementVo.setOwnerBrandModel(model.getOwnerBrandModel());
+            userAchievementVo.setCirculatedBrandModel(model.getCirculatedBrandModel());
         }
+
         PieChartDataVo pieChartDataVo = new PieChartDataVo();
         List<PieSeriesNodeVo> seriesNodeVoList = Lists.newArrayListWithCapacity(2);
         seriesNodeVoList.add(new PieSeriesNodeVo("净销售额", model.getSalesModel().getMonthSales(),

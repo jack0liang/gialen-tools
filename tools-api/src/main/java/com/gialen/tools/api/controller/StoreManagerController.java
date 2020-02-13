@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -114,6 +115,30 @@ public class StoreManagerController {
         UserAchievementVo vo = StoreManagerConvertor.userAchievementModelConvertToVo(modelGLResponse.getData());
         byte month = Byte.parseByte(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "M"));
         vo.setMonth(month);
+        log.info("response : " + vo);
+        return GLResponse.succ(vo);
+    }
+
+    @RequestMapping("/getHistoryMonthUserAchievement")
+    @ResponseBody
+    @RequireLogin
+    public GLResponse<UserAchievementVo> getHistoryMonthUserAchievement(@RequestParam(name = "userId", required = false) Long userId,
+                                                                        @RequestParam(name = "month", required = false) Integer month,
+                                                                        HttpServletRequest request) {
+        if (userId == null || userId <= 0) {
+            String token = request.getHeader("token");
+            userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
+        }
+        GLResponse<UserAchievementModel> modelGLResponse = storeManagerService.getHistoryMonthUserAchievement(userId, month);
+        UserAchievementVo vo = StoreManagerConvertor.userAchievementModelConvertToVo(modelGLResponse.getData());
+        try {
+            Date date = DateUtils.parseDate(String.valueOf(month), "yyyyMM");
+            byte monthShow = Byte.parseByte(DateFormatUtils.format(date, "M"));
+            vo.setMonth(monthShow);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         log.info("response : " + vo);
         return GLResponse.succ(vo);
     }
@@ -313,6 +338,12 @@ public class StoreManagerController {
 
         byte month = Byte.parseByte(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "MM"));
         return GLResponse.succ(PageResponseEx.buildPageResponseEx(PageResponse.success(voList, page, limit, modelPageResponse.getTotalCount()), month));
+    }
+
+    @RequestMapping("/getAchievementMonthList")
+    @ResponseBody
+    public GLResponse<List<MonthModel>> getAchievementMonthList() {
+        return storeManagerService.getAchievementMonthList();
     }
 
 }
