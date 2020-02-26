@@ -1,16 +1,15 @@
 package com.gialen.tools.service.business;
 
 import com.gialen.tools.dao.entity.customer.*;
-import com.gialen.tools.dao.repository.customer.StoreMapper;
-import com.gialen.tools.dao.repository.customer.UserLevelMapper;
-import com.gialen.tools.dao.repository.customer.UserMapper;
-import com.gialen.tools.dao.repository.customer.UserRelationMapper;
+import com.gialen.tools.dao.repository.customer.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,16 +32,21 @@ public class CustomerBiz {
     @Autowired
     private StoreMapper storeMapper;
 
+    @Autowired
+    private UserLevelChangeLogMapper levelChangeLogMapper;
+
     @Transactional(transactionManager = "customerTransactionManager")
     public void registerUser(String userName, String phone, Store store) {
         Long newUserId = addUser(userName, phone, store.getStoreId());
         addUserLevel(newUserId, (byte) 2);
+        addUserLevelLog(newUserId);
         addUserRelation(newUserId, store.getStoreId(), store.getCompanyId());
     }
 
     @Transactional(transactionManager = "customerTransactionManager")
     public void updateUserToKeeper(UserLevel userLevel, Long userId, Store store, Store oldStore) {
         updateUserLevel(userLevel, (byte)2);
+        addUserLevelLog(userId);
         if(store.getStoreCode().equals(oldStore.getStoreCode())) {
             log.info("vip升级为店主，门店一致");
             updateUserRelation(userId);
@@ -64,6 +68,7 @@ public class CustomerBiz {
         User user = new User();
         user.setId(userId);
         user.setStoreId(storeId);
+        user.setUpdateTime(new Date());
         userMapper.updateByPrimaryKeySelective(user);
     }
 
@@ -94,8 +99,9 @@ public class CustomerBiz {
         return CollectionUtils.isNotEmpty(levelList) ? levelList.get(0) : null;
     }
 
-    public void updateUserLevel(UserLevel userLevel, Byte levelType) {
+    private void updateUserLevel(UserLevel userLevel, Byte levelType) {
         userLevel.setLevelType(levelType);
+        userLevel.setUpdateTime(new Date());
         userLevelMapper.updateByPrimaryKeySelective(userLevel);
     }
 
@@ -104,6 +110,19 @@ public class CustomerBiz {
         userLevel.setUserId(userId);
         userLevel.setLevelType(levelType);
         userLevelMapper.insertSelective(userLevel);
+    }
+
+    private void addUserLevelLog(Long userId) {
+        UserLevelChangeLog log = new UserLevelChangeLog();
+        log.setUserId(userId);
+        log.setOldLevelType((byte)1);
+        log.setNewLevelType((byte)2);
+        log.setChannel((byte)8);
+        Date date = new Date();
+        log.setValidStartTime(date);
+        log.setValidEndTime(DateUtils.addYears(date, 5));
+        log.setCreateTime(date);
+        levelChangeLogMapper.insertSelective(log);
     }
 
     public Store getStoreByCode(String storeCode) {
@@ -155,6 +174,7 @@ public class CustomerBiz {
         relation.setCompanyId(store.getCompanyId());
         relation.setStoreMgrId(userId);
         relation.setStoreSuperMgrId(0L);
+        relation.setUpdateTime(new Date());
 
         UserRelationExample example = new UserRelationExample();
         example.createCriteria().andUserIdEqualTo(userId);
@@ -164,6 +184,7 @@ public class CustomerBiz {
     public void updateUserRelation(Long userId) {
         UserRelation relation = new UserRelation();
         relation.setStoreMgrId(userId);
+        relation.setUpdateTime(new Date());
         UserRelationExample example = new UserRelationExample();
         example.createCriteria().andUserIdEqualTo(userId);
         userRelationMapper.updateByExampleSelective(relation, example);
