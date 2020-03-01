@@ -626,11 +626,12 @@
   </select>
 
   <select id="getActivityOrSilenceStoreList" resultType="com.gialen.tools.dao.dto.ActivityUserDetailDto">
-    select store.id as userId, max(store.username) as realName, max(invitor.username) as invitor, IFNULL(sum(o.money),0) as salesNum
+    select store.id as userId, max(store.username) as realName, ifnull(max(invitor.username),'') as invitor, IFNULL(sum(o.money),0) as salesNum
     from gialen_customer.user_relation ur
     JOIN gialen_customer.user u on ur.user_id = u.id
     JOIN gialen_customer.user store on ur.store_mgr_id = store.id
-    LEFT JOIN gialen_customer.user invitor on ur.invitor_id = invitor.id
+    join gialen_customer.user_relation sr on store.id = sr.user_id
+    LEFT JOIN gialen_customer.user invitor on sr.invitor_id = invitor.id
     LEFT JOIN gialen_order.orders o on ur.user_id = o.user_id and o.order_status in (2,3,4,5,6,10) and DATE_FORMAT(o.create_time,'%Y%m') = #{month} and o.is_parent=0
     <if test="userType == 4">
       where ur.store_id = #{userId}
