@@ -82,6 +82,13 @@ public class StoreManagerController {
         return storeManagerService.modifyPassword(userId, password, rePassword);
     }
 
+    @RequestMapping("/resetPassword")
+    @ResponseBody
+    public GLResponse<?> resetPassword(@RequestParam(name = "loginId") String loginId) {
+        log.info("resetPassword : loginId = {}", loginId);
+        return storeManagerService.resetPassword(loginId);
+    }
+
     @RequestMapping("/getCurMonthUserAchievement")
     @ResponseBody
     @RequireLogin

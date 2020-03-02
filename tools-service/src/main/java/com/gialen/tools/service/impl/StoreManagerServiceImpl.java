@@ -128,6 +128,17 @@ public class StoreManagerServiceImpl implements StoreManagerService {
     }
 
     @Override
+    public GLResponse<?> resetPassword(String loginId) {
+        if(StringUtils.isBlank(loginId)) {
+            return GLResponse.fail(ResponseStatus.PARAM_ERROR.getCode(), "请输入登录账号");
+        }
+        ManagerAndDirectorExample example = new ManagerAndDirectorExample();
+        example.createCriteria().andLoginIdEqualTo(loginId);
+        managerAndDirectorMapper.deleteByExample(example);
+        return GLResponse.succ("密码重置成功");
+    }
+
+    @Override
     public GLResponse<UserAchievementModel> getCurMonthUserAchievement(Long userId, UserTypeEnum userType) {
         return getUserAchievement(userId, userType, DateTypeEnum.CUR_MONTH);
     }

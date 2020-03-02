@@ -33,6 +33,11 @@ public interface StoreManagerService {
     GLResponse<?> modifyPassword(Long userId, String password, String rePassword);
 
     /**
+     * 重置密码
+     */
+    GLResponse<?> resetPassword(String loginId);
+
+    /**
      * 查询用户当月战绩数据
      * @param userId
      * @param userType
