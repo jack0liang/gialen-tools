@@ -5,6 +5,7 @@ import com.gialen.common.model.ResponseStatus;
 import com.gialen.tools.common.util.CsvUtil;
 import com.gialen.tools.dao.entity.customer.Store;
 import com.gialen.tools.dao.entity.customer.UserLevel;
+import com.gialen.tools.dao.entity.customer.UserLevelChangeLog;
 import com.gialen.tools.dao.entity.customer.UserRelation;
 import com.gialen.tools.dao.entity.order.Orders;
 import com.gialen.tools.dao.entity.order.OrdersExample;
@@ -35,6 +36,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     private String filePath2 = "/Users/lupeibo/Downloads/keepers.csv";
 
+    private String filePath3 = "/Users/lupeibo/Downloads/phone.csv";
+
     @Resource
     private CustomerBiz customerBiz;
 
@@ -62,6 +65,7 @@ public class CustomerServiceImpl implements CustomerService {
             }
             addKeeper(nameList.get(i), phoneList.get(i), storeCodeList.get(i));
 //            changeUserStore(phoneList.get(i), storeCodeList.get(i));
+//            changeUserLevelLogChannel(phoneList.get(i));
         }
 
         return GLResponse.succ("处理成功");
@@ -114,6 +118,27 @@ public class CustomerServiceImpl implements CustomerService {
         } catch (Exception e) {
             log.info("phone={} 未处理成功", phone);
             log.error("", e);
+        }
+    }
+
+    /**
+     * 将0元升级店主的用户等级变更日志channel设置为8(0元升店主)
+     * @param phone
+     */
+    private void changeUserLevelLogChannel(String phone) {
+        try {
+            Long userId = customerBiz.getUserIdByPhone(phone);
+            if(userId == null || userId <= 0L) {
+                return;
+            }
+            UserLevelChangeLog changeLog = customerBiz.getUserLevelChangeLog(userId);
+            if(changeLog == null) {
+                return;
+            }
+            customerBiz.updateUserLevelLog(changeLog.getId());
+            log.info("userId={}, phone={}， channel 10改为8", userId, phone);
+        } catch (Exception e) {
+            log.error("phone={} 处理异常：{}", phone, e);
         }
     }
 

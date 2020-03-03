@@ -125,6 +125,23 @@ public class CustomerBiz {
         levelChangeLogMapper.insertSelective(log);
     }
 
+    public void updateUserLevelLog(Long logId) {
+        UserLevelChangeLog log = new UserLevelChangeLog();
+        log.setChannel((byte)8);
+        UserLevelChangeLogExample example = new UserLevelChangeLogExample();
+        example.createCriteria().andIdEqualTo(logId);
+        levelChangeLogMapper.updateByExampleSelective(log, example);
+    }
+
+    public UserLevelChangeLog getUserLevelChangeLog(Long userId) {
+        UserLevelChangeLogExample example = new UserLevelChangeLogExample();
+        example.createCriteria().andUserIdEqualTo(userId).andOldLevelTypeEqualTo((byte)1)
+                .andNewLevelTypeEqualTo((byte)2).andChannelEqualTo((byte)10);
+        example.setLimit(1);
+        List<UserLevelChangeLog> logs = levelChangeLogMapper.selectByExample(example);
+        return CollectionUtils.isNotEmpty(logs) ? logs.get(0) : null;
+    }
+
     public Store getStoreByCode(String storeCode) {
         StoreExample example = new StoreExample();
         example.createCriteria().andStoreCodeEqualTo(storeCode);
