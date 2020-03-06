@@ -11,4 +11,10 @@ public interface CustomerService {
     GLResponse addKeepers();
 
     GLResponse userStoreCompare();
+
+    /**
+     * 初始化用户新老客标识
+     * @return
+     */
+    GLResponse initUserNewOldFlag();
 }

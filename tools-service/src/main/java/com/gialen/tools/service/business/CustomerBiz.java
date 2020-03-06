@@ -1,5 +1,6 @@
 package com.gialen.tools.service.business;
 
+import com.gialen.common.model.PageRequest;
 import com.gialen.tools.dao.entity.customer.*;
 import com.gialen.tools.dao.repository.customer.*;
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +71,21 @@ public class CustomerBiz {
         user.setStoreId(storeId);
         user.setUpdateTime(new Date());
         userMapper.updateByPrimaryKeySelective(user);
+    }
+
+    /**
+     * 批量设置老用户
+     * @param userIds
+     */
+    public void batchSetOldUser(List<Long> userIds) {
+        if(CollectionUtils.isEmpty(userIds)) {
+            return;
+        }
+        UserExample example = new UserExample();
+        example.createCriteria().andIdIn(userIds);
+        User user = new User();
+        user.setIsNewUser(Boolean.FALSE);
+        userMapper.updateByExampleSelective(user, example);
     }
 
 
@@ -216,4 +232,14 @@ public class CustomerBiz {
         example.createCriteria().andInvitorIdEqualTo(userId);
         userRelationMapper.updateByExampleSelective(relation, example);
     }
+
+    public List<User> getNewUserList(PageRequest pageRequest) {
+        UserExample example = new UserExample();
+        example.createCriteria().andIsNewUserEqualTo(Boolean.TRUE);
+        example.setOffset(pageRequest.getOffset());
+        example.setLimit(pageRequest.getLimit());
+        example.setOrderByClause("id asc");
+        return userMapper.selectByExample(example);
+    }
+
 }

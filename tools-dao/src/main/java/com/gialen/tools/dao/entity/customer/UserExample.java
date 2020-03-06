@@ -1387,6 +1387,126 @@ public class UserExample {
             addCriterion("id_card not between", value1, value2, "idCard");
             return (Criteria) this;
         }
+
+        public Criteria andRegistryChannelIsNull() {
+            addCriterion("registry_channel is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistryChannelIsNotNull() {
+            addCriterion("registry_channel is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistryChannelEqualTo(Integer value) {
+            addCriterion("registry_channel =", value, "registryChannel");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistryChannelNotEqualTo(Integer value) {
+            addCriterion("registry_channel <>", value, "registryChannel");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistryChannelGreaterThan(Integer value) {
+            addCriterion("registry_channel >", value, "registryChannel");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistryChannelGreaterThanOrEqualTo(Integer value) {
+            addCriterion("registry_channel >=", value, "registryChannel");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistryChannelLessThan(Integer value) {
+            addCriterion("registry_channel <", value, "registryChannel");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistryChannelLessThanOrEqualTo(Integer value) {
+            addCriterion("registry_channel <=", value, "registryChannel");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistryChannelIn(List<Integer> values) {
+            addCriterion("registry_channel in", values, "registryChannel");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistryChannelNotIn(List<Integer> values) {
+            addCriterion("registry_channel not in", values, "registryChannel");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistryChannelBetween(Integer value1, Integer value2) {
+            addCriterion("registry_channel between", value1, value2, "registryChannel");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistryChannelNotBetween(Integer value1, Integer value2) {
+            addCriterion("registry_channel not between", value1, value2, "registryChannel");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewUserIsNull() {
+            addCriterion("is_new_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewUserIsNotNull() {
+            addCriterion("is_new_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewUserEqualTo(Boolean value) {
+            addCriterion("is_new_user =", value, "isNewUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewUserNotEqualTo(Boolean value) {
+            addCriterion("is_new_user <>", value, "isNewUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewUserGreaterThan(Boolean value) {
+            addCriterion("is_new_user >", value, "isNewUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewUserGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("is_new_user >=", value, "isNewUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewUserLessThan(Boolean value) {
+            addCriterion("is_new_user <", value, "isNewUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewUserLessThanOrEqualTo(Boolean value) {
+            addCriterion("is_new_user <=", value, "isNewUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewUserIn(List<Boolean> values) {
+            addCriterion("is_new_user in", values, "isNewUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewUserNotIn(List<Boolean> values) {
+            addCriterion("is_new_user not in", values, "isNewUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewUserBetween(Boolean value1, Boolean value2) {
+            addCriterion("is_new_user between", value1, value2, "isNewUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewUserNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("is_new_user not between", value1, value2, "isNewUser");
+            return (Criteria) this;
+        }
     }
 
     /**

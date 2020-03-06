@@ -1,17 +1,16 @@
 package com.gialen.tools.service.impl;
 
 import com.gialen.common.model.GLResponse;
+import com.gialen.common.model.PageRequest;
 import com.gialen.common.model.ResponseStatus;
 import com.gialen.tools.common.util.CsvUtil;
-import com.gialen.tools.dao.entity.customer.Store;
-import com.gialen.tools.dao.entity.customer.UserLevel;
-import com.gialen.tools.dao.entity.customer.UserLevelChangeLog;
-import com.gialen.tools.dao.entity.customer.UserRelation;
+import com.gialen.tools.dao.entity.customer.*;
 import com.gialen.tools.dao.entity.order.Orders;
 import com.gialen.tools.dao.entity.order.OrdersExample;
 import com.gialen.tools.dao.repository.order.OrdersMapper;
 import com.gialen.tools.service.CustomerService;
 import com.gialen.tools.service.business.CustomerBiz;
+import com.gialen.tools.service.business.OrderBiz;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -23,6 +22,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author lupeibo
@@ -43,6 +43,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private OrdersMapper ordersMapper;
+
+    @Resource
+    private OrderBiz orderBiz;
 
     @Override
     public GLResponse addKeepers() {
@@ -181,6 +184,37 @@ public class CustomerServiceImpl implements CustomerService {
 
         System.out.println("finish");
 
+        return GLResponse.succ("处理成功");
+    }
+
+    @Override
+    public GLResponse initUserNewOldFlag() {
+        PageRequest pageRequest = new PageRequest();
+        pageRequest.setLimit(1000);
+        int page = 1;
+
+        List<User> newUserList = null;
+        List<Long> userIdList;
+        List<Long> oldUserIds = Lists.newArrayList();
+        while(page == 1 || CollectionUtils.isNotEmpty(newUserList)) {
+            oldUserIds.clear();
+            newUserList.clear();
+
+            log.info("--------page={}-------", page);
+            pageRequest.setPage(page);
+            newUserList = customerBiz.getNewUserList(pageRequest);
+            if(CollectionUtils.isNotEmpty(newUserList)) {
+                userIdList = newUserList.stream().map(User::getId).collect(Collectors.toList());
+                for(Long userId : userIdList) {
+                    if(orderBiz.isPaied(userId)) {
+                        log.info("userId={} 设置老用户标识", userId);
+                        oldUserIds.add(userId);
+                    }
+                }
+                customerBiz.batchSetOldUser(oldUserIds);
+            }
+            page++;
+        }
         return GLResponse.succ("处理成功");
     }
 
