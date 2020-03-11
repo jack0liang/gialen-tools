@@ -194,27 +194,26 @@ public class CustomerServiceImpl implements CustomerService {
         int page = 1;
 
         List<User> newUserList = null;
-        List<Long> userIdList;
         List<Long> oldUserIds = Lists.newArrayList();
         while(page == 1 || CollectionUtils.isNotEmpty(newUserList)) {
             oldUserIds.clear();
-            newUserList.clear();
 
             log.info("--------page={}-------", page);
             pageRequest.setPage(page);
             newUserList = customerBiz.getNewUserList(pageRequest);
             if(CollectionUtils.isNotEmpty(newUserList)) {
-                userIdList = newUserList.stream().map(User::getId).collect(Collectors.toList());
-                for(Long userId : userIdList) {
-                    if(orderBiz.isPaied(userId)) {
-                        log.info("userId={} 设置老用户标识", userId);
-                        oldUserIds.add(userId);
-                    }
+                List<Long> userIdList = newUserList.stream().map(User::getId).collect(Collectors.toList());
+                oldUserIds = orderBiz.getPaidUserIdList(userIdList);
+                for(Long oldUserId : oldUserIds) {
+                    log.info("userId={} 设置老用户标识", oldUserId);
                 }
                 customerBiz.batchSetOldUser(oldUserIds);
             }
-            page++;
+            if(CollectionUtils.isEmpty(oldUserIds)) {
+                page++;
+            }
         }
+        log.info("-------- finish -------");
         return GLResponse.succ("处理成功");
     }
 
