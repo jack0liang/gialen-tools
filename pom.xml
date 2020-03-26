@@ -19,6 +19,7 @@
         <module>tools-dao</module>
         <module>tools-common</module>
         <module>tools-job</module>
+        <module>tools-integration</module>
     </modules>
     <dependencies>
         <dependency>

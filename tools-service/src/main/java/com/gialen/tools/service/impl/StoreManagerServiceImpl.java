@@ -24,6 +24,7 @@ import com.gialen.tools.dao.repository.customer.UserMapper;
 import com.gialen.tools.dao.repository.settlement.CommissionSettlementDetailMapper;
 import com.gialen.tools.dao.repository.settlement.CommissionSettlementMapper;
 import com.gialen.tools.dao.repository.tools.ManagerAndDirectorMapper;
+import com.gialen.tools.integration.RpcTlMemberService;
 import com.gialen.tools.service.StoreManagerService;
 import com.gialen.tools.service.business.CommunityBusiness;
 import com.gialen.tools.service.exception.StoreManagerServiceException;
@@ -73,6 +74,9 @@ public class StoreManagerServiceImpl implements StoreManagerService {
 
     @Autowired
     private StoreMapper storeMapper;
+
+    @Autowired
+    private RpcTlMemberService rpcTlMemberService;
 
     @Override
     public GLResponse<Long> login(String logigId, String password, UserTypeEnum userType) {
@@ -306,6 +310,9 @@ public class StoreManagerServiceImpl implements StoreManagerService {
         UserIncomeModel keeperIncomeModel = new UserIncomeModel();
         BaseBrandModel ownerBrandModel = new BaseBrandModel();
         BaseBrandModel circulatedBrandModel = new BaseBrandModel();
+
+        BigDecimal balanceMoney = rpcTlMemberService.getStoreMgrBalanceAmount(userId);
+
         try {
             //获取待收益
             BigDecimal toBeIncome = executeGetUserToBeIncome(userId, userType.getType());
@@ -352,6 +359,7 @@ public class StoreManagerServiceImpl implements StoreManagerService {
             userIncomeModel.setToBeIncome(toBeIncome != null ? toBeIncome : BigDecimal.ZERO);
             userIncomeModel.setMonthAvailableIncome(monthAvailableIncome != null ? monthAvailableIncome : BigDecimal.ZERO);
             userIncomeModel.setMonthTotalIncome(monthTotalIncome.getMonthTotalIncome() != null ? monthTotalIncome.getMonthTotalIncome() : BigDecimal.ZERO);
+            userIncomeModel.setAvailableBalanceAmount(balanceMoney);
             userSalesModel.setMonthSales(monthTotalIncome.getMonthTotalSales() != null ? monthTotalIncome.getMonthTotalSales() : BigDecimal.ZERO);
             userSalesModel.setTodaySales(todaySales != null ? todaySales : BigDecimal.ZERO);
             userSalesModel.setMonthRefundSales(monthSales.getMonthRefundSales() != null ? monthSales.getMonthRefundSales() : BigDecimal.ZERO);

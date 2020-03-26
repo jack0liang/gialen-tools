@@ -28,4 +28,9 @@ public class UserIncomeModel implements Serializable {
      * 可用收益
      */
     private BigDecimal monthAvailableIncome = BigDecimal.ZERO;
+
+    /**
+     * 可用余额
+     */
+    private BigDecimal availableBalanceAmount = BigDecimal.ZERO;
 }
