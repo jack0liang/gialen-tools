@@ -137,6 +137,14 @@ public class StoreManagerController {
             String token = request.getHeader("token");
             userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
         }
+        byte monthShow = 0;
+        try {
+            Date date = DateUtils.parseDate(String.valueOf(month), "yyyyMM");
+            monthShow = Byte.parseByte(DateFormatUtils.format(date, "M"));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         //add by 唐艳需求
         List<Long> skipQueryList = Lists.newArrayList(5402L,
                 5901L,
@@ -153,18 +161,16 @@ public class StoreManagerController {
                 4423L,
                 4529L,
                 5016L);
+
+        //指定的门店 2020-01月前不让看门店历史数据
         if (skipQueryList.contains(userId) && month < 202001) {
-            return GLResponse.succ(new UserAchievementVo());
+            log.info("门店历史数据屏蔽:{},{}", userId, month);
+            month = 201801;
         }
         GLResponse<UserAchievementModel> modelGLResponse = storeManagerService.getHistoryMonthUserAchievement(userId, month);
         UserAchievementVo vo = StoreManagerConvertor.userAchievementModelConvertToVo(modelGLResponse.getData());
-        try {
-            Date date = DateUtils.parseDate(String.valueOf(month), "yyyyMM");
-            byte monthShow = Byte.parseByte(DateFormatUtils.format(date, "M"));
-            vo.setMonth(monthShow);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        vo.setMonth(monthShow);
+
 
         log.info("response : " + vo);
         return GLResponse.succ(vo);
