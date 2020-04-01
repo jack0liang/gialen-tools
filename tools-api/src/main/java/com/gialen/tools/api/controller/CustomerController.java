@@ -30,4 +30,10 @@ public class CustomerController {
     public GLResponse userStoreCompare() {
         return customerService.userStoreCompare();
     }
+
+    @ApiOperation(value = "初始化新老用户标识")
+    @PostMapping("/initUserNewOldFlag")
+    public GLResponse initUserNewOldFlag() {
+        return customerService.initUserNewOldFlag();
+    }
 }
