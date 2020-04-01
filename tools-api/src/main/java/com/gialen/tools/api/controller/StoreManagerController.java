@@ -13,6 +13,7 @@ import com.gialen.tools.common.util.PageResponseEx;
 import com.gialen.tools.common.util.TokenUtil;
 import com.gialen.tools.service.StoreManagerService;
 import com.gialen.tools.service.model.*;
+import com.google.common.collect.Lists;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -136,6 +137,25 @@ public class StoreManagerController {
             String token = request.getHeader("token");
             userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
         }
+        //add by 唐艳需求
+        List<Long> skipQueryList = Lists.newArrayList(5402L,
+                5901L,
+                4629L,
+                4645L,
+                4663L,
+                4725L,
+                4726L,
+                4825L,
+                4205L,
+                4319L,
+                4092L,
+                4115L,
+                4423L,
+                4529L,
+                5016L);
+        if (skipQueryList.contains(userId) && month < 202001) {
+            return GLResponse.succ(new UserAchievementVo());
+        }
         GLResponse<UserAchievementModel> modelGLResponse = storeManagerService.getHistoryMonthUserAchievement(userId, month);
         UserAchievementVo vo = StoreManagerConvertor.userAchievementModelConvertToVo(modelGLResponse.getData());
         try {
@@ -219,7 +239,7 @@ public class StoreManagerController {
                                                               HttpServletRequest request) {
         String token = request.getHeader("token");
         Long userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
-        if(UserTypeEnum.STORE_DIRECTOR.getType() == userType) {
+        if (UserTypeEnum.STORE_DIRECTOR.getType() == userType) {
             childType = ChildTypeEnum.getByIndexForDirector(childType).getCode();
         }
         log.info("getUserChildList : userId = {}, userType = {}, childType = {}, page = {}, limit = {}, userName = {}", userId, userType, childType, page, limit, userName);
@@ -234,13 +254,13 @@ public class StoreManagerController {
     @ResponseBody
     @RequireLogin
     public GLResponse<PageResponse<ChildVo>> getCurMonthUserChildList(@RequestParam(name = "userType") Byte userType,
-                                                              @RequestParam(name = "childType") Byte childType,
-                                                              @RequestParam(name = "page") int page,
-                                                              @RequestParam(name = "limit") int limit,
-                                                              HttpServletRequest request) {
+                                                                      @RequestParam(name = "childType") Byte childType,
+                                                                      @RequestParam(name = "page") int page,
+                                                                      @RequestParam(name = "limit") int limit,
+                                                                      HttpServletRequest request) {
         String token = request.getHeader("token");
         Long userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
-        if(UserTypeEnum.STORE_DIRECTOR.getType() == userType) {
+        if (UserTypeEnum.STORE_DIRECTOR.getType() == userType) {
             childType = ChildTypeEnum.getByIndexForDirector(childType).getCode();
         }
         log.info("getCurMonthUserChildList : userId = {}, userType = {}, childType = {}, page = {}, limit = {}", userId, userType, childType, page, limit);

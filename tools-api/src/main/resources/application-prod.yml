@@ -4,7 +4,7 @@ spring:
     include: datasource-prod,redis-prod
 
 logging:
-  path: /home/app/tools/logs
+  path: /home/app/datatools/logs
   level:
     root: info
     mybaties: info
