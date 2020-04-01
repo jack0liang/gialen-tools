@@ -30,7 +30,7 @@ public class RpcTlMemberService {
         }
         try {
             GLResponse<TlMemberBaseModel> tlMemberBaseModelGLResponse = allInpayService.getTlMemberInfoB(storeId, true);
-            if (tlMemberBaseModelGLResponse.getSuccess())
+            if (tlMemberBaseModelGLResponse.getSuccess() && tlMemberBaseModelGLResponse.getData() != null)
                 return tlMemberBaseModelGLResponse.getData().getBalanceAmount();
         } catch (Exception e) {
             log.error("查询店董余额异常 {}", storeId, e);
