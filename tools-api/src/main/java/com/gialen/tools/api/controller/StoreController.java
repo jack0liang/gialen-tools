@@ -1,10 +1,11 @@
 package com.gialen.tools.api.controller;
 
 import com.gialen.common.model.GLResponse;
+import com.gialen.tools.common.lock.RepeaterLock;
 import com.gialen.tools.service.StoreService;
-import com.gialen.tools.service.WxMessageService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,5 +25,16 @@ public class StoreController {
     @PostMapping("/batchChangeStoreCode")
     public GLResponse batchChangeStoreCode(@RequestParam("filePath") String filePath) {
         return storeService.batchChangeStoreCode(filePath);
+    }
+
+    @RepeaterLock(keyPrefix = "PICKER_CODE", fieldName = "code")
+    @ApiOperation(value = "核销取货码")
+    @PostMapping("/verify/pickerCode")
+    public GLResponse<String> verifyPickerCode(@RequestParam("code") String code) {
+        String orderSn = storeService.verifyStorePickerCode(code);
+        if (StringUtils.isEmpty(orderSn)) {
+            return GLResponse.fail("核销失败");
+        }
+        return GLResponse.succ(orderSn);
     }
 }
