@@ -78,7 +78,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public String verifyStorePickerCode(String code){
+    public GLResponse verifyStorePickerCode(String code){
         return rpcOrderCheckService.verifyPickerCode(code);
     }
 }

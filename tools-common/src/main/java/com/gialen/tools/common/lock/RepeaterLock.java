@@ -33,6 +33,6 @@ public @interface RepeaterLock {
      *
      * @return
      */
-    long timeout() default 2000;
+    long timeout() default 1000;
 
 }

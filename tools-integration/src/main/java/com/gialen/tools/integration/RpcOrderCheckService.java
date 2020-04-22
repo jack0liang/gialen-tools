@@ -21,20 +21,15 @@ public class RpcOrderCheckService {
 
     /**
      * 门店核销取货码
+     *
      * @param pickerCode
      * @return
      */
-    public String verifyPickerCode(String pickerCode) {
+    public GLResponse<String> verifyPickerCode(String pickerCode) {
         if (StringUtils.isEmpty(pickerCode)) {
             return null;
         }
-        try {
-            GLResponse<String> glResponse = orderService.verification(pickerCode);
-            return glResponse.getSuccess() ? glResponse.getData() : null;
-        } catch (Exception e) {
-            log.error("核销取货码错误", e);
-            return null;
-        }
+        return orderService.verification(pickerCode);
     }
 
 

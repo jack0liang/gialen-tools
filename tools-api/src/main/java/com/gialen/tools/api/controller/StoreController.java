@@ -31,10 +31,6 @@ public class StoreController {
     @ApiOperation(value = "核销取货码")
     @PostMapping("/verify/pickerCode")
     public GLResponse<String> verifyPickerCode(@RequestParam("code") String code) {
-        String orderSn = storeService.verifyStorePickerCode(code);
-        if (StringUtils.isEmpty(orderSn)) {
-            return GLResponse.fail("核销失败");
-        }
-        return GLResponse.succ(orderSn);
+        return storeService.verifyStorePickerCode(code);
     }
 }
