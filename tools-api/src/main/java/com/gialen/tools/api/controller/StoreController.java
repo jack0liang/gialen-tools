@@ -31,6 +31,10 @@ public class StoreController {
     @ApiOperation(value = "核销取货码")
     @PostMapping("/verify/pickerCode")
     public GLResponse<String> verifyPickerCode(@RequestParam("code") String code) {
-        return storeService.verifyStorePickerCode(code);
+        try {
+            return storeService.verifyStorePickerCode(code);
+        } catch (Exception e) {
+            return GLResponse.fail("核销取货码异常");
+        }
     }
 }
