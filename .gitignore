@@ -4,6 +4,7 @@ HELP.md
 /tools-common/target/
 /tools-dao/target/
 /tools-service/target/
+/tools-job/target/
 ### IntelliJ IDEA ###
 .idea
 *.iws
@@ -11,3 +12,4 @@ HELP.md
 *.ipr
 
 
+ t
