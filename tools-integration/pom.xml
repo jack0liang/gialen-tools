@@ -27,6 +27,12 @@
             <version>0.0.5-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.gialen.order</groupId>
+            <artifactId>order-client</artifactId>
+            <version>0.0.8-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
 </project>

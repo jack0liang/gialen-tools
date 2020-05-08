@@ -6,4 +6,6 @@ public interface StoreService {
 
     GLResponse batchChangeStoreCode(String filePath);
 
+    GLResponse<String> verifyStorePickerCode(String code);
+
 }

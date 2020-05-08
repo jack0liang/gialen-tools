@@ -5,6 +5,7 @@ import com.gialen.tools.common.util.CsvUtil;
 import com.gialen.tools.dao.entity.customer.Store;
 import com.gialen.tools.dao.entity.customer.StoreExample;
 import com.gialen.tools.dao.repository.customer.StoreMapper;
+import com.gialen.tools.integration.RpcOrderCheckService;
 import com.gialen.tools.service.StoreService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -28,6 +29,9 @@ public class StoreServiceImpl implements StoreService {
 
     @Autowired
     private StoreMapper storeMapper;
+
+    @Autowired
+    private RpcOrderCheckService rpcOrderCheckService;
 
     @Override
     public GLResponse batchChangeStoreCode(String filePath) {
@@ -71,5 +75,10 @@ public class StoreServiceImpl implements StoreService {
         StoreExample example = new StoreExample();
         example.createCriteria().andStoreCodeIn(storeCodeList);
         return storeMapper.selectByExample(example);
+    }
+
+    @Override
+    public GLResponse verifyStorePickerCode(String code){
+        return rpcOrderCheckService.verifyPickerCode(code);
     }
 }
