@@ -228,8 +228,15 @@ public class DataToolsServiceImpl implements DataToolsService {
                 String.valueOf(DecimalCalculate.round(salesDataModel.getGiftPackageSales(), 2)), salesDataModel.getGiftPackageSalesRelativeRatio());
         ItemModel usualSalesItem = createItem(DataToolsConstant.LABEL_SALES_USUAL,
                 String.valueOf(DecimalCalculate.round(salesDataModel.getUsualSales(), 2)), salesDataModel.getUsualSalesRelativeRatio());
-        ItemModel discountItem = createItem(DataToolsConstant.LABEL_SALES_DISCOUNT,
-                String.valueOf(DecimalCalculate.round(salesDataModel.getDiscountNums(), 2)),salesDataModel.getDiscountNumsRelativeRatio());
+
+        ItemModel discountItem;
+        double discountNum = DecimalCalculate.round(salesDataModel.getDiscountNums(), 2);
+        if (discountNum == 10){
+            discountItem = createItem(DataToolsConstant.LABEL_SALES_DISCOUNT,"无折扣",salesDataModel.getDiscountNumsRelativeRatio());
+        }else {
+            discountItem = createItem(DataToolsConstant.LABEL_SALES_DISCOUNT,
+                    String.valueOf(DecimalCalculate.round(salesDataModel.getDiscountNums(), 2)), salesDataModel.getDiscountNumsRelativeRatio());
+        }
 
         itemList.add(totalSalesItem);
         itemList.add(giftPackageSalesItem);
@@ -295,9 +302,9 @@ public class DataToolsServiceImpl implements DataToolsService {
                 Double allSales = salesDto.getSalesNum()==null?NumberUtils.DOUBLE_ZERO:salesDto.getSalesNum();
                 //当前数据
                 if (startTimeStr.equals(salesDto.getCountTime())) {
-                    discountNums = DecimalCalculate.div(realSales , allSales,4);
+                    discountNums = DecimalCalculate.div(realSales , allSales,4) * 10;
                 }else{
-                    discountNumsRelative = DecimalCalculate.div(realSales , allSales,4);
+                    discountNumsRelative = DecimalCalculate.div(realSales , allSales,4) * 10;
                 }
             }
         }
