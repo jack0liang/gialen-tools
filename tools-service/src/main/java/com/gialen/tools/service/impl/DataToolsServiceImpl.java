@@ -238,6 +238,8 @@ public class DataToolsServiceImpl implements DataToolsService {
             discountItem = createItem(DataToolsConstant.LABEL_SALES_DISCOUNT,
                     discountNum + "折", salesDataModel.getDiscountNumsRelativeRatio());
         }
+        log.info("折扣值，环比：{}",discountItem);
+
 
         itemList.add(totalSalesItem);
         itemList.add(giftPackageSalesItem);
