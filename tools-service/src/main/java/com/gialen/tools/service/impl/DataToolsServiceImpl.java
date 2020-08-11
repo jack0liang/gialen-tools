@@ -22,6 +22,7 @@ import com.gialen.tools.dao.util.DateTimeDtoBuilder;
 import com.gialen.tools.service.DataToolsService;
 import com.gialen.tools.service.model.*;
 import com.google.common.collect.Lists;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -215,6 +216,7 @@ public class DataToolsServiceImpl implements DataToolsService {
         //大礼包销量
         List<SalesDto> totalSalesNumByGiftPackageList = ordersMapper.countSales(
                 DateTimeDtoBuilder.createDateTimeDto(startTime, endTime), DataToolsConstant.GIFT_PACKAGE_TYPE);
+
         SalesDataModel salesDataModel = calculateSales(totalSalesNumList, totalSalesNumByGiftPackageList, startTime);
 
         dataToolsModel.setTitle(DataToolsConstant.TITLE_SALES_COUNT);
@@ -226,10 +228,13 @@ public class DataToolsServiceImpl implements DataToolsService {
                 String.valueOf(DecimalCalculate.round(salesDataModel.getGiftPackageSales(), 2)), salesDataModel.getGiftPackageSalesRelativeRatio());
         ItemModel usualSalesItem = createItem(DataToolsConstant.LABEL_SALES_USUAL,
                 String.valueOf(DecimalCalculate.round(salesDataModel.getUsualSales(), 2)), salesDataModel.getUsualSalesRelativeRatio());
+        ItemModel discountItem = createItem(DataToolsConstant.LABEL_SALES_DISCOUNT,
+                String.valueOf(DecimalCalculate.round(salesDataModel.getDiscountNums(), 2)),salesDataModel.getDiscountNumsRelativeRatio());
 
         itemList.add(totalSalesItem);
         itemList.add(giftPackageSalesItem);
         itemList.add(usualSalesItem);
+        itemList.add(discountItem);
         dataToolsModel.setItems(itemList);
         return dataToolsModel;
     }
@@ -247,6 +252,8 @@ public class DataToolsServiceImpl implements DataToolsService {
         Double totalSalseRelative = NumberUtils.DOUBLE_ZERO;
         Double giftPackageSales = NumberUtils.DOUBLE_ZERO;
         Double giftPackageSalseRelative = NumberUtils.DOUBLE_ZERO;
+        Double discountNums = NumberUtils.DOUBLE_ZERO;
+        Double discountNumsRelative = NumberUtils.DOUBLE_ZERO;
 
         String startTimeStr = DateFormatUtils.format(startTime, "yyyyMMdd");
         //计算总销售
@@ -280,6 +287,22 @@ public class DataToolsServiceImpl implements DataToolsService {
         Double usualSalesRelative = totalSalseRelative - giftPackageSalseRelative;
         model.setUsualSales(usualSales);
         model.setUsualSalesRelativeRatio(calculateRelativeRatio(usualSales, usualSalesRelative, 4));
+
+        //计算折扣值
+        if (CollectionUtils.isNotEmpty(totalSalesList)){
+            for (SalesDto salesDto : totalSalesList) {
+                Double realSales = salesDto.getRealSalesNum() == null?NumberUtils.DOUBLE_ZERO:salesDto.getRealSalesNum();
+                Double allSales = salesDto.getSalesNum()==null?NumberUtils.DOUBLE_ZERO:salesDto.getSalesNum();
+                //当前数据
+                if (startTimeStr.equals(salesDto.getCountTime())) {
+                    discountNums = DecimalCalculate.div(realSales , allSales,4);
+                }else{
+                    discountNumsRelative = DecimalCalculate.div(realSales , allSales,4);
+                }
+            }
+        }
+        model.setDiscountNums(discountNums);
+        model.setDiscountNumsRelativeRatio(calculateRelativeRatio(discountNums,discountNumsRelative,4));
         return model;
     }
 

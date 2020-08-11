@@ -15,4 +15,9 @@ public class SalesDto {
 
     private Double salesNum;
 
+    /**
+     * 实付金额
+     */
+    private Double realSalesNum;
+
 }
