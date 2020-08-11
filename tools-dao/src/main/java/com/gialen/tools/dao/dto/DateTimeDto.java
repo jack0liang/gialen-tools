@@ -26,19 +26,19 @@ public class DateTimeDto {
 
     private String todayEndTime;
 
-    /**
-     * yyyyMMddHH
-     */
-    private String countStartTime;
-
-    /**
-     * yyyyMMddHH
-     */
-    private String countRelativeStartTime;
-
-    /**
-     * yyyyMMdd
-     */
-    private String  formatStartDay;
+//    /**
+//     * yyyyMMddHH
+//     */
+//    private String countStartTime;
+//
+//    /**
+//     * yyyyMMddHH
+//     */
+//    private String countRelativeStartTime;
+//
+//    /**
+//     * yyyyMMdd
+//     */
+//    private String  formatStartDay;
 
 }
