@@ -232,10 +232,11 @@ public class DataToolsServiceImpl implements DataToolsService {
         ItemModel discountItem;
         double discountNum = DecimalCalculate.round(salesDataModel.getDiscountNums(), 2);
         if (discountNum == 10){
-            discountItem = createItem(DataToolsConstant.LABEL_SALES_DISCOUNT,"无折扣",salesDataModel.getDiscountNumsRelativeRatio());
+            discountItem = createItem(DataToolsConstant.LABEL_SALES_DISCOUNT,"无折扣"
+                    ,salesDataModel.getDiscountNumsRelativeRatio());
         }else {
             discountItem = createItem(DataToolsConstant.LABEL_SALES_DISCOUNT,
-                    String.valueOf(DecimalCalculate.round(salesDataModel.getDiscountNums(), 2)), salesDataModel.getDiscountNumsRelativeRatio());
+                    discountNum + "折", salesDataModel.getDiscountNumsRelativeRatio());
         }
 
         itemList.add(totalSalesItem);
@@ -302,9 +303,9 @@ public class DataToolsServiceImpl implements DataToolsService {
                 Double allSales = salesDto.getSalesNum()==null?NumberUtils.DOUBLE_ZERO:salesDto.getSalesNum();
                 //当前数据
                 if (startTimeStr.equals(salesDto.getCountTime())) {
-                    discountNums = DecimalCalculate.div(realSales , allSales,4) * 10;
+                    discountNums = DecimalCalculate.div(realSales , allSales,2) * 10;
                 }else{
-                    discountNumsRelative = DecimalCalculate.div(realSales , allSales,4) * 10;
+                    discountNumsRelative = DecimalCalculate.div(realSales , allSales,2) * 10;
                 }
             }
         }
