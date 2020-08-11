@@ -141,14 +141,14 @@ public class DataToolsServiceImpl implements DataToolsService {
                 String.valueOf(uvDataModel.getMiniProgramUv()), uvDataModel.getMiniProgramUvRelativeRatio());
         ItemModel appItem = createItem(DataToolsConstant.LABEL_APP,
                 String.valueOf(uvDataModel.getAppUv()), uvDataModel.getAppUvRelativeRatio());
-        ItemModel h5Item = createItem(DataToolsConstant.LABEL_H5,
-                String.valueOf(uvDataModel.getH5Uv()), uvDataModel.getH5UvRelativeRatio());
+//        ItemModel h5Item = createItem(DataToolsConstant.LABEL_H5,
+//                String.valueOf(uvDataModel.getH5Uv()), uvDataModel.getH5UvRelativeRatio());
 
         itemList.add(miniProgramItem);
         itemList.add(appItem);
-        itemList.add(h5Item);
+//        itemList.add(h5Item);
         dataToolsModel.setItems(itemList);
-        log.info("miniProgramItem = {}, appItem = {}, h5Item = {}", miniProgramItem, appItem, h5Item);
+        log.info("miniProgramItem = {}, appItem = {}", miniProgramItem, appItem);
         return dataToolsModel;
     }
 
