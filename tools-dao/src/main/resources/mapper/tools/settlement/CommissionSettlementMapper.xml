@@ -725,4 +725,13 @@
     and s.store_id = #{userId}
     <if test="brandType > 0"> and d.brand_type = #{brandType}</if>
   </select>
+    <select id="getStoreDirectorManualSettleAmount" resultType="java.math.BigDecimal">
+      select
+        ifnull(sum(d.store_commission),0)
+      from commission_settlement s
+      where  ((s.belong_type = 2 and s.status = 9 )
+      or (s.belong_type = 1 and s.status = 1)
+      )
+      and s.store_id = #{userId}
+    </select>
 </mapper>

@@ -33,4 +33,9 @@ public class UserIncomeModel implements Serializable {
      * 可用余额
      */
     private BigDecimal availableBalanceAmount = BigDecimal.ZERO;
+
+    /**
+     * 手工结算金额
+     */
+    private BigDecimal manualSettlementAmount = BigDecimal.ZERO;
 }

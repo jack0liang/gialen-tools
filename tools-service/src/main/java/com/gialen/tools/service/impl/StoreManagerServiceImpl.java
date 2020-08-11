@@ -311,7 +311,8 @@ public class StoreManagerServiceImpl implements StoreManagerService {
         BaseBrandModel ownerBrandModel = new BaseBrandModel();
         BaseBrandModel circulatedBrandModel = new BaseBrandModel();
 
-        BigDecimal balanceMoney = rpcTlMemberService.getStoreMgrBalanceAmount(userId);
+        BigDecimal balanceMoney = BigDecimal.ZERO;
+        BigDecimal manualSettlementAmount = BigDecimal.ZERO;
 
         try {
             //获取待收益
@@ -324,6 +325,7 @@ public class StoreManagerServiceImpl implements StoreManagerService {
             BigDecimal todaySales = executeGetUserSalesByToday(userId, userType.getType(),today, (byte)0);
             //获取月销售额
             UserIncomeDto monthSales = executeGetUserSalesByMonth(userId, userType.getType(), month, (byte)0);
+
             if(UserTypeEnum.STORE_DIRECTOR.equals(userType)) {
                 //获取门店名称
                 storeIncomeModel.setStoreName(getStoreNameById(userId));
@@ -331,6 +333,11 @@ public class StoreManagerServiceImpl implements StoreManagerService {
                 StoreIncomeDto monthStoreAvailableIncome = getStoreAvailableIncomeByMonth(userId, month, (byte)0);
                 StoreIncomeDto storeToBeIncome = getToBeIncome(userId, (byte)0);
                 StoreIncomeDto monthStoreTotalIncome = getTotalIncomeByMonth(userId, month, (byte)0);
+
+                //查询自动结算额
+                balanceMoney = rpcTlMemberService.getStoreMgrBalanceAmount(userId);
+                //查询手工结算额
+                manualSettlementAmount = getStoreDirectorManualSettleAmount(userId,userType.getType());
 
                 //门店收益数据
                 storeIncomeModel.setToBeIncome(storeToBeIncome.getStoreToBeIncome() != null ? storeToBeIncome.getStoreToBeIncome() : BigDecimal.ZERO);
@@ -359,7 +366,8 @@ public class StoreManagerServiceImpl implements StoreManagerService {
             userIncomeModel.setToBeIncome(toBeIncome != null ? toBeIncome : BigDecimal.ZERO);
             userIncomeModel.setMonthAvailableIncome(monthAvailableIncome != null ? monthAvailableIncome : BigDecimal.ZERO);
             userIncomeModel.setMonthTotalIncome(monthTotalIncome.getMonthTotalIncome() != null ? monthTotalIncome.getMonthTotalIncome() : BigDecimal.ZERO);
-            userIncomeModel.setAvailableBalanceAmount(balanceMoney);
+            userIncomeModel.setAvailableBalanceAmount(balanceMoney == null?BigDecimal.ZERO:balanceMoney);
+            userIncomeModel.setManualSettlementAmount(manualSettlementAmount==null?BigDecimal.ZERO:manualSettlementAmount);
             userSalesModel.setMonthSales(monthTotalIncome.getMonthTotalSales() != null ? monthTotalIncome.getMonthTotalSales() : BigDecimal.ZERO);
             userSalesModel.setTodaySales(todaySales != null ? todaySales : BigDecimal.ZERO);
             userSalesModel.setMonthRefundSales(monthSales.getMonthRefundSales() != null ? monthSales.getMonthRefundSales() : BigDecimal.ZERO);
@@ -382,6 +390,7 @@ public class StoreManagerServiceImpl implements StoreManagerService {
         userAchievementModel.setCirculatedBrandModel(circulatedBrandModel);
         return GLResponse.succ(userAchievementModel);
     }
+
 
     /**
      * 获取历史战绩数据
@@ -534,6 +543,16 @@ public class StoreManagerServiceImpl implements StoreManagerService {
      */
     private StoreIncomeDto getTotalIncomeByDay(final long userId, final int day, final byte brandType) {
         return commissionSettlementMapper.getStoreTotalIncomeByDay(userId, day, brandType);
+    }
+
+    /**
+     * 查询店董手工结算收益
+     * @param userId
+     * @param type
+     * @return
+     */
+    private BigDecimal getStoreDirectorManualSettleAmount(Long userId, Byte type) {
+        return commissionSettlementMapper.getStoreDirectorManualSettleAmount(userId,type);
     }
 
     /**
