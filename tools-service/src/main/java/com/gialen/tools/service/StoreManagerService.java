@@ -175,4 +175,12 @@ public interface StoreManagerService {
      * @return
      */
     PageResponse<StoreActivityDetailModel> getPreMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest, String storeName);
+
+    /**
+     * 获取门店老板银行卡提现记录
+     * @param userId
+     * @param pageRequest
+     * @return
+     */
+    StoreUserWithDrawRespModel getStoreUserWithdrawList(Long userId, PageRequest pageRequest);
 }

@@ -379,4 +379,14 @@ public class StoreManagerController {
         return storeManagerService.getAchievementMonthList();
     }
 
+
+    @GetMapping("/getStoreUserWithdrawList")
+    public GLResponse<StoreUserWithDrawRespModel> getStoreUserWithdrawList(HttpServletRequest request,PageRequest pageRequest) {
+
+        String token = request.getHeader("token");
+        Long userId = TokenUtil.tokenUserIdCache.getIfPresent(token);
+
+        return GLResponse.succ(storeManagerService.getStoreUserWithdrawList(userId,pageRequest));
+    }
+
 }

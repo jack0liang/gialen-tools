@@ -5,22 +5,18 @@ import com.gialen.common.model.GLResponse;
 import com.gialen.common.model.PageRequest;
 import com.gialen.common.model.PageResponse;
 import com.gialen.common.model.ResponseStatus;
+import com.gialen.common.utils.DateTools;
 import com.gialen.common.utils.DecimalCalculate;
 import com.gialen.tools.common.enums.ChildTypeEnum;
 import com.gialen.tools.common.enums.DateTypeEnum;
 import com.gialen.tools.common.enums.UserTypeEnum;
-import com.gialen.tools.dao.dto.OrderDetailDto;
-import com.gialen.tools.dao.dto.OrderQueryDto;
-import com.gialen.tools.dao.dto.StoreIncomeDto;
-import com.gialen.tools.dao.dto.UserIncomeDto;
-import com.gialen.tools.dao.entity.customer.Store;
-import com.gialen.tools.dao.entity.customer.StoreExample;
-import com.gialen.tools.dao.entity.customer.User;
-import com.gialen.tools.dao.entity.customer.UserExample;
+import com.gialen.tools.dao.dto.*;
+import com.gialen.tools.dao.entity.customer.*;
 import com.gialen.tools.dao.entity.tools.ManagerAndDirector;
 import com.gialen.tools.dao.entity.tools.ManagerAndDirectorExample;
 import com.gialen.tools.dao.repository.customer.StoreMapper;
 import com.gialen.tools.dao.repository.customer.UserMapper;
+import com.gialen.tools.dao.repository.customer.WithdrawTlMapper;
 import com.gialen.tools.dao.repository.settlement.CommissionSettlementDetailMapper;
 import com.gialen.tools.dao.repository.settlement.CommissionSettlementMapper;
 import com.gialen.tools.dao.repository.tools.ManagerAndDirectorMapper;
@@ -44,6 +40,8 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 店经店董服务实现类
@@ -77,6 +75,9 @@ public class StoreManagerServiceImpl implements StoreManagerService {
 
     @Autowired
     private RpcTlMemberService rpcTlMemberService;
+
+    @Autowired
+    private WithdrawTlMapper withdrawTlMapper;
 
     @Override
     public GLResponse<Long> login(String logigId, String password, UserTypeEnum userType) {
@@ -285,6 +286,47 @@ public class StoreManagerServiceImpl implements StoreManagerService {
     public PageResponse<StoreActivityDetailModel> getPreMonthActivityStoreList(Long userId, UserTypeEnum userType, Byte purchasedType, PageRequest pageRequest, String storeName) {
         int preMonth = Integer.parseInt(DateFormatUtils.format(DateUtils.addMonths(new Date(), -1), "yyyyMM"));
         return storeDirectorCommunityBiz.getMonthActivityStoreList(userId, userType.getType(), preMonth, purchasedType, pageRequest, storeName);
+    }
+
+    @Override
+    public StoreUserWithDrawRespModel getStoreUserWithdrawList(Long userId, PageRequest pageRequest) {
+        WithdrawTlExample example = new WithdrawTlExample();
+        example.createCriteria().andUserIdEqualTo(userId);
+
+        StoreUserWithDrawRespModel storeUserWithDrawRespModel = new StoreUserWithDrawRespModel(pageRequest.getPage(),pageRequest.getLimit());
+
+         WithDrawStatusTypeDto drawStatusTypeDto = withdrawTlMapper.selectGroupByStatus(userId);
+         if (null != drawStatusTypeDto){
+             storeUserWithDrawRespModel.setAccountArrived(drawStatusTypeDto.getAccountArrived());
+             storeUserWithDrawRespModel.setAccountNotArrived(drawStatusTypeDto.getAccountNotArrived());
+         }
+
+         long count = withdrawTlMapper.countByExample(example);
+         if (count == 0){
+             return storeUserWithDrawRespModel;
+         }
+
+         example.setLimit(pageRequest.getLimit());
+         example.setOffset(pageRequest.getOffset());
+         example.setOrderByClause("create_time desc");
+         List<StoreUserWithDrawRespModel.WithDrawModel> withdrawTlList = withdrawTlMapper.selectByExample(example).stream().map(withdrawTl -> {
+             StoreUserWithDrawRespModel.WithDrawModel withDrawModel = Copier.copy(withdrawTl,new StoreUserWithDrawRespModel.WithDrawModel());
+            withDrawModel.setCreateTime(DateTools.date2String(withdrawTl.getCreateTime(),"yyy/MM/dd HH:mm"));
+             switch (withdrawTl.getProgress()){
+                 case 0:
+                     withDrawModel.setStatus("成功");
+                     break;
+                 case 1:
+                     withDrawModel.setStatus("提现中");
+                     break;
+                 case 2:
+                     withDrawModel.setStatus("提现失败");
+                     break;
+             }
+             return withDrawModel;
+         }).collect(Collectors.toList());
+        storeUserWithDrawRespModel.setWithdrawList(PageResponse.success(withdrawTlList,pageRequest.getPage(),pageRequest.getLimit(),count));
+        return storeUserWithDrawRespModel;
     }
 
     /**

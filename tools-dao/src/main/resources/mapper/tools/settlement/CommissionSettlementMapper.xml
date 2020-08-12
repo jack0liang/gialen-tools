@@ -729,7 +729,7 @@
       select
         ifnull(sum(d.store_commission),0)
       from commission_settlement s
-      where  ((s.belong_type = 2 and s.status = 9 )
+      where  ((s.belong_type = 2 and (s.status = 9 or s.biz_user_id is null))
       or (s.belong_type = 1 and s.status = 1)
       )
       and s.store_id = #{userId}

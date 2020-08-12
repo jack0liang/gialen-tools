@@ -1,9 +1,11 @@
 package com.gialen.tools;
 
 import com.gialen.common.model.GLResponse;
+import com.gialen.common.model.PageRequest;
 import com.gialen.tools.api.ToolsApiApplication;
 import com.gialen.tools.common.enums.UserTypeEnum;
 import com.gialen.tools.service.StoreManagerService;
+import com.gialen.tools.service.model.StoreUserWithDrawRespModel;
 import com.gialen.tools.service.model.UserAchievementModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpClientConnection;
@@ -32,9 +34,9 @@ public class test {
     @Test
     public void get(){
 
-        GLResponse<UserAchievementModel> glResponse = storeManagerService.getCurMonthUserAchievement(7885194L, UserTypeEnum.STORE_MANAGER);
+        StoreUserWithDrawRespModel glResponse = storeManagerService.getStoreUserWithdrawList(3700L,new PageRequest(1,10));
 
-        System.out.println(glResponse.getData().toString());
+        System.out.println(glResponse);
     }
 
 
