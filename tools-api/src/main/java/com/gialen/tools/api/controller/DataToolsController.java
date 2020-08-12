@@ -23,7 +23,7 @@ public class DataToolsController {
                                   @RequestParam(name = "dataType", required = false) Byte dataType) {
         String startTimeStr = DateFormatUtils.format(startTime, "yyyy-MM-dd HH:mm:ss");
         String endTimeStr = DateFormatUtils.format(endTime, "yyyy-MM-dd HH:mm:ss");
-        //log.info("数据看板接口: startTime=" + startTimeStr + ", endTime=" + endTimeStr + ",dataType=" + dataType);
+//        log.info("小娇数坊: startTime=" + startTimeStr + ", endTime=" + endTimeStr + ",dataType=" + dataType);
         try {
             return dataToolsService.getDataList(startTime, endTime, dataType);
         } catch (Exception e) {

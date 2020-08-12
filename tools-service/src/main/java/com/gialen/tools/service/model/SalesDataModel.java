@@ -42,4 +42,18 @@ public class SalesDataModel {
      */
     private Double usualSalesRelativeRatio;
 
+
+    /**
+     * 折扣值 实付总金额/总销售额
+     */
+    private Double discountNums;
+
+    /**
+     * 折扣值环比
+     */
+    private Double discountNumsRelativeRatio;
+
+
+
+
 }
