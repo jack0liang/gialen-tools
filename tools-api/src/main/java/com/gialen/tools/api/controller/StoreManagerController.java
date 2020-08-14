@@ -92,7 +92,7 @@ public class StoreManagerController {
 
     @RequestMapping("/getCurMonthUserAchievement")
     @ResponseBody
-//    @RequireLogin
+    @RequireLogin
     public GLResponse<UserAchievementVo> getCurMonthUserAchievement(@RequestParam(name = "userId", required = false) Long userId,
                                                                     @RequestParam(name = "userType") @ApiParam(value = "用户类型：3店经, 4店董") Byte userType,
                                                                     HttpServletRequest request) {
