@@ -28,7 +28,19 @@ public class StoreUserWithDrawRespModel implements Serializable {
      */
     private PageResponse<WithDrawModel> withdrawList;
 
-    public StoreUserWithDrawRespModel(int page,int pageSize) {
+    public void setAccountArrived(BigDecimal accountArrived) {
+        if (accountArrived != null) {
+            this.accountArrived = accountArrived;
+        }
+    }
+
+    public void setAccountNotArrived(BigDecimal accountNotArrived) {
+        if (accountNotArrived != null) {
+            this.accountNotArrived = accountNotArrived;
+        }
+    }
+
+    public StoreUserWithDrawRespModel(int page, int pageSize) {
         this.withdrawList = PageResponse.empty(page,pageSize);
     }
 

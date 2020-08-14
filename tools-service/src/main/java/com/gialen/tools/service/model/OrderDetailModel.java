@@ -61,4 +61,9 @@ public class OrderDetailModel implements Serializable {
      */
     private BigDecimal companyCommission;
 
+    /**
+     * 结算类型 手工结算/自动结算
+     */
+    private String settleType;
+
 }

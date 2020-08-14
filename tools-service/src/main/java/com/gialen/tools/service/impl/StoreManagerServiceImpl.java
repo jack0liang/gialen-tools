@@ -327,7 +327,7 @@ public class StoreManagerServiceImpl implements StoreManagerService {
                     withDrawModel.setStatus("提现中");
                     break;
                 case 2:
-                    withDrawModel.setStatus("提现失败");
+                    withDrawModel.setStatus("失败");
                     break;
             }
             return withDrawModel;

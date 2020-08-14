@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 @org.springframework.stereotype.Repository
 public interface CommissionSettlementMapper {
@@ -199,5 +200,4 @@ public interface CommissionSettlementMapper {
      * @mbg.generated
      */
     int updateByPrimaryKey(CommissionSettlement record);
-
 }

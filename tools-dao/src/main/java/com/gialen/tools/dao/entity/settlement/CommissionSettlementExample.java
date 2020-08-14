@@ -1292,66 +1292,6 @@ public class CommissionSettlementExample {
             return (Criteria) this;
         }
 
-        public Criteria andStoreMasterExperienceIsNull() {
-            addCriterion("store_master_experience is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreMasterExperienceIsNotNull() {
-            addCriterion("store_master_experience is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreMasterExperienceEqualTo(Integer value) {
-            addCriterion("store_master_experience =", value, "storeMasterExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreMasterExperienceNotEqualTo(Integer value) {
-            addCriterion("store_master_experience <>", value, "storeMasterExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreMasterExperienceGreaterThan(Integer value) {
-            addCriterion("store_master_experience >", value, "storeMasterExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreMasterExperienceGreaterThanOrEqualTo(Integer value) {
-            addCriterion("store_master_experience >=", value, "storeMasterExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreMasterExperienceLessThan(Integer value) {
-            addCriterion("store_master_experience <", value, "storeMasterExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreMasterExperienceLessThanOrEqualTo(Integer value) {
-            addCriterion("store_master_experience <=", value, "storeMasterExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreMasterExperienceIn(List<Integer> values) {
-            addCriterion("store_master_experience in", values, "storeMasterExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreMasterExperienceNotIn(List<Integer> values) {
-            addCriterion("store_master_experience not in", values, "storeMasterExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreMasterExperienceBetween(Integer value1, Integer value2) {
-            addCriterion("store_master_experience between", value1, value2, "storeMasterExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreMasterExperienceNotBetween(Integer value1, Integer value2) {
-            addCriterion("store_master_experience not between", value1, value2, "storeMasterExperience");
-            return (Criteria) this;
-        }
-
         public Criteria andStoreManageCommissionIsNull() {
             addCriterion("store_manage_commission is null");
             return (Criteria) this;
@@ -1409,66 +1349,6 @@ public class CommissionSettlementExample {
 
         public Criteria andStoreManageCommissionNotBetween(BigDecimal value1, BigDecimal value2) {
             addCriterion("store_manage_commission not between", value1, value2, "storeManageCommission");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreManageExperienceIsNull() {
-            addCriterion("store_manage_experience is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreManageExperienceIsNotNull() {
-            addCriterion("store_manage_experience is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreManageExperienceEqualTo(Integer value) {
-            addCriterion("store_manage_experience =", value, "storeManageExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreManageExperienceNotEqualTo(Integer value) {
-            addCriterion("store_manage_experience <>", value, "storeManageExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreManageExperienceGreaterThan(Integer value) {
-            addCriterion("store_manage_experience >", value, "storeManageExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreManageExperienceGreaterThanOrEqualTo(Integer value) {
-            addCriterion("store_manage_experience >=", value, "storeManageExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreManageExperienceLessThan(Integer value) {
-            addCriterion("store_manage_experience <", value, "storeManageExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreManageExperienceLessThanOrEqualTo(Integer value) {
-            addCriterion("store_manage_experience <=", value, "storeManageExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreManageExperienceIn(List<Integer> values) {
-            addCriterion("store_manage_experience in", values, "storeManageExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreManageExperienceNotIn(List<Integer> values) {
-            addCriterion("store_manage_experience not in", values, "storeManageExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreManageExperienceBetween(Integer value1, Integer value2) {
-            addCriterion("store_manage_experience between", value1, value2, "storeManageExperience");
-            return (Criteria) this;
-        }
-
-        public Criteria andStoreManageExperienceNotBetween(Integer value1, Integer value2) {
-            addCriterion("store_manage_experience not between", value1, value2, "storeManageExperience");
             return (Criteria) this;
         }
 
@@ -1769,6 +1649,316 @@ public class CommissionSettlementExample {
 
         public Criteria andSettlementEndTimeNotBetween(Date value1, Date value2) {
             addCriterion("settlement_end_time not between", value1, value2, "settlementEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCrossFeeIsNull() {
+            addCriterion("cross_fee is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCrossFeeIsNotNull() {
+            addCriterion("cross_fee is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCrossFeeEqualTo(BigDecimal value) {
+            addCriterion("cross_fee =", value, "crossFee");
+            return (Criteria) this;
+        }
+
+        public Criteria andCrossFeeNotEqualTo(BigDecimal value) {
+            addCriterion("cross_fee <>", value, "crossFee");
+            return (Criteria) this;
+        }
+
+        public Criteria andCrossFeeGreaterThan(BigDecimal value) {
+            addCriterion("cross_fee >", value, "crossFee");
+            return (Criteria) this;
+        }
+
+        public Criteria andCrossFeeGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("cross_fee >=", value, "crossFee");
+            return (Criteria) this;
+        }
+
+        public Criteria andCrossFeeLessThan(BigDecimal value) {
+            addCriterion("cross_fee <", value, "crossFee");
+            return (Criteria) this;
+        }
+
+        public Criteria andCrossFeeLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("cross_fee <=", value, "crossFee");
+            return (Criteria) this;
+        }
+
+        public Criteria andCrossFeeIn(List<BigDecimal> values) {
+            addCriterion("cross_fee in", values, "crossFee");
+            return (Criteria) this;
+        }
+
+        public Criteria andCrossFeeNotIn(List<BigDecimal> values) {
+            addCriterion("cross_fee not in", values, "crossFee");
+            return (Criteria) this;
+        }
+
+        public Criteria andCrossFeeBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("cross_fee between", value1, value2, "crossFee");
+            return (Criteria) this;
+        }
+
+        public Criteria andCrossFeeNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("cross_fee not between", value1, value2, "crossFee");
+            return (Criteria) this;
+        }
+
+        public Criteria andExtStatusIsNull() {
+            addCriterion("ext_status is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExtStatusIsNotNull() {
+            addCriterion("ext_status is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExtStatusEqualTo(Byte value) {
+            addCriterion("ext_status =", value, "extStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExtStatusNotEqualTo(Byte value) {
+            addCriterion("ext_status <>", value, "extStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExtStatusGreaterThan(Byte value) {
+            addCriterion("ext_status >", value, "extStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExtStatusGreaterThanOrEqualTo(Byte value) {
+            addCriterion("ext_status >=", value, "extStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExtStatusLessThan(Byte value) {
+            addCriterion("ext_status <", value, "extStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExtStatusLessThanOrEqualTo(Byte value) {
+            addCriterion("ext_status <=", value, "extStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExtStatusIn(List<Byte> values) {
+            addCriterion("ext_status in", values, "extStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExtStatusNotIn(List<Byte> values) {
+            addCriterion("ext_status not in", values, "extStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExtStatusBetween(Byte value1, Byte value2) {
+            addCriterion("ext_status between", value1, value2, "extStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExtStatusNotBetween(Byte value1, Byte value2) {
+            addCriterion("ext_status not between", value1, value2, "extStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongTypeIsNull() {
+            addCriterion("belong_type is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongTypeIsNotNull() {
+            addCriterion("belong_type is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongTypeEqualTo(Integer value) {
+            addCriterion("belong_type =", value, "belongType");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongTypeNotEqualTo(Integer value) {
+            addCriterion("belong_type <>", value, "belongType");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongTypeGreaterThan(Integer value) {
+            addCriterion("belong_type >", value, "belongType");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongTypeGreaterThanOrEqualTo(Integer value) {
+            addCriterion("belong_type >=", value, "belongType");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongTypeLessThan(Integer value) {
+            addCriterion("belong_type <", value, "belongType");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongTypeLessThanOrEqualTo(Integer value) {
+            addCriterion("belong_type <=", value, "belongType");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongTypeIn(List<Integer> values) {
+            addCriterion("belong_type in", values, "belongType");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongTypeNotIn(List<Integer> values) {
+            addCriterion("belong_type not in", values, "belongType");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongTypeBetween(Integer value1, Integer value2) {
+            addCriterion("belong_type between", value1, value2, "belongType");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongTypeNotBetween(Integer value1, Integer value2) {
+            addCriterion("belong_type not between", value1, value2, "belongType");
+            return (Criteria) this;
+        }
+
+        public Criteria andBizUserIdIsNull() {
+            addCriterion("biz_user_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBizUserIdIsNotNull() {
+            addCriterion("biz_user_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBizUserIdEqualTo(String value) {
+            addCriterion("biz_user_id =", value, "bizUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBizUserIdNotEqualTo(String value) {
+            addCriterion("biz_user_id <>", value, "bizUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBizUserIdGreaterThan(String value) {
+            addCriterion("biz_user_id >", value, "bizUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBizUserIdGreaterThanOrEqualTo(String value) {
+            addCriterion("biz_user_id >=", value, "bizUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBizUserIdLessThan(String value) {
+            addCriterion("biz_user_id <", value, "bizUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBizUserIdLessThanOrEqualTo(String value) {
+            addCriterion("biz_user_id <=", value, "bizUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBizUserIdLike(String value) {
+            addCriterion("biz_user_id like", value, "bizUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBizUserIdNotLike(String value) {
+            addCriterion("biz_user_id not like", value, "bizUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBizUserIdIn(List<String> values) {
+            addCriterion("biz_user_id in", values, "bizUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBizUserIdNotIn(List<String> values) {
+            addCriterion("biz_user_id not in", values, "bizUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBizUserIdBetween(String value1, String value2) {
+            addCriterion("biz_user_id between", value1, value2, "bizUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBizUserIdNotBetween(String value1, String value2) {
+            addCriterion("biz_user_id not between", value1, value2, "bizUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWarnStatusIsNull() {
+            addCriterion("warn_status is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andWarnStatusIsNotNull() {
+            addCriterion("warn_status is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andWarnStatusEqualTo(Byte value) {
+            addCriterion("warn_status =", value, "warnStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andWarnStatusNotEqualTo(Byte value) {
+            addCriterion("warn_status <>", value, "warnStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andWarnStatusGreaterThan(Byte value) {
+            addCriterion("warn_status >", value, "warnStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andWarnStatusGreaterThanOrEqualTo(Byte value) {
+            addCriterion("warn_status >=", value, "warnStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andWarnStatusLessThan(Byte value) {
+            addCriterion("warn_status <", value, "warnStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andWarnStatusLessThanOrEqualTo(Byte value) {
+            addCriterion("warn_status <=", value, "warnStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andWarnStatusIn(List<Byte> values) {
+            addCriterion("warn_status in", values, "warnStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andWarnStatusNotIn(List<Byte> values) {
+            addCriterion("warn_status not in", values, "warnStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andWarnStatusBetween(Byte value1, Byte value2) {
+            addCriterion("warn_status between", value1, value2, "warnStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andWarnStatusNotBetween(Byte value1, Byte value2) {
+            addCriterion("warn_status not between", value1, value2, "warnStatus");
             return (Criteria) this;
         }
     }

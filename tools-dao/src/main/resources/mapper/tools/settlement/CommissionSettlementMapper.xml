@@ -23,14 +23,17 @@
     <result column="company_id" jdbcType="BIGINT" property="companyId" />
     <result column="store_master_total_commission" jdbcType="DECIMAL" property="storeMasterTotalCommission" />
     <result column="store_master_commission" jdbcType="DECIMAL" property="storeMasterCommission" />
-    <result column="store_master_experience" jdbcType="INTEGER" property="storeMasterExperience" />
     <result column="store_manage_commission" jdbcType="DECIMAL" property="storeManageCommission" />
-    <result column="store_manage_experience" jdbcType="INTEGER" property="storeManageExperience" />
     <result column="store_commission" jdbcType="DECIMAL" property="storeCommission" />
     <result column="company_commission" jdbcType="DECIMAL" property="companyCommission" />
     <result column="data_version" jdbcType="INTEGER" property="dataVersion" />
     <result column="commission_status" jdbcType="SMALLINT" property="commissionStatus" />
     <result column="settlement_end_time" jdbcType="TIMESTAMP" property="settlementEndTime" />
+    <result column="cross_fee" jdbcType="DECIMAL" property="crossFee" />
+    <result column="ext_status" jdbcType="TINYINT" property="extStatus" />
+    <result column="belong_type" jdbcType="INTEGER" property="belongType" />
+    <result column="biz_user_id" jdbcType="VARCHAR" property="bizUserId" />
+    <result column="warn_status" jdbcType="TINYINT" property="warnStatus" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <!--
@@ -105,9 +108,9 @@
     -->
     id, create_time, update_time, settlement_sn, order_id, order_sn, order_create_time, 
     order_total_pay, status, settlement_type, user_id, store_master_id, store_manage_id, 
-    store_id, company_id, store_master_total_commission, store_master_commission, store_master_experience, 
-    store_manage_commission, store_manage_experience, store_commission, company_commission, 
-    data_version, commission_status, settlement_end_time
+    store_id, company_id, store_master_total_commission, store_master_commission, store_manage_commission, 
+    store_commission, company_commission, data_version, commission_status, settlement_end_time, 
+    cross_fee, ext_status, belong_type, biz_user_id, warn_status
   </sql>
   <select id="selectByExample" parameterType="com.gialen.tools.dao.entity.settlement.CommissionSettlementExample" resultMap="BaseResultMap">
     <!--
@@ -169,20 +172,22 @@
       settlement_type, user_id, store_master_id, 
       store_manage_id, store_id, company_id, 
       store_master_total_commission, store_master_commission, 
-      store_master_experience, store_manage_commission, 
-      store_manage_experience, store_commission, 
+      store_manage_commission, store_commission, 
       company_commission, data_version, commission_status, 
-      settlement_end_time)
+      settlement_end_time, cross_fee, ext_status, 
+      belong_type, biz_user_id, warn_status
+      )
     values (#{id,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
       #{settlementSn,jdbcType=VARCHAR}, #{orderId,jdbcType=BIGINT}, #{orderSn,jdbcType=VARCHAR}, 
       #{orderCreateTime,jdbcType=TIMESTAMP}, #{orderTotalPay,jdbcType=DECIMAL}, #{status,jdbcType=SMALLINT}, 
       #{settlementType,jdbcType=SMALLINT}, #{userId,jdbcType=BIGINT}, #{storeMasterId,jdbcType=BIGINT}, 
       #{storeManageId,jdbcType=BIGINT}, #{storeId,jdbcType=BIGINT}, #{companyId,jdbcType=BIGINT}, 
       #{storeMasterTotalCommission,jdbcType=DECIMAL}, #{storeMasterCommission,jdbcType=DECIMAL}, 
-      #{storeMasterExperience,jdbcType=INTEGER}, #{storeManageCommission,jdbcType=DECIMAL}, 
-      #{storeManageExperience,jdbcType=INTEGER}, #{storeCommission,jdbcType=DECIMAL}, 
+      #{storeManageCommission,jdbcType=DECIMAL}, #{storeCommission,jdbcType=DECIMAL}, 
       #{companyCommission,jdbcType=DECIMAL}, #{dataVersion,jdbcType=INTEGER}, #{commissionStatus,jdbcType=SMALLINT}, 
-      #{settlementEndTime,jdbcType=TIMESTAMP})
+      #{settlementEndTime,jdbcType=TIMESTAMP}, #{crossFee,jdbcType=DECIMAL}, #{extStatus,jdbcType=TINYINT}, 
+      #{belongType,jdbcType=INTEGER}, #{bizUserId,jdbcType=VARCHAR}, #{warnStatus,jdbcType=TINYINT}
+      )
   </insert>
   <insert id="insertSelective" keyProperty="id" parameterType="com.gialen.tools.dao.entity.settlement.CommissionSettlement" useGeneratedKeys="true">
     <!--
@@ -242,14 +247,8 @@
       <if test="storeMasterCommission != null">
         store_master_commission,
       </if>
-      <if test="storeMasterExperience != null">
-        store_master_experience,
-      </if>
       <if test="storeManageCommission != null">
         store_manage_commission,
-      </if>
-      <if test="storeManageExperience != null">
-        store_manage_experience,
       </if>
       <if test="storeCommission != null">
         store_commission,
@@ -265,6 +264,21 @@
       </if>
       <if test="settlementEndTime != null">
         settlement_end_time,
+      </if>
+      <if test="crossFee != null">
+        cross_fee,
+      </if>
+      <if test="extStatus != null">
+        ext_status,
+      </if>
+      <if test="belongType != null">
+        belong_type,
+      </if>
+      <if test="bizUserId != null">
+        biz_user_id,
+      </if>
+      <if test="warnStatus != null">
+        warn_status,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -319,14 +333,8 @@
       <if test="storeMasterCommission != null">
         #{storeMasterCommission,jdbcType=DECIMAL},
       </if>
-      <if test="storeMasterExperience != null">
-        #{storeMasterExperience,jdbcType=INTEGER},
-      </if>
       <if test="storeManageCommission != null">
         #{storeManageCommission,jdbcType=DECIMAL},
-      </if>
-      <if test="storeManageExperience != null">
-        #{storeManageExperience,jdbcType=INTEGER},
       </if>
       <if test="storeCommission != null">
         #{storeCommission,jdbcType=DECIMAL},
@@ -342,6 +350,21 @@
       </if>
       <if test="settlementEndTime != null">
         #{settlementEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="crossFee != null">
+        #{crossFee,jdbcType=DECIMAL},
+      </if>
+      <if test="extStatus != null">
+        #{extStatus,jdbcType=TINYINT},
+      </if>
+      <if test="belongType != null">
+        #{belongType,jdbcType=INTEGER},
+      </if>
+      <if test="bizUserId != null">
+        #{bizUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="warnStatus != null">
+        #{warnStatus,jdbcType=TINYINT},
       </if>
     </trim>
   </insert>
@@ -413,14 +436,8 @@
       <if test="record.storeMasterCommission != null">
         store_master_commission = #{record.storeMasterCommission,jdbcType=DECIMAL},
       </if>
-      <if test="record.storeMasterExperience != null">
-        store_master_experience = #{record.storeMasterExperience,jdbcType=INTEGER},
-      </if>
       <if test="record.storeManageCommission != null">
         store_manage_commission = #{record.storeManageCommission,jdbcType=DECIMAL},
-      </if>
-      <if test="record.storeManageExperience != null">
-        store_manage_experience = #{record.storeManageExperience,jdbcType=INTEGER},
       </if>
       <if test="record.storeCommission != null">
         store_commission = #{record.storeCommission,jdbcType=DECIMAL},
@@ -436,6 +453,21 @@
       </if>
       <if test="record.settlementEndTime != null">
         settlement_end_time = #{record.settlementEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.crossFee != null">
+        cross_fee = #{record.crossFee,jdbcType=DECIMAL},
+      </if>
+      <if test="record.extStatus != null">
+        ext_status = #{record.extStatus,jdbcType=TINYINT},
+      </if>
+      <if test="record.belongType != null">
+        belong_type = #{record.belongType,jdbcType=INTEGER},
+      </if>
+      <if test="record.bizUserId != null">
+        biz_user_id = #{record.bizUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.warnStatus != null">
+        warn_status = #{record.warnStatus,jdbcType=TINYINT},
       </if>
     </set>
     <if test="_parameter != null">
@@ -465,14 +497,17 @@
       company_id = #{record.companyId,jdbcType=BIGINT},
       store_master_total_commission = #{record.storeMasterTotalCommission,jdbcType=DECIMAL},
       store_master_commission = #{record.storeMasterCommission,jdbcType=DECIMAL},
-      store_master_experience = #{record.storeMasterExperience,jdbcType=INTEGER},
       store_manage_commission = #{record.storeManageCommission,jdbcType=DECIMAL},
-      store_manage_experience = #{record.storeManageExperience,jdbcType=INTEGER},
       store_commission = #{record.storeCommission,jdbcType=DECIMAL},
       company_commission = #{record.companyCommission,jdbcType=DECIMAL},
       data_version = #{record.dataVersion,jdbcType=INTEGER},
       commission_status = #{record.commissionStatus,jdbcType=SMALLINT},
-      settlement_end_time = #{record.settlementEndTime,jdbcType=TIMESTAMP}
+      settlement_end_time = #{record.settlementEndTime,jdbcType=TIMESTAMP},
+      cross_fee = #{record.crossFee,jdbcType=DECIMAL},
+      ext_status = #{record.extStatus,jdbcType=TINYINT},
+      belong_type = #{record.belongType,jdbcType=INTEGER},
+      biz_user_id = #{record.bizUserId,jdbcType=VARCHAR},
+      warn_status = #{record.warnStatus,jdbcType=TINYINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -532,14 +567,8 @@
       <if test="storeMasterCommission != null">
         store_master_commission = #{storeMasterCommission,jdbcType=DECIMAL},
       </if>
-      <if test="storeMasterExperience != null">
-        store_master_experience = #{storeMasterExperience,jdbcType=INTEGER},
-      </if>
       <if test="storeManageCommission != null">
         store_manage_commission = #{storeManageCommission,jdbcType=DECIMAL},
-      </if>
-      <if test="storeManageExperience != null">
-        store_manage_experience = #{storeManageExperience,jdbcType=INTEGER},
       </if>
       <if test="storeCommission != null">
         store_commission = #{storeCommission,jdbcType=DECIMAL},
@@ -555,6 +584,21 @@
       </if>
       <if test="settlementEndTime != null">
         settlement_end_time = #{settlementEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="crossFee != null">
+        cross_fee = #{crossFee,jdbcType=DECIMAL},
+      </if>
+      <if test="extStatus != null">
+        ext_status = #{extStatus,jdbcType=TINYINT},
+      </if>
+      <if test="belongType != null">
+        belong_type = #{belongType,jdbcType=INTEGER},
+      </if>
+      <if test="bizUserId != null">
+        biz_user_id = #{bizUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="warnStatus != null">
+        warn_status = #{warnStatus,jdbcType=TINYINT},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
@@ -581,14 +625,17 @@
       company_id = #{companyId,jdbcType=BIGINT},
       store_master_total_commission = #{storeMasterTotalCommission,jdbcType=DECIMAL},
       store_master_commission = #{storeMasterCommission,jdbcType=DECIMAL},
-      store_master_experience = #{storeMasterExperience,jdbcType=INTEGER},
       store_manage_commission = #{storeManageCommission,jdbcType=DECIMAL},
-      store_manage_experience = #{storeManageExperience,jdbcType=INTEGER},
       store_commission = #{storeCommission,jdbcType=DECIMAL},
       company_commission = #{companyCommission,jdbcType=DECIMAL},
       data_version = #{dataVersion,jdbcType=INTEGER},
       commission_status = #{commissionStatus,jdbcType=SMALLINT},
-      settlement_end_time = #{settlementEndTime,jdbcType=TIMESTAMP}
+      settlement_end_time = #{settlementEndTime,jdbcType=TIMESTAMP},
+      cross_fee = #{crossFee,jdbcType=DECIMAL},
+      ext_status = #{extStatus,jdbcType=TINYINT},
+      belong_type = #{belongType,jdbcType=INTEGER},
+      biz_user_id = #{bizUserId,jdbcType=VARCHAR},
+      warn_status = #{warnStatus,jdbcType=TINYINT}
     where id = #{id,jdbcType=BIGINT}
   </update>
 
@@ -639,7 +686,7 @@
     from commission_settlement s, commission_settlement_detail d
     where s.order_sn = d.order_sn
     and DATE_FORMAT(s.order_create_time,'%Y%m') = #{month}
-    <if test="brandType > 0"> and d.brand_type = #{brandType}</if>
+    <if test="brandType &gt; 0"> and d.brand_type = #{brandType}</if>
 
     <if test="userType == 2"> and s.store_master_id = #{userId}</if>
     <if test="userType == 3"> and s.store_manage_id = #{userId}</if>
@@ -651,7 +698,7 @@
     from commission_settlement s, commission_settlement_detail d
     where s.order_sn = d.order_sn and d.`status` in (1,2)
     and DATE_FORMAT(s.order_create_time,'%Y%m%d') = #{day}
-    <if test="brandType > 0"> and d.brand_type = #{brandType}</if>
+    <if test="brandType &gt; 0"> and d.brand_type = #{brandType}</if>
 
     <if test="userType == 2"> and s.store_master_id = #{userId}</if>
     <if test="userType == 3"> and s.store_manage_id = #{userId}</if>
@@ -663,7 +710,7 @@
     from commission_settlement
     where date_format(order_create_time, '%Y%m') = #{month}
     and store_master_id in
-    <foreach collection="masterIds" item="masterId" open="(" close=")" separator=",">
+    <foreach close=")" collection="masterIds" item="masterId" open="(" separator=",">
       #{masterId}
     </foreach>
   </select>
@@ -673,7 +720,7 @@
     from commission_settlement
     where date_format(order_create_time, '%Y%m') = #{month}
     and store_manage_id in
-    <foreach collection="managerIds" item="managerId" open="(" close=")" separator=",">
+    <foreach close=")" collection="managerIds" item="managerId" open="(" separator=",">
       #{managerId}
     </foreach>
   </select>
@@ -685,7 +732,7 @@
     ifnull(sum(ifnull(d.store_master_commission,0) + ifnull(d.store_manage_commission,0) + ifnull(d.store_commission,0)),0) as storeToBeIncome
     from commission_settlement s, commission_settlement_detail d
     where s.order_sn = d.order_sn and d.`status`=1 and s.store_id = #{userId}
-    <if test="brandType > 0"> and d.brand_type = #{brandType}</if>
+    <if test="brandType &gt; 0"> and d.brand_type = #{brandType}</if>
   </select>
 
   <select id="getStoreAvailableIncomeByMonth" resultType="com.gialen.tools.dao.dto.StoreIncomeDto">
@@ -697,7 +744,7 @@
     where s.order_sn = d.order_sn and d.`status`=2
     and DATE_FORMAT(s.settlement_end_time,'%Y%m') = #{month}
     and s.store_id = #{userId}
-    <if test="brandType > 0"> and d.brand_type = #{brandType}</if>
+    <if test="brandType &gt; 0"> and d.brand_type = #{brandType}</if>
   </select>
 
   <select id="getStoreTotalIncomeByMonth" resultType="com.gialen.tools.dao.dto.StoreIncomeDto">
@@ -710,7 +757,7 @@
     where s.order_sn = d.order_sn and d.`status` in (1,2)
     and DATE_FORMAT(s.order_create_time,'%Y%m') = #{month}
     and s.store_id = #{userId}
-    <if test="brandType > 0"> and d.brand_type = #{brandType}</if>
+    <if test="brandType &gt; 0"> and d.brand_type = #{brandType}</if>
   </select>
 
   <select id="getStoreTotalIncomeByDay" resultType="com.gialen.tools.dao.dto.StoreIncomeDto">
@@ -723,14 +770,14 @@
     where s.order_sn = d.order_sn and d.`status` in (1,2)
     and DATE_FORMAT(s.order_create_time,'%Y%m%d') = #{day}
     and s.store_id = #{userId}
-    <if test="brandType > 0"> and d.brand_type = #{brandType}</if>
+    <if test="brandType &gt; 0"> and d.brand_type = #{brandType}</if>
   </select>
     <select id="getStoreDirectorManualSettleAmount" resultType="java.math.BigDecimal">
       select
         ifnull(sum(d.store_commission),0)
       from commission_settlement s
-      where  ((s.belong_type = 2 and (s.status = 9 or s.biz_user_id is null))
-      or (s.belong_type = 1 and s.status = 1)
+      where  s.status = 2 and (( s.belong_type = 2 and (s.warn_status = 9 or s.biz_user_id is null))
+      or (s.belong_type = 1)
       )
       and s.store_id = #{userId}
     </select>
