@@ -40,6 +40,7 @@ public class StoreManagerConvertor {
             userAchievementVo.setMonthAvailableIncome(model.getIncomeModel().getMonthAvailableIncome());
             userAchievementVo.setToBeIncome(model.getIncomeModel().getToBeIncome());
             userAchievementVo.setAvailableBalanceAmount(model.getIncomeModel().getAvailableBalanceAmount());
+            userAchievementVo.setManualSettlementAmount(model.getIncomeModel().getManualSettlementAmount());
         }
         if(model.getStoreIncomeModel() != null) {
             userAchievementVo.setStoreName(model.getStoreIncomeModel().getStoreName());
