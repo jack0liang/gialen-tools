@@ -38,6 +38,10 @@ public class UserAchievementVo implements Serializable {
      * 可用余额
      */
     private BigDecimal availableBalanceAmount;
+    /**
+     * 手动结算
+     */
+    private BigDecimal manualSettlementAmount;
 
     /**
      * 门店待收益（待完成）
