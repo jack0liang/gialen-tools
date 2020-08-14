@@ -776,7 +776,7 @@
       select
         ifnull(sum(s.store_commission),0)
       from commission_settlement s
-      where  s.status = 2 and (( s.belong_type = 2 and (s.warn_status = 9 or s.biz_user_id is null))
+      where  s.status = 2 and (( s.belong_type = 2 and (s.ext_status = 1 or s.warn_status = 9 or s.biz_user_id is null))
       or (s.belong_type = 1)
       )
       and s.store_id = #{userId}
