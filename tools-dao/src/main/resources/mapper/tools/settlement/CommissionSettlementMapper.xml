@@ -780,5 +780,7 @@
       or (s.belong_type = 1)
       )
       and s.store_id = #{userId}
+        and DATE_FORMAT(s.order_create_time,'%Y%m') = #{month}
+
     </select>
 </mapper>

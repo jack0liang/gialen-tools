@@ -387,7 +387,7 @@ public class StoreManagerServiceImpl implements StoreManagerService {
                 //查询自动结算额
                 balanceMoney = rpcTlMemberService.getStoreMgrBalanceAmount(userId);
                 //查询手工结算额
-                manualSettlementAmount = getStoreDirectorManualSettleAmount(userId, userType.getType());
+                manualSettlementAmount = getStoreDirectorManualSettleAmount(userId,month, userType.getType());
 
                 //门店收益数据
                 storeIncomeModel.setToBeIncome(storeToBeIncome.getStoreToBeIncome() != null ? storeToBeIncome.getStoreToBeIncome() : BigDecimal.ZERO);
@@ -603,8 +603,8 @@ public class StoreManagerServiceImpl implements StoreManagerService {
      * @param type
      * @return
      */
-    private BigDecimal getStoreDirectorManualSettleAmount(Long userId, Byte type) {
-        return commissionSettlementMapper.getStoreDirectorManualSettleAmount(userId, type);
+    private BigDecimal getStoreDirectorManualSettleAmount(Long userId, final int month,Byte type) {
+        return commissionSettlementMapper.getStoreDirectorManualSettleAmount(userId, month,type);
     }
 
     /**

@@ -110,7 +110,7 @@ public interface CommissionSettlementMapper {
      * @param type
      * @return
      */
-    BigDecimal getStoreDirectorManualSettleAmount(Long userId, Byte type);
+    BigDecimal getStoreDirectorManualSettleAmount(Long userId,int month, Byte type);
 
 
     /**
