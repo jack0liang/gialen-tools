@@ -274,8 +274,7 @@
 
   <select id="selectGroupByStatus" resultType="com.gialen.tools.dao.dto.WithDrawStatusTypeDto">
         SELECT
-	sum((CASE WHEN progress = 0 THEN amount end)) as accountArrived,
-	sum((CASE when progress in (1,2) THEN amount end)) as accountNotArrived
+	sum((CASE WHEN progress = 0 THEN amount end)) as accountArrived
 FROM
 	withdraw_tl
 WHERE

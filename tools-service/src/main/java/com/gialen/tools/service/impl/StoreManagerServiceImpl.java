@@ -298,8 +298,10 @@ public class StoreManagerServiceImpl implements StoreManagerService {
         WithDrawStatusTypeDto drawStatusTypeDto = withdrawTlMapper.selectGroupByStatus(userId);
         if (null != drawStatusTypeDto) {
             storeUserWithDrawRespModel.setAccountArrived(drawStatusTypeDto.getAccountArrived());
-            storeUserWithDrawRespModel.setAccountNotArrived(drawStatusTypeDto.getAccountNotArrived());
         }
+
+        //查询自动结算额
+        storeUserWithDrawRespModel.setAccountNotArrived(rpcTlMemberService.getStoreMgrBalanceAmount(userId));
 
         long count = withdrawTlMapper.countByExample(example);
         if (count == 0) {
