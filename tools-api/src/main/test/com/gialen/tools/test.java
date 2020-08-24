@@ -34,7 +34,7 @@ public class test {
     @Test
     public void get(){
 
-        StoreUserWithDrawRespModel glResponse = storeManagerService.getStoreUserWithdrawList(3700L,new PageRequest(1,10));
+        StoreUserWithDrawRespModel glResponse = storeManagerService.getStoreUserWithdrawList(2256L,new PageRequest(1,10));
 
         System.out.println(glResponse);
     }
