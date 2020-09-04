@@ -290,9 +290,6 @@ public class StoreManagerServiceImpl implements StoreManagerService {
 
     @Override
     public StoreUserWithDrawRespModel getStoreUserWithdrawList(Long userId, PageRequest pageRequest) {
-        WithdrawTlExample example = new WithdrawTlExample();
-        example.createCriteria().andUserIdEqualTo(userId);
-
         StoreUserWithDrawRespModel storeUserWithDrawRespModel = new StoreUserWithDrawRespModel(pageRequest.getPage(), pageRequest.getLimit());
 
         WithDrawStatusTypeDto drawStatusTypeDto = withdrawTlMapper.selectGroupByStatus(userId);
@@ -303,15 +300,12 @@ public class StoreManagerServiceImpl implements StoreManagerService {
         //查询自动结算额
         storeUserWithDrawRespModel.setAccountNotArrived(rpcTlMemberService.getStoreMgrBalanceAmount(userId));
 
-        long count = withdrawTlMapper.countByExample(example);
+        long count = withdrawTlMapper.countByUserIdAndOther(userId);
         if (count == 0) {
             return storeUserWithDrawRespModel;
         }
 
-        example.setLimit(pageRequest.getLimit());
-        example.setOffset(pageRequest.getOffset());
-        example.setOrderByClause("create_time desc");
-        List<StoreUserWithDrawRespModel.WithDrawModel> withdrawTlList = withdrawTlMapper.selectByExample(example).stream().map(withdrawTl -> {
+        List<StoreUserWithDrawRespModel.WithDrawModel> withdrawTlList = withdrawTlMapper.selectByUserIdAndOther(userId,pageRequest.getOffset(),pageRequest.getLimit()).stream().map(withdrawTl -> {
             StoreUserWithDrawRespModel.WithDrawModel withDrawModel = Copier.copy(withdrawTl, new StoreUserWithDrawRespModel.WithDrawModel());
             withDrawModel.setCreateTime(DateTools.date2String(withdrawTl.getCreateTime(), "yyy/MM/dd HH:mm"));
 

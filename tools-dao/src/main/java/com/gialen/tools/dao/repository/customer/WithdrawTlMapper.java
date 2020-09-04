@@ -3,6 +3,9 @@ package com.gialen.tools.dao.repository.customer;
 import com.gialen.tools.dao.dto.WithDrawStatusTypeDto;
 import com.gialen.tools.dao.entity.customer.WithdrawTl;
 import com.gialen.tools.dao.entity.customer.WithdrawTlExample;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.Collection;
 import java.util.List;
 
 @org.springframework.stereotype.Repository
@@ -72,4 +75,8 @@ public interface WithdrawTlMapper {
     int updateByPrimaryKey(WithdrawTl record);
 
     WithDrawStatusTypeDto selectGroupByStatus(Long userId);
+
+    long countByUserIdAndOther(Long userId);
+
+    List<WithdrawTl> selectByUserIdAndOther(@Param("userId") Long userId,@Param("offset") int offset,@Param("limit") int limit);
 }
