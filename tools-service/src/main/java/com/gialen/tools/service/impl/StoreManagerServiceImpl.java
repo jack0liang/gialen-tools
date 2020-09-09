@@ -297,8 +297,10 @@ public class StoreManagerServiceImpl implements StoreManagerService {
             storeUserWithDrawRespModel.setAccountArrived(drawStatusTypeDto.getAccountArrived());
         }
 
+        BigDecimal notArrived = rpcTlMemberService.getStoreMgrBalanceAmount(userId);
+        log.info("该店董未到账金额{}",notArrived);
         //查询自动结算额
-        storeUserWithDrawRespModel.setAccountNotArrived(rpcTlMemberService.getStoreMgrBalanceAmount(userId));
+        storeUserWithDrawRespModel.setAccountNotArrived(notArrived);
 
         long count = withdrawTlMapper.countByUserIdAndOther(userId);
         if (count == 0) {
