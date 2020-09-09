@@ -298,7 +298,6 @@ public class StoreManagerServiceImpl implements StoreManagerService {
         }
 
         BigDecimal notArrived = rpcTlMemberService.getStoreMgrBalanceAmount(userId);
-        log.info("该店董未到账金额{}",notArrived);
         //查询自动结算额
         storeUserWithDrawRespModel.setAccountNotArrived(notArrived);
 
