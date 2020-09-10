@@ -20,9 +20,14 @@ public class StoreIncomeDto {
     private BigDecimal storeAvailableIncome;
 
     /**
-     * 店董可用收益
+     * 店董可用收益 (总仓）
      */
     private BigDecimal directorAvailableIncome;
+
+    /**
+     * 店董可用收益 (门店出货）
+     */
+    private BigDecimal storeTake_directorAvailableIncome;
 
     /**
      * 店经可用收益
@@ -60,9 +65,14 @@ public class StoreIncomeDto {
     private BigDecimal storeTotalIncome;
 
     /**
-     * 店董总收益
+     * 店董总收益（总仓）
      */
     private BigDecimal directorTotalIncome;
+
+    /**
+     * 店董总收益（门店）
+     */
+    private BigDecimal storeTake_directorTotalIncome;
 
     /**
      * 店经总收益

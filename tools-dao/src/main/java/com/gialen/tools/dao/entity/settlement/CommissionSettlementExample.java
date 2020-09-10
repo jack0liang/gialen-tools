@@ -1961,6 +1961,66 @@ public class CommissionSettlementExample {
             addCriterion("warn_status not between", value1, value2, "warnStatus");
             return (Criteria) this;
         }
+
+        public Criteria andOrderFlowTypeIsNull() {
+            addCriterion("order_flow_type is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderFlowTypeIsNotNull() {
+            addCriterion("order_flow_type is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderFlowTypeEqualTo(Short value) {
+            addCriterion("order_flow_type =", value, "orderFlowType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderFlowTypeNotEqualTo(Short value) {
+            addCriterion("order_flow_type <>", value, "orderFlowType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderFlowTypeGreaterThan(Short value) {
+            addCriterion("order_flow_type >", value, "orderFlowType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderFlowTypeGreaterThanOrEqualTo(Short value) {
+            addCriterion("order_flow_type >=", value, "orderFlowType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderFlowTypeLessThan(Short value) {
+            addCriterion("order_flow_type <", value, "orderFlowType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderFlowTypeLessThanOrEqualTo(Short value) {
+            addCriterion("order_flow_type <=", value, "orderFlowType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderFlowTypeIn(List<Short> values) {
+            addCriterion("order_flow_type in", values, "orderFlowType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderFlowTypeNotIn(List<Short> values) {
+            addCriterion("order_flow_type not in", values, "orderFlowType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderFlowTypeBetween(Short value1, Short value2) {
+            addCriterion("order_flow_type between", value1, value2, "orderFlowType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderFlowTypeNotBetween(Short value1, Short value2) {
+            addCriterion("order_flow_type not between", value1, value2, "orderFlowType");
+            return (Criteria) this;
+        }
     }
 
     /**
