@@ -699,7 +699,7 @@
         <if test="userType == 3">ifnull(sum(d.store_manage_commission),0) as monthTotalIncome</if>
         <if test="userType == 4">
             <if test="takeType != null and takeType == 1">
-                ifnull(sum(case when s.order_flow_type ==1 then d.store_commission else null end),0) as monthTotalIncome
+                ifnull(sum(case when s.order_flow_type = 1 then d.store_commission else null end),0) as monthTotalIncome
             </if>
             <if test="takeType != null and takeType == 2">
                 ifnull(sum(case when s.order_flow_type != 1 then d.store_commission else null end),0) as monthTotalIncome
@@ -777,7 +777,7 @@
     <select id="getStoreAvailableIncomeByMonth" resultType="com.gialen.tools.dao.dto.StoreIncomeDto">
         select ifnull(sum(ifnull(d.store_master_commission,0)),0) as keeperAvailableIncome,
         ifnull(sum(ifnull(d.store_manage_commission,0)),0) as managerAvailableIncome,
-        ifnull(sum(case when s.order_flow_type == 1 then ifnull(d.store_commission,0) END),0) as directorAvailableIncome,
+        ifnull(sum(case when s.order_flow_type = 1 then ifnull(d.store_commission,0) END),0) as directorAvailableIncome,
         ifnull(sum(case when s.order_flow_type != 1 then ifnull(d.store_commission,0) END),0)  as storeTake_directorAvailableIncome,
         ifnull(sum(ifnull(d.store_master_commission,0) + ifnull(d.store_manage_commission,0) +
         ifnull(d.store_commission,0)),0) as storeAvailableIncome
@@ -792,7 +792,7 @@
         select
         ifnull(sum(ifnull(d.store_master_commission,0)),0) as keeperTotalIncome,
         ifnull(sum(ifnull(d.store_manage_commission,0)),0) as managerTotalIncome,
-        ifnull(sum(case when s.order_flow_type == 1 then ifnull(d.store_commission,0) END),0) as directorTotalIncome,
+        ifnull(sum(case when s.order_flow_type = 1 then ifnull(d.store_commission,0) END),0) as directorTotalIncome,
         ifnull(sum(case when s.order_flow_type != 1 then ifnull(d.store_commission,0) END),0) as storeTake_directorTotalIncome,
         ifnull(sum(ifnull(d.store_master_commission,0) + ifnull(d.store_manage_commission,0) +
         ifnull(d.store_commission,0)),0) as storeTotalIncome
@@ -807,7 +807,7 @@
         select
         ifnull(sum(ifnull(d.store_master_commission,0)),0) as keeperTotalIncome,
         ifnull(sum(ifnull(d.store_manage_commission,0)),0) as managerTotalIncome,
-        ifnull(sum(case when s.order_flow_type == 1 then ifnull(d.store_commission,0) END),0) as directorTotalIncome,
+        ifnull(sum(case when s.order_flow_type = 1 then ifnull(d.store_commission,0) END),0) as directorTotalIncome,
         ifnull(sum(case when s.order_flow_type != 1 then ifnull(d.store_commission,0) END),0) as storeTake_directorTotalIncome,
         ifnull(sum(ifnull(d.store_master_commission,0) + ifnull(d.store_manage_commission,0) +
         ifnull(d.store_commission,0)),0) as storeTotalIncome

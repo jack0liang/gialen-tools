@@ -530,7 +530,7 @@
     select DATE_FORMAT(s.order_create_time,'%Y%m') as month,s.order_create_time as orderCreateTime,d.item_price*d.buy_num as subOrderPrice,
     d.order_sn as orderSn, d.item_name as itemName, d.`status` as subOrderStatus,
     d.store_master_commission as storeMasterCommission,d.store_manage_commission as storeManagerCommission,
-    (case when s.order_flow_type==1 then '总部出货' else '门店出货') as shipTakeType,
+    (case when s.order_flow_type = 1 then '总部出货' else '门店出货') as shipTakeType,
     <if test="queryDto.userType == 4">
         (case when (( s.belong_type = 2 and (s.ext_status = 1 or s.warn_status = 9 or s.biz_user_id is null)) or s.belong_type = 1)
         then '手工结算' else '自动结算' end) as settleType,

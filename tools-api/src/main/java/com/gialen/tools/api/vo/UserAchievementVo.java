@@ -20,19 +20,35 @@ public class UserAchievementVo implements Serializable {
      */
     private Byte month;
     /**
-     * 待收益
+     * 待收益（云出货）
      */
     private BigDecimal toBeIncome;
 
     /**
-     * 月累计收益
+     * 月累计收益(云仓出货)
      */
     private BigDecimal monthTotalIncome;
 
     /**
-     * 月可用收益
+     * 月可用收益(云仓出货)
      */
     private BigDecimal monthAvailableIncome;
+
+    /**
+     * 待收益(门店出货)
+     */
+    private BigDecimal storeTakeToBeIncome;
+
+    /**
+     * 月累计收益(门店出货)
+     */
+    private BigDecimal storeTakeMonthTotalIncome;
+
+    /**
+     * 月可用收益(门店出货)
+     */
+    private BigDecimal storeTakeMonthAvailableIncome;
+
 
     /**
      * 可用余额

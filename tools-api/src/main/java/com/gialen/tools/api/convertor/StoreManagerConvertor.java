@@ -36,9 +36,15 @@ public class StoreManagerConvertor {
             userAchievementVo.setTodaySales(model.getSalesModel().getTodaySales());
         }
         if(model.getIncomeModel() != null) {
+            //总仓订单收益
             userAchievementVo.setMonthTotalIncome(model.getIncomeModel().getMonthTotalIncome());
             userAchievementVo.setMonthAvailableIncome(model.getIncomeModel().getMonthAvailableIncome());
             userAchievementVo.setToBeIncome(model.getIncomeModel().getToBeIncome());
+            //门店订单收益
+            userAchievementVo.setStoreTakeMonthAvailableIncome(model.getIncomeModel().getStoreTake_monthAvailableIncome());
+            userAchievementVo.setStoreTakeToBeIncome(model.getIncomeModel().getStoreTake_toBeIncome());
+            userAchievementVo.setStoreTakeMonthTotalIncome(model.getIncomeModel().getStoreTake_monthTotalIncome());
+
             userAchievementVo.setAvailableBalanceAmount(model.getIncomeModel().getAvailableBalanceAmount());
             userAchievementVo.setManualSettlementAmount(model.getIncomeModel().getManualSettlementAmount());
         }
