@@ -535,7 +535,7 @@ public class StoreManagerServiceImpl implements StoreManagerService {
         StoreIncomeDto storeTodayIncome = getTotalIncomeByDay(userId, today, brandType);
         baseBrandModel.setStoreTodayTotalIncome(storeTodayIncome.getStoreTotalIncome() != null ? storeTodayIncome.getStoreTotalIncome() : BigDecimal.ZERO);
         baseBrandModel.setDirectorTodayTotalIncome(storeTodayIncome.getDirectorTotalIncome() != null ? storeTodayIncome.getDirectorTotalIncome() : BigDecimal.ZERO);
-        baseBrandModel.setStoreTake_directorTodayTotalIncome(storeTodayIncome.getStoreTake_directorTotalIncome() != null ? storeTodayIncome.getDirectorTotalIncome() : BigDecimal.ZERO);
+        baseBrandModel.setStoreTake_directorTodayTotalIncome(storeTodayIncome.getStoreTake_directorTotalIncome() != null ? storeTodayIncome.getStoreTake_directorTotalIncome() : BigDecimal.ZERO);
         baseBrandModel.setManagerTodayTotalIncome(storeTodayIncome.getManagerTotalIncome() != null ? storeTodayIncome.getManagerTotalIncome() : BigDecimal.ZERO);
         baseBrandModel.setKeeperTodayTotalIncome(storeTodayIncome.getKeeperTotalIncome() != null ? storeTodayIncome.getKeeperTotalIncome() : BigDecimal.ZERO);
         return baseBrandModel;
