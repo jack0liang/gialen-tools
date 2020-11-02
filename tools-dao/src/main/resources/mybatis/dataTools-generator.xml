@@ -47,9 +47,12 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-       <table tableName="tb_datacount_relative" enableCountByExample="true"
+<!--       <table tableName="tb_datacount_relative" enableCountByExample="true"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="true"-->
+<!--               enableUpdateByExample="true"/>-->
+
+        <table tableName="xiaojiao_data" enableCountByExample="true"
                enableDeleteByExample="false" enableSelectByExample="true"
                enableUpdateByExample="true"/>
-
     </context>
 </generatorConfiguration>
