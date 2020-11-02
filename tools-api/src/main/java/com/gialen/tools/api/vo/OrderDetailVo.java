@@ -52,4 +52,9 @@ public class OrderDetailVo implements Serializable {
      */
     private String settleType;
 
+    /**
+     * 出货类型（总部、门店）
+     */
+    private String shipTakeType;
+
 }

@@ -35,14 +35,24 @@ public class BaseBrandModel implements Serializable {
     private BigDecimal storeTodayTotalIncome;
 
     /**
-     * 店董月收益
+     * 店董月收益（总仓出货）
      */
     private BigDecimal directorMonthTotalIncome;
 
     /**
-     * 店董今日收益
+     * 店董今日收益（总仓出货）
      */
     private BigDecimal directorTodayTotalIncome;
+
+    /**
+     * 店董月收益(门店出货)
+     */
+    private BigDecimal storeTake_directorMonthTotalIncome;
+    /**
+     *  店董今日收益（门店出货）
+     */
+    private BigDecimal storeTake_directorTodayTotalIncome;
+
 
     /**
      * 店经月收益

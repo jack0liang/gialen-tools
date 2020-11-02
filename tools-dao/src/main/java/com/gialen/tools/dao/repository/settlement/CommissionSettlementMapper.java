@@ -8,7 +8,6 @@ import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.apache.ibatis.annotations.Param;
 
 @org.springframework.stereotype.Repository
 public interface CommissionSettlementMapper {
@@ -73,18 +72,20 @@ public interface CommissionSettlementMapper {
      * 获取用户待收益
      * @param userId
      * @param userType
+     * @param takeType
      * @return
      */
-    BigDecimal getUserToBeIncome(long userId, byte userType);
+    BigDecimal getUserToBeIncome(long userId, byte userType, byte takeType);
 
     /**
      * 获取用户月可用收益
      * @param userId
      * @param userType
      * @param month
+     * @param takeType
      * @return
      */
-    BigDecimal getUserAvailableIncomeByMonth(long userId, byte userType, int month);
+    BigDecimal getUserAvailableIncomeByMonth(long userId, byte userType, int month, byte takeType);
 
     /**
      * 获取用户月总收益
@@ -93,7 +94,7 @@ public interface CommissionSettlementMapper {
      * @param month
      * @return
      */
-    UserIncomeDto getUserTotalIncomeByMonth(long userId, byte userType, int month);
+    UserIncomeDto getUserTotalIncomeByMonth(long userId, byte userType, int month,byte takeType);
 
     /**
      * 获取用户今日销售额
