@@ -41,8 +41,8 @@ public class HttpTest {
     @Test
     public void test() throws Exception {
         String url="http://10.255.1.55:1088/tools/dataTools/getDataList";
-        Date start = DateUtils.parseDate("2020-10-01","yyyy-MM-dd");
-        for(int i=0;i<31;i++) {
+        Date start = DateUtils.parseDate("2020-11-09","yyyy-MM-dd");
+        for(int i=0;i<3;i++) {
             String dataDate = DateFormatUtils.format(start,"yyyy-MM-dd");
             XiaojiaoData data = new XiaojiaoData();
             data.setDataDate(dataDate);
@@ -116,7 +116,7 @@ public class HttpTest {
 
             System.out.println(JSON.toJSON(data));
 
-            xiaojiaoDataMapper.insertSelective(data);
+            //xiaojiaoDataMapper.insertSelective(data);
         }
 
     }
