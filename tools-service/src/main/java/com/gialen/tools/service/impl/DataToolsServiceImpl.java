@@ -134,6 +134,7 @@ public class DataToolsServiceImpl implements DataToolsService {
         itemList.add(storeOrderItem);
         itemList.add(vipOrderItem);
         dataToolsModel.setItems(itemList);
+        log.debug("add by jack...");
         return dataToolsModel;
     }
 
