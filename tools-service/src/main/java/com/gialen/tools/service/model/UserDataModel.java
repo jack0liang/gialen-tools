@@ -3,6 +3,8 @@ package com.gialen.tools.service.model;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 /**
  * 用户数据模型
  * @author lupeibo
@@ -72,5 +74,28 @@ public class UserDataModel {
      */
     private Double oldUserOrderNumRelativeRatio;
 
-
+    /**
+     * 店主客单价
+     */
+    private Double storeAvgPrice;
+    /**
+     * VIP客单价
+     */
+    private Double vipAvgPrice;
+    /**
+     * 店主客单价
+     */
+    private Double storeAvgPriceRelative;
+    /**
+     * VIP客单价
+     */
+    private Double vipAvgPriceRelative;
+    /**
+     * 店主客单价
+     */
+    private Double storeAvgPriceRelativeRatio;
+    /**
+     * VIP客单价
+     */
+    private Double vipAvgPriceRelativeRatio;
 }

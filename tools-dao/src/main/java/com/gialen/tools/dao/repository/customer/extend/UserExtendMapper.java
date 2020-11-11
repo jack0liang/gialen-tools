@@ -2,6 +2,7 @@ package com.gialen.tools.dao.repository.customer.extend;
 
 import com.gialen.tools.dao.dto.DateTimeDto;
 import com.gialen.tools.dao.dto.UserDataDto;
+import com.gialen.tools.dao.dto.UserOrderDto;
 import com.gialen.tools.dao.repository.customer.UserMapper;
 
 import java.util.List;
@@ -16,4 +17,5 @@ public interface UserExtendMapper extends UserMapper {
 
     List<UserDataDto> countUserType(DateTimeDto dateTimeDto);
 
+    List<UserOrderDto> countOrderMoney(String startTime, String endTime);
 }

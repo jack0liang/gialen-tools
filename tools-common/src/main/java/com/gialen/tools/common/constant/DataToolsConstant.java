@@ -43,4 +43,9 @@ public class DataToolsConstant {
     public static final int GIFT_PACKAGE_TYPE = 3;
 
     public static final String LABEL_SALES_DISCOUNT = "折扣率";
+
+
+    public static final String LABEL_VIP_AVG_PRICE = "VIP客单价";
+
+    public static final String LABEL_STORE_AVG_PRICE = "店主客单价";
 }

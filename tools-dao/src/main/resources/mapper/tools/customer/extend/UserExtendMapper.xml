@@ -34,4 +34,13 @@
 	ORDER BY
 		date_format(l.update_time, '%Y%m%d') DESC;
   </select>
+
+	<select id="countOrderMoney" resultType="com.gialen.tools.dao.dto.UserOrderDto">
+		select (case when ul.level_type>1 then 2 else 1 end) utype,count(1) orderNum,SUM(o.money + o.fav_money) orderMoney
+		from gialen_order.orders o
+		inner join user_level ul on o.user_id=ul.user_id and ul.status=1
+		where o.pay_status = 1 and o.is_parent = 1
+		and o.create_time BETWEEN #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+		group by utype
+	</select>
 </mapper>
