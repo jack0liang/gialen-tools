@@ -98,4 +98,29 @@ public class UserDataModel {
      * VIP客单价
      */
     private Double vipAvgPriceRelativeRatio;
+
+    /**
+     * 新用户客单价
+     */
+    private Double newUserAvgPrice;
+    /**
+     * 老用户客单价
+     */
+    private Double oldUserAvgPrice;
+    /**
+     * 店主客单价
+     */
+    private Double newUserAvgPriceRelative;
+    /**
+     * VIP客单价
+     */
+    private Double oldUserAvgPriceRelative;
+    /**
+     * 店主客单价
+     */
+    private Double newUserAvgPriceRelativeRatio;
+    /**
+     * VIP客单价
+     */
+    private Double oldUserAvgPriceRelativeRatio;
 }

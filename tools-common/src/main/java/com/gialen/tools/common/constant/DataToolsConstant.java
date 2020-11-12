@@ -48,4 +48,8 @@ public class DataToolsConstant {
     public static final String LABEL_VIP_AVG_PRICE = "VIP客单价";
 
     public static final String LABEL_STORE_AVG_PRICE = "店主客单价";
+
+    public static final String LABEL_NEW_USER_AVG_PRICE = "新用户客单价";
+
+    public static final String LABEL_OLD_USER_AVG_PRICE = "老用户客单价";
 }

@@ -8,6 +8,7 @@ import com.gialen.tools.common.enums.DataTypeEnum;
 import com.gialen.tools.common.enums.PlatFormTypeEnum;
 import com.gialen.tools.common.enums.RelativeDataTypeEnum;
 import com.gialen.tools.dao.dto.*;
+import com.gialen.tools.dao.entity.customer.User;
 import com.gialen.tools.dao.entity.customer.UserExample;
 import com.gialen.tools.dao.entity.order.Orders;
 import com.gialen.tools.dao.entity.order.OrdersExample;
@@ -35,6 +36,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -103,6 +105,16 @@ public class DataToolsServiceImpl implements DataToolsService {
         userDataModel.setOldUserOrderNumRelativeRatio(calculateRelativeRatio(
                 NumberUtils.createDouble(userDataModel.getOldUserOrderNum() + ""),
                 NumberUtils.createDouble(userDataModel.getOldUserOrderNumRelative() + ""), 4));
+
+        //统计新用户客单价环比
+        userDataModel.setNewUserAvgPriceRelativeRatio(calculateRelativeRatio(
+                NumberUtils.createDouble(userDataModel.getNewUserAvgPrice() + ""),
+                NumberUtils.createDouble(userDataModel.getNewUserAvgPriceRelative() + ""), 4));
+        //统计老用户客单价环比
+        userDataModel.setOldUserAvgPriceRelativeRatio(calculateRelativeRatio(
+                NumberUtils.createDouble(userDataModel.getOldUserAvgPrice() + ""),
+                NumberUtils.createDouble(userDataModel.getOldUserAvgPriceRelative() + ""), 4));
+
         //统计店主客单价环比
         userDataModel.setStoreAvgPriceRelativeRatio(calculateRelativeRatio(
                 NumberUtils.createDouble(userDataModel.getStoreAvgPrice() + ""),
@@ -122,6 +134,12 @@ public class DataToolsServiceImpl implements DataToolsService {
                 String.valueOf(userDataModel.getNewUserOrderNum()), userDataModel.getNewUserOrderNumRelativeRatio());
         ItemModel oldUserOrderNumItem = createItem(DataToolsConstant.LABEL_OLD_USER_ORDER_NUM,
                 String.valueOf(userDataModel.getOldUserOrderNum()), userDataModel.getOldUserOrderNumRelativeRatio());
+
+        ItemModel newUserOrderItem = createItem(DataToolsConstant.LABEL_NEW_USER_AVG_PRICE,
+                String.valueOf(userDataModel.getNewUserAvgPrice()), userDataModel.getNewUserAvgPriceRelativeRatio());
+        ItemModel oldUserOrderItem = createItem(DataToolsConstant.LABEL_OLD_USER_AVG_PRICE,
+                String.valueOf(userDataModel.getOldUserAvgPrice()), userDataModel.getOldUserAvgPriceRelativeRatio());
+
         ItemModel storeOrderItem = createItem(DataToolsConstant.LABEL_STORE_AVG_PRICE,
                 String.valueOf(userDataModel.getStoreAvgPrice()), userDataModel.getStoreAvgPriceRelativeRatio());
         ItemModel vipOrderItem = createItem(DataToolsConstant.LABEL_VIP_AVG_PRICE,
@@ -131,6 +149,8 @@ public class DataToolsServiceImpl implements DataToolsService {
         itemList.add(vipNumItem);
         itemList.add(newUserOrderNumItem);
         itemList.add(oldUserOrderNumItem);
+        itemList.add(newUserOrderItem);
+        itemList.add(oldUserOrderItem);
         itemList.add(storeOrderItem);
         itemList.add(vipOrderItem);
         dataToolsModel.setItems(itemList);
@@ -383,11 +403,21 @@ public class DataToolsServiceImpl implements DataToolsService {
         ordersExample.createCriteria().andPayStatusEqualTo((short) 1).andIsParentEqualTo(true).andCreateTimeBetween(start, end);
         List<Orders> orders = ordersMapper.selectByExample(ordersExample);
         List<Long> userIds = orders.stream().map(Orders::getUserId).collect(Collectors.toList());
+        BigDecimal newUserOrderMoney = BigDecimal.ZERO;
+        BigDecimal oldUserOrderMoney = BigDecimal.ZERO;
         if (!CollectionUtils.isEmpty(userIds)) {
             UserExample userExample = new UserExample();
             userExample.createCriteria().andIdIn(userIds).andCreateTimeBetween(start, end);
-            newUserOrderNum = (int) userMapper.countByExample(userExample);
+            List<User> userList = userMapper.selectByExample(userExample);
+            newUserOrderNum = userList.size();//(int) userMapper.countByExample(userExample);
             oldUserOrderNum = userIds.size() - newUserOrderNum;
+            Set<Long> newUserIds = userList.stream().map(e->e.getId()).collect(Collectors.toSet());
+            for(Orders o:orders){
+                if(newUserIds.contains(o.getUserId()))
+                    newUserOrderMoney = newUserOrderMoney.add(o.getMoney()).add(o.getFavMoney());
+                else
+                    oldUserOrderMoney = oldUserOrderMoney.add(o.getMoney()).add(o.getFavMoney());
+            }
         }
         List<UserOrderDto> userOrderList = userMapper.countOrderMoney(startTime,endTime);
         BigDecimal vipAvgPrice = BigDecimal.ZERO;
@@ -406,11 +436,23 @@ public class DataToolsServiceImpl implements DataToolsService {
             userDataModel.setOldUserOrderNum(oldUserOrderNum);
             userDataModel.setStoreAvgPrice(storeAvgPrice.doubleValue());
             userDataModel.setVipAvgPrice(vipAvgPrice.doubleValue());
+            userDataModel.setNewUserAvgPrice(0d);
+            userDataModel.setOldUserAvgPrice(0d);
+            if(newUserOrderNum>0)
+                userDataModel.setNewUserAvgPrice(newUserOrderMoney.divide(new BigDecimal(newUserOrderNum),2,RoundingMode.HALF_UP).doubleValue());
+            if(oldUserOrderNum>0)
+                userDataModel.setOldUserAvgPrice(oldUserOrderMoney.divide(new BigDecimal(oldUserOrderNum),2,RoundingMode.HALF_UP).doubleValue());
         } else if (RelativeDataTypeEnum.RELATIVE_DATA.equals(dataTypeEnum)) {
             userDataModel.setNewUserOrderNumRelative(newUserOrderNum);
             userDataModel.setOldUserOrderNumRelative(oldUserOrderNum);
             userDataModel.setStoreAvgPriceRelative(storeAvgPrice.doubleValue());
             userDataModel.setVipAvgPriceRelative(vipAvgPrice.doubleValue());
+            userDataModel.setNewUserAvgPriceRelative(0d);
+            userDataModel.setOldUserAvgPriceRelative(0d);
+            if(newUserOrderNum>0)
+                userDataModel.setNewUserAvgPriceRelative(newUserOrderMoney.divide(new BigDecimal(newUserOrderNum),2,RoundingMode.HALF_UP).doubleValue());
+            if(oldUserOrderNum>0)
+                userDataModel.setOldUserAvgPriceRelative(oldUserOrderMoney.divide(new BigDecimal(oldUserOrderNum),2,RoundingMode.HALF_UP).doubleValue());
         }
     }
 
